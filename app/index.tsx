@@ -73,7 +73,6 @@ const styles = StyleSheet.create({
     color: "#004080",
     textAlign: "center",
     marginBottom: 11,
-    fontWeight: 'bold',
     fontFamily: "Inter-SemiBold"
   },
   solganText:{
