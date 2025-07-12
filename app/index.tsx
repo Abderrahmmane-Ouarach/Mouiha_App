@@ -1,13 +1,14 @@
 import { Image, Text, View, StyleSheet, TouchableOpacity, Alert} from "react-native";
-import Video from 'react-native-video';
+import { Link } from "expo-router";
+
 
 export default function App() {
   console.log("hi");
   
   const handleStart = () => {
-    Alert.alert("Bienvenue !", "Navigation vers la suite prévue ici.");
-    // Ici tu peux naviguer avec React Navigation (plus tard)
-  };
+  Alert.alert("Bienvenue !", "Navigation vers la suite prévue ici.");
+};
+
   return (
     <View style={styles.container}>
       {/* Logo */}
@@ -32,13 +33,18 @@ export default function App() {
         style={styles.gif}
       />
 
-  
+  {/* Espacement ajouté ici pour faire remonter le bouton */}
   <View style={{ height: 10}} />
 
-  <TouchableOpacity style={styles.button} onPress={handleStart}>
+  {/* <TouchableOpacity style={styles.button} onPress={handleStart}>
   
   <Text style={styles.buttonText}>➔	  Commencer</Text>
-</TouchableOpacity>
+</TouchableOpacity> */}
+<Link href="/game" asChild>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>➔    Commencer</Text>
+        </TouchableOpacity>
+      </Link>
 
 </View>
 
@@ -90,16 +96,17 @@ color: "#888",
   paddingVertical: 12,
   paddingHorizontal: 25,
   borderRadius: 25,
-  flexDirection: "row", 
+  flexDirection: "row", // ← important
   alignItems: "center",
   justifyContent: "center",
-  gap: 10, 
+  gap: 10, // ou marginRight dans l'icône si React Native < 0.71
 },
 buttonIcon: {
   width: 16,
   height: 16,
   marginRight: 8,
   tintColor: "#fff", 
+},
 buttonText: {
   color: "#fff",
   fontSize: 16,
