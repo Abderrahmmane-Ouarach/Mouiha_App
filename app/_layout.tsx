@@ -1,13 +1,20 @@
-import { Tabs } from 'expo-router';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import HomeScreen from './home/index'
+import QuizScreen from './quiz/index'
+import GamesScreen from './games/index'
+import StoriesScreen from './stories/index'
+import VideosScreen from './videos/index'
 
-export default function Layout() {
+const Tab = createBottomTabNavigator();
+
+export default function AppTabs() {
   return (
-    <Tabs>
-      <Tabs.Screen name="home" options={{ title: 'Home' }} />
-      <Tabs.Screen name="quiz" options={{ title: 'Quiz' }} />
-      <Tabs.Screen name="games" options={{ title: 'Games' }} />
-      <Tabs.Screen name="stories" options={{ title: 'Stories' }} />
-      <Tabs.Screen name="videos" options={{ title: 'Videos' }} />
-    </Tabs>
+    <Tab.Navigator>
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Quiz" component={QuizScreen} />
+      <Tab.Screen name="Games" component={GamesScreen} />
+      <Tab.Screen name="Stories" component={StoriesScreen} />
+      <Tab.Screen name="Videos" component={VideosScreen} />
+    </Tab.Navigator>
   );
 }

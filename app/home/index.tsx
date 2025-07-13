@@ -1,18 +1,25 @@
-import { Image, TouchableOpacity, View, Text, StyleSheet } from "react-native";
+import { useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
+import { Image, 
+    TouchableOpacity, 
+    View, 
+    Text, 
+    StyleSheet } from "react-native";
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 export default function Home(){
+    const navigation = useNavigation<NavigationProp<any>>();
+
     const handleTabPress = (tabName: string) => {
-        // Handle tab press logic here
-        console.log(`Pressed ${tabName} tab`);
+        navigation.navigate(tabName);
     };
 
     return(
         <View style={styles.container}>
             <View>
                 <Image
-                    source={require("../assets/images/logoONEE .png")}
-                    // style={styles.logo}
+                    source={require("../../assets/images/logoONEE .png")}
+                    style={styles.logo}
                     resizeMode="contain"
                 />
                 <TouchableOpacity>
@@ -22,7 +29,7 @@ export default function Home(){
             <View style={styles.placeholder} />
             <View>
                 <Image
-                    source={require("../assets/images/mouiha.png")}
+                    source={require("../../assets/images/mouiha.png")}
                 />
             </View>
             <View style={styles.placeholder} />
@@ -103,6 +110,9 @@ const styles = StyleSheet.create({
     container: {
 
     },
+    logo: {
+        width: 320, height: 60, marginTop: 10 
+      },
     placeholder: {
         marginBottom: 40,
     },
