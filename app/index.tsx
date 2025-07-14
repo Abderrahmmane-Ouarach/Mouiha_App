@@ -1,13 +1,14 @@
-import { Image, Text, View, StyleSheet, TouchableOpacity, Alert} from "react-native";
-import Video from 'react-native-video';
+import { Link } from "expo-router";
+import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
 
 export default function App() {
   console.log("hi");
   
   const handleStart = () => {
-    Alert.alert("Bienvenue !", "Navigation vers la suite prévue ici.");
-    // Ici tu peux naviguer avec React Navigation (plus tard)
-  };
+  Alert.alert("Bienvenue !", "Navigation vers la suite prévue ici.");
+};
+
   return (
     <View style={styles.container}>
       {/* Logo */}
@@ -35,10 +36,15 @@ export default function App() {
   {/* Espacement ajouté ici pour faire remonter le bouton */}
   <View style={{ height: 10}} />
 
-  <TouchableOpacity style={styles.button} onPress={handleStart}>
+  {/* <TouchableOpacity style={styles.button} onPress={handleStart}>
   
   <Text style={styles.buttonText}>➔	  Commencer</Text>
-</TouchableOpacity>
+</TouchableOpacity> */}
+<Link href="/home" asChild>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>➔    Commencer</Text>
+        </TouchableOpacity>
+      </Link>
 
 </View>
 
@@ -52,7 +58,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f8ff", // Couleur douce
+    backgroundColor: "#f0f8ff", 
     alignItems: "center",
     justifyContent: "space-between",
     paddingTop: 50,
@@ -98,7 +104,7 @@ buttonIcon: {
   width: 16,
   height: 16,
   marginRight: 8,
-  tintColor: "#fff", // pour colorer la flèche si elle est en noir
+  tintColor: "#fff", 
 },
 buttonText: {
   color: "#fff",
@@ -111,4 +117,3 @@ buttonText: {
     color: "#888",
   },
 });
-
