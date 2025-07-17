@@ -1,106 +1,48 @@
-import { useNavigation } from '@react-navigation/native';
-import type { NavigationProp } from '@react-navigation/native';
-import { Image, 
-    TouchableOpacity, 
-    View, 
-    Text, 
-    StyleSheet } from "react-native";
+import {
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
+} from "react-native";
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 export default function Home(){
-    const navigation = useNavigation<NavigationProp<any>>();
-
-    const handleTabPress = (tabName: string) => {
-        navigation.navigate(tabName);
-    };
 
     return(
         <View style={styles.container}>
-            <View>
+            <View style={styles.header}>
                 <Image
                     source={require("../../assets/images/logoONEE .png")}
                     style={styles.logo}
                     resizeMode="contain"
                 />
-                <TouchableOpacity>
-                    <MaterialIcons name="settings" />
+                <TouchableOpacity style={styles.iconButton}>
+                    <MaterialIcons name="settings" style={styles.icon} />
                 </TouchableOpacity>
             </View>
             <View style={styles.placeholder} />
-            <View>
+            <View style={styles.mouihaContainer}>
                 <Image
+                    style={styles.mouiha}
                     source={require("../../assets/images/mouiha.png")}
+                    resizeMode="contain"
                 />
             </View>
             <View style={styles.placeholder} />
-            <View>
-                <Text>
+            <View style={styles.blueContainer}>
+                <Text style={styles.blueContainerText}>
                     Welcome to our water awareness app! Learn about the importance of water conservation through fun activities and games.
                 </Text>
             </View>
             <View style={styles.placeholder} />
             <View>
-                <View>
-                    <Text>Did You know ??!</Text>
-                </View>
-                <View style={{ marginBottom: 10}} />
-                <View>
-                    <Text>
-                        Welcome to our water awareness app! Learn about the importance of water conservation through fun activities and games.
+                <View style={styles.didYouKnowCard}>
+                    <Text style={styles.didYouKnowTitle}>Did You know ??!</Text>
+                    <Text style={styles.didYouKnowText}>
+                        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Delectus quam maiores vel. Sed rem aspernatur aut, deserunt deleniti sint incidunt omnis praesentium eaque quam et officiis hic. Vel, sit ducimus.
                     </Text>
                 </View>
-            </View>
-            {/* Bottom Navigation */}
-            <View style={styles.bottomNav}>
-                <TouchableOpacity
-                    style={[styles.navItem, styles.activeNavItem]}
-                    onPress={() => handleTabPress('Home')}
-                >
-                    <View style={styles.navIconPlaceholder}>
-                        <Text style={styles.navIcon}>🏠</Text>
-                    </View>
-                    <Text style={[styles.navText, styles.activeNavText]}>Home</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={styles.navItem}
-                    onPress={() => handleTabPress('Quiz')}
-                >
-                    <View style={styles.navIconPlaceholder}>
-                        <Text style={styles.navIcon}>❓</Text>
-                    </View>
-                    <Text style={styles.navText}>Quiz</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={styles.navItem}
-                    onPress={() => handleTabPress('Games')}
-                >
-                    <View style={styles.navIconPlaceholder}>
-                        <Text style={styles.navIcon}>🎮</Text>
-                    </View>
-                    <Text style={styles.navText}>Games</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={styles.navItem}
-                    onPress={() => handleTabPress('Stories')}
-                >
-                    <View style={styles.navIconPlaceholder}>
-                        <Text style={styles.navIcon}>📚</Text>
-                    </View>
-                    <Text style={styles.navText}>Stories</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={styles.navItem}
-                    onPress={() => handleTabPress('Videos')}
-                >
-                    <View style={styles.navIconPlaceholder}>
-                        <Text style={styles.navIcon}>📺</Text>
-                    </View>
-                    <Text style={styles.navText}>Videos</Text>
-                </TouchableOpacity>
             </View>
         </View>
     );
@@ -108,54 +50,100 @@ export default function Home(){
 
 const styles = StyleSheet.create({
     container: {
-
-    },
-    logo: {
-        width: 320, height: 60, marginTop: 10 
-      },
-    placeholder: {
-        marginBottom: 40,
-    },
-    bottomNav: {
-        flexDirection: 'row',
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        paddingVertical: 10,
-        paddingHorizontal: 5,
-        borderTopWidth: 1,
-        borderTopColor: '#e0e0e0',
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-      },
-      navItem: {
         flex: 1,
-        alignItems: 'center',
-        paddingVertical: 8,
-        borderRadius: 10,
-        marginHorizontal: 2,
-      },
-      activeNavItem: {
-        backgroundColor: 'rgba(33, 150, 243, 0.1)',
-      },
-      navIconPlaceholder: {
-        width: 30,
-        height: 30,
+        backgroundColor: "#e6f2ff", // Softer blue background
+        alignItems: "center",
+        justifyContent: "space-between",
+        paddingTop: 50,
+        paddingBottom: 20,
+    },
+    header: {
+        width: '100%',
+        height: 60,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 4,
-      },
-      navIcon: {
-        fontSize: 18,
-      },
-      navText: {
-        fontSize: 12,
-        color: '#666',
-        fontWeight: '500',
-      },
-      activeNavText: {
-        color: '#2196f3',
+        position: 'relative',
+        marginBottom: 20,
+    },
+    logo: {
+        width: 280,
+        height: 45,
+        alignSelf: 'center',
+    },
+    iconButton: {
+        position: 'absolute',
+        right: 5,
+        top: 5,
+        padding: 8,
+    },
+    icon: {
+        fontSize: 28,
+        color: '#007acc',
+    },
+    placeholder: {
+        marginBottom: 15,
+    },
+    mouihaContainer: {
+        backgroundColor: '#e6f2ff',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 200,
+        height: 200,
+        borderRadius: 100,
+        alignSelf: 'center',
+        padding: 10,
+    },
+    mouiha: {
+        width: 300,
+        height: 300,
+        alignSelf: 'center',
+    },
+    blueContainer: {
+        backgroundColor: '#007acc',
+        padding: 18,
+        borderRadius: 18,
+        marginHorizontal: 16,
+        shadowColor: '#007acc',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.18,
+        shadowRadius: 8,
+        elevation: 4,
+        width: '90%',
+        alignSelf: 'center',
+    },
+    blueContainerText: {
+        color: '#fff',
+        fontSize: 17,
+        textAlign: 'center',
+        fontWeight: '600',
+        letterSpacing: 0.2,
+    },
+    didYouKnowCard: {
+        backgroundColor: '#fff',
+        borderRadius: 16,
+        padding: 16,
+        marginVertical: 10,
+        marginHorizontal: 16,
+        shadowColor: '#007acc',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.10,
+        shadowRadius: 6,
+        elevation: 2,
+        width: '90%',
+        alignSelf: 'center',
+    },
+    didYouKnowTitle: {
+        color: '#007acc',
         fontWeight: 'bold',
-      },
+        fontSize: 16,
+        marginBottom: 6,
+        textAlign: 'center',
+    },
+    didYouKnowText: {
+        color: '#333',
+        fontSize: 15,
+        textAlign: 'center',
+    },
+    
 })
 
