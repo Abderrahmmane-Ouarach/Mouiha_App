@@ -1,13 +1,10 @@
 import { Link } from "expo-router";
 import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-
 export default function App() {
-  console.log("hi");
-  
   const handleStart = () => {
-  Alert.alert("Bienvenue !", "Navigation vers la suite prévue ici.");
-};
+    Alert.alert("Bienvenue !", "Navigation vers la suite prévue ici.");
+  };
 
   return (
     <View style={styles.container}>
@@ -19,36 +16,24 @@ export default function App() {
       />
 
       {/* Section centrale */}
-      
       <View style={styles.centerSection}>
-  <Text style={styles.welcomeText}>
-    Bienvenue à Mouiha!
-  </Text>
-  <Text style={styles.solganText}>
-    Préservons l’eau, protégeons la vie
-  </Text>
+        <Text style={styles.welcomeText}>Bienvenue à Mouiha!</Text>
+        <Text style={styles.sloganText}>Préservons l’eau, protégeons la vie</Text>
 
-  <Image
-        source={require('../assets/images/uyu.gif')}
-        style={styles.gif}
-      />
+        <Image
+          source={require("../assets/images/uyu.gif")}
+          style={styles.gif}
+        />
 
-  {/* Espacement ajouté ici pour faire remonter le bouton */}
-  <View style={{ height: 10}} />
+        <View style={{ height: 10 }} />
 
-  {/* <TouchableOpacity style={styles.button} onPress={handleStart}>
-  
-  <Text style={styles.buttonText}>➔	  Commencer</Text>
-</TouchableOpacity> */}
-<Link href="/home" asChild>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>➔    Commencer</Text>
-        </TouchableOpacity>
-      </Link>
+        <Link href="/quiz" asChild>
+          <TouchableOpacity style={styles.button}>
+            <Text style={styles.buttonText}>➔ Commencer</Text>
+          </TouchableOpacity>
+        </Link>
+      </View>
 
-</View>
-
-      
       {/* Footer */}
       <Text style={styles.footer}>© ONEE - 2025</Text>
     </View>
@@ -58,14 +43,16 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f8ff", 
+    backgroundColor: "#f0f8ff",
     alignItems: "center",
     justifyContent: "space-between",
     paddingTop: 50,
     paddingBottom: 20,
   },
   logo: {
-    width: 320, height: 60, marginTop: 10 
+    width: 320,
+    height: 60,
+    marginTop: 10,
   },
   centerSection: {
     flex: 1,
@@ -79,39 +66,30 @@ const styles = StyleSheet.create({
     color: "#004080",
     textAlign: "center",
     marginBottom: 11,
-    fontFamily: "Inter-SemiBold"
   },
-  solganText:{
-fontSize: 12,
-marginTop:2,
-color: "#888",
-  }, 
+  sloganText: {
+    fontSize: 12,
+    marginTop: 2,
+    color: "#888",
+  },
   gif: {
     width: 200,
     height: 300,
   },
   button: {
-  backgroundColor: "#007acc",
-  paddingVertical: 12,
-  paddingHorizontal: 25,
-  borderRadius: 25,
-  flexDirection: "row", // ← important
-  alignItems: "center",
-  justifyContent: "center",
-  gap: 10, // ou marginRight dans l'icône si React Native < 0.71
-},
-buttonIcon: {
-  width: 16,
-  height: 16,
-  marginRight: 8,
-  tintColor: "#fff", 
-},
-buttonText: {
-  color: "#fff",
-  fontSize: 16,
-  fontWeight: "600",
-},
-
+    backgroundColor: "#007acc",
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 25,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
   footer: {
     fontSize: 14,
     color: "#888",

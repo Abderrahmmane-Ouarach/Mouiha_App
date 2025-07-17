@@ -25,7 +25,7 @@ export default function Home(){
             <View style={styles.mouihaContainer}>
                 <Image
                     style={styles.mouiha}
-                    source={require("../../assets/images/mouiha.png")}
+                    source={require("../../assets/images/uyu.gif")}
                     resizeMode="contain"
                 />
             </View>
@@ -93,6 +93,10 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         padding: 10,
     },
+    gif: {
+    width: 200,
+    height: 300,
+  },
     mouiha: {
         width: 300,
         height: 300,
@@ -146,4 +150,3 @@ const styles = StyleSheet.create({
     },
     
 })
-
