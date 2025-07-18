@@ -1,9 +1,13 @@
+import { useNavigation } from "@react-navigation/native";
+import type { NavigationProp } from "@react-navigation/native"
 import { Link } from "expo-router";
 import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function App() {
+  const navigation = useNavigation<NavigationProp<any>>();
+
   const handleStart = () => {
-    Alert.alert("Bienvenue !", "Navigation vers la suite prévue ici.");
+    navigation.navigate('Main');
   };
 
   return (
@@ -27,8 +31,8 @@ export default function App() {
 
         <View style={{ height: 10 }} />
 
-        <Link href="/quiz" asChild>
-          <TouchableOpacity style={styles.button}>
+        <Link href="/home" asChild>
+          <TouchableOpacity style={styles.button} onPress={handleStart}>
             <Text style={styles.buttonText}>➔ Commencer</Text>
           </TouchableOpacity>
         </Link>
