@@ -16,6 +16,21 @@ export default function Quiz() {
                     resizeMode="contain"
                 />
             </View>
+            <View style={styles.levelContainer}>
+                <Text style={styles.levelTitle}>Choose Your Quiz Level</Text>
+                <Text style={styles.levelSubtitle}>Select the age group that best fits your knowledge about water conservation</Text>
+                <View style={styles.levelButtonsContainer}>
+                    <TouchableOpacity style={styles.levelButton}>
+                        <Text style={styles.levelButtonText}>6 - 9</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.levelButton}>
+                        <Text style={styles.levelButtonText}>10 - 14</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.levelButton}>
+                        <Text style={styles.levelButtonText}>All people</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
         </View>
     );
 }
@@ -25,7 +40,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#e6f2ff", // Softer blue background
         alignItems: "center",
-        justifyContent: "space-between",
+        // justifyContent: "space-between",
         paddingTop: 50,
         paddingBottom: 20,
     },
@@ -55,5 +70,51 @@ const styles = StyleSheet.create({
     placeholder: {
         marginBottom: 15,
     },
-    
+    levelContainer: {
+        backgroundColor: '#fff',
+        borderRadius: 16,
+        padding: 20,
+        marginVertical: 20,
+        marginHorizontal: 16,
+        shadowColor: '#007acc',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.10,
+        shadowRadius: 6,
+        elevation: 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    levelTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#007acc',
+        marginBottom: 8,
+        textAlign: 'center',
+    },
+    levelSubtitle: {
+        fontSize: 14,
+        color: '#555',
+        marginBottom: 18,
+        textAlign: 'center',
+    },
+    levelButtonsContainer: {
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 10,
+    },
+    levelButton: {
+        backgroundColor: '#007acc',
+        paddingVertical: 10,
+        paddingHorizontal: 18,
+        borderRadius: 20,
+        marginVertical: 6,
+        width: 140,
+        alignItems: 'center',
+    },
+    levelButtonText: {
+        color: '#fff',
+        fontSize: 15,
+        fontWeight: '600',
+    },
 })
