@@ -33,7 +33,7 @@ export default function App() {
 
         <Link href="/home" asChild>
           <TouchableOpacity style={styles.button} onPress={handleStart}>
-            <Text style={styles.buttonText}>➔ Commencer</Text>
+            <Text style={styles.buttonText}>الدخول</Text>
           </TouchableOpacity>
         </Link>
       </View>
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily:"Tajawal-Bold"
   },
   footer: {
     fontSize: 14,

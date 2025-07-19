@@ -4,7 +4,7 @@ import GamesScreen from "./games/index";
 import HomeScreen from "./home/index";
 import QuizScreen from "./quiz/index";
 import StoriesScreen from "./stories/index";
-import VideosScreen from "./videos";
+import VideosScreen from "./videos/index";
 
 const Tab = createBottomTabNavigator();
 
@@ -26,11 +26,46 @@ export default function AppTabs() {
         tabBarInactiveTintColor: "#888",
       })}
     >
-      <Tab.Screen name="ال" component={HomeScreen} />
-      <Tab.Screen name="Quiz" component={QuizScreen} />
-      <Tab.Screen name="Games" component={GamesScreen} />
-      <Tab.Screen name="Stories" component={StoriesScreen} />
-      <Tab.Screen name="Videos" component={VideosScreen} />
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          tabBarLabel: "الرئيسية",
+          tabBarLabelStyle: {
+            fontFamily: "Tajawal-Bold", // your custom font
+            color: "#007acc", // you can also set color here
+          },
+        }}
+      />
+      <Tab.Screen name="Quiz" component={QuizScreen} options={{
+          tabBarLabel: "اسئلة",
+          tabBarLabelStyle: {
+            fontFamily: "Tajawal-Bold", // your custom font
+            color: "#007acc", // you can also set color here
+          },
+        }}/>
+      <Tab.Screen name="Games" component={GamesScreen} options={{
+          tabBarLabel: "ألعاب",
+          tabBarLabelStyle: {
+            fontFamily: "Tajawal-Bold", // your custom font
+            color: "#007acc", // you can also set color here
+          },
+        }}/>
+      <Tab.Screen name="Stories" component={StoriesScreen} options={{
+          tabBarLabel: "قصص",
+          tabBarLabelStyle: {
+            fontFamily: "Tajawal-Bold", // your custom font
+            color: "#007acc", // you can also set color here
+          },
+        }}/>
+      <Tab.Screen name="Videos" component={VideosScreen} options={{
+          tabBarLabel: "فيديوهات",
+          tabBarLabelStyle: {
+            fontFamily: "Tajawal-Bold", // your custom font
+            color: "#007acc", // you can also set color here
+          },
+        }}/>
+      
     </Tab.Navigator>
   );
 }

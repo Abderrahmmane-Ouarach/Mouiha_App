@@ -22,10 +22,10 @@ type VideoItem = {
 const screenWidth = Dimensions.get("window").width;
 
 const videoData: VideoItem[] = [
-  { id: "1", youtubeId: "gDqLYqdPEp4", title: "Importance of Water Conservation" },
+  { id: "1", youtubeId: "gDqLYqdPEp4", title: "عاداتنا مع الماء" },
   { id: "2", youtubeId: "-Fe6WU-cJ1g", title: "دورة الماء وأهمية الحفاظ عليه" },
-  { id: "3", youtubeId: "1iDQpgSggws", title: "Water Conservation Tips" },
-  { id: "4", youtubeId: "2sX9Y1F7Qj0", title: "How ONEE is Promoting Water Conservation" },
+  { id: "3", youtubeId: "1iDQpgSggws", title: "الحفاظ على الماء" },
+  { id: "4", youtubeId: "2sX9Y1F7Qj0", title: "..." },
 ];
 
 export default function Videos(): React.JSX.Element {
@@ -181,6 +181,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#222",
     marginBottom: 4,
+    fontFamily: "Tajawal-Bold", 
   },
 
   subtitle: {

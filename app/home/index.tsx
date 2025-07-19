@@ -32,13 +32,13 @@ export default function Home(){
             <View style={styles.placeholder} />
             <View style={styles.blueContainer}>
                 <Text style={styles.blueContainerText}>
-                    Welcome to our water awareness app! Learn about the importance of water conservation through fun activities and games.
+                    مرحبًا بك في تطبيق التوعية بالمياه لدينا! تعرف على أهمية الحفاظ على المياه من خلال الأنشطة الترفيهية والألعاب.
                 </Text>
             </View>
             <View style={styles.placeholder} />
             <View>
                 <View style={styles.didYouKnowCard}>
-                    <Text style={styles.didYouKnowTitle}>Did You know ??!</Text>
+                    <Text style={styles.didYouKnowTitle}>هل تعلم ؟</Text>
                     <Text style={styles.didYouKnowText}>
                         Lorem ipsum, dolor sit amet consectetur adipisicing elit. Delectus quam maiores vel. Sed rem aspernatur aut, deserunt deleniti sint incidunt omnis praesentium eaque quam et officiis hic. Vel, sit ducimus.
                     </Text>
@@ -119,8 +119,9 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 17,
         textAlign: 'center',
-        fontWeight: '600',
-        letterSpacing: 0.2,
+        lineHeight: 24,
+        fontFamily: "Tajawal-Medium",
+    letterSpacing: 0.2,
     },
     didYouKnowCard: {
         backgroundColor: '#fff',
@@ -138,7 +139,8 @@ const styles = StyleSheet.create({
     },
     didYouKnowTitle: {
         color: '#007acc',
-        fontWeight: 'bold',
+        fontFamily:"Tajawal-Bold",
+
         fontSize: 16,
         marginBottom: 6,
         textAlign: 'center',
