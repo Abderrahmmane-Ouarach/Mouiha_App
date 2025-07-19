@@ -1,6 +1,7 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dimensions,
   Image,
@@ -21,37 +22,33 @@ type VideoItem = {
 const screenWidth = Dimensions.get("window").width;
 
 const videoData: VideoItem[] = [
-  {
-    id: "1",
-    youtubeId: "gDqLYqdPEp4",
-    title: "Importance of Water Conservation",
-  },
+  { id: "1", youtubeId: "gDqLYqdPEp4", title: "Importance of Water Conservation" },
   { id: "2", youtubeId: "-Fe6WU-cJ1g", title: "دورة الماء وأهمية الحفاظ عليه" },
-  {
-    id: "3",
-    youtubeId: "1iDQpgSggws",
-    title: "Water Conservationn Tips",
-  },
-  {
-    id: "4",
-    youtubeId: "2sX9Y1F7Qj0",
-    title: "How ONEE is Promoting Water Conservation",
-  },
+  { id: "3", youtubeId: "1iDQpgSggws", title: "Water Conservation Tips" },
+  { id: "4", youtubeId: "2sX9Y1F7Qj0", title: "How ONEE is Promoting Water Conservation" },
 ];
+
 export default function Videos(): React.JSX.Element {
   const navigation = useNavigation();
   const [favorites, setFavorites] = useState<Record<string, boolean>>({});
+  const [watched, setWatched] = useState<Record<string, boolean>>({});
   const [search, setSearch] = useState("");
 
-  const filteredVideos = videoData.filter((video) =>
-    video.title.toLowerCase().includes(search.toLowerCase())
-  );
+  useEffect(() => {
+    (async () => {
+      const data = await AsyncStorage.getItem("watchedVideos");
+      if (data) setWatched(JSON.parse(data));
+    })();
+  }, []);
 
-  const toggleFavorite = (id: string) => {
-    setFavorites((prev) => ({ ...prev, [id]: !prev[id] }));
+  const markAsWatched = async (id: string) => {
+    const updated = { ...watched, [id]: true };
+    setWatched(updated);
+    await AsyncStorage.setItem("watchedVideos", JSON.stringify(updated));
   };
 
   const goToPlayer = (video: VideoItem) => {
+    markAsWatched(video.id);
     navigation.navigate(
       "VideoPlayer" as never,
       {
@@ -64,15 +61,22 @@ export default function Videos(): React.JSX.Element {
     );
   };
 
+  const toggleFavorite = (id: string) => {
+    setFavorites((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const filteredVideos = videoData
+    .filter((video) => video.title.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => {
+      const aWatched = watched[a.id] ?? false;
+      const bWatched = watched[b.id] ?? false;
+      return Number(aWatched) - Number(bWatched); // false (0) comes before true (1)
+    });
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.searchContainer}>
-        <AntDesign
-          name="search1"
-          size={20}
-          color="#999"
-          style={styles.searchIcon}
-        />
+        <AntDesign name="search1" size={20} color="#999" style={styles.searchIcon} />
         <TextInput
           placeholder="بحث"
           style={styles.searchInput}
@@ -84,42 +88,50 @@ export default function Videos(): React.JSX.Element {
 
       {filteredVideos.map((video) => (
         <TouchableOpacity
-  key={video.id}
-  style={styles.card}
-  onPress={() => goToPlayer(video)}
-  activeOpacity={0.8}
->
-  <View style={styles.thumbnailContainer}>
-    <Image
-      source={{ uri: `https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg` }}
-      style={styles.thumbnail}
-    />
-    <AntDesign
-      name="playcircleo"
-      size={48}
-      color="rgba(255, 255, 255, 0.8)"
-      style={styles.playIcon}
-    />
-  </View>
+          key={video.id}
+          style={styles.card}
+          onPress={() => goToPlayer(video)}
+          activeOpacity={0.8}
+        >
+          <View style={styles.thumbnailContainer}>
+            <Image
+              source={{ uri: `https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg` }}
+              style={styles.thumbnail}
+            />
+            <AntDesign
+              name="playcircleo"
+              size={48}
+              color="rgba(255, 255, 255, 0.8)"
+              style={styles.playIcon}
+            />
+          </View>
 
-  <View style={styles.info}>
-    <Text numberOfLines={2} style={styles.title}>{video.title}</Text>
-    <Text style={styles.subtitle}>ONEE </Text>
-  </View>
+          <View style={styles.info}>
+            <Text numberOfLines={2} style={styles.title}>
+              {video.title}
+              {watched[video.id] && (
+                <AntDesign name="checkcircle" size={16} color="green" style={{ marginRight: 7,marginLeft:7}} />
+              )}
+            </Text>
+            <Text style={styles.subtitle}>ONEE</Text>
+          </View>
 
-  <TouchableOpacity onPress={() => toggleFavorite(video.id)} style={styles.favorite}>
-    <AntDesign
-      name={favorites[video.id] ? 'heart' : 'hearto'}
-      size={24}
-      color={favorites[video.id] ? 'red' : '#555'}
-    />
-  </TouchableOpacity>
-</TouchableOpacity>
-
+          <TouchableOpacity onPress={() => toggleFavorite(video.id)} style={styles.favorite}>
+            <AntDesign
+              name={favorites[video.id] ? "heart" : "hearto"}
+              size={24}
+              color={favorites[video.id] ? "red" : "#555"}
+            />
+          </TouchableOpacity>
+        </TouchableOpacity>
       ))}
     </ScrollView>
   );
 }
+
+// styles: نفس الموجودة عندك، يمكن فقط إضافة تنسيق لأيقونة check إن أحببت
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -219,8 +231,7 @@ playIcon: {
   top: '50%',
   left: '50%',
   transform: [{ translateX: -24 }, { translateY: -24 }],
-  // The icon size is 48, so half is 24 to center exactly
-  // Add shadow for better visibility:
+
   
 },
 
