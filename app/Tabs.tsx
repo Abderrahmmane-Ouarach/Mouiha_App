@@ -1,6 +1,6 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import GamesScreen from './games/index';
+import GamesNavigation from './games/navigation';
 import HomeScreen from './home/index';
 import QuizScreen from './quiz/index';
 import StoriesScreen from './stories/index';
@@ -13,13 +13,15 @@ export default function AppTabs() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarIcon: ({ color, size }) => {
+        tabBarIcon: ({ focused, color, size }) => {
           let iconName;
           if (route.name === 'Home') iconName = 'home';
           else if (route.name === 'Quiz') iconName = 'quiz';
           else if (route.name === 'Games') iconName = 'sports-esports';
           else if (route.name === 'Stories') iconName = 'menu-book';
-          else iconName = 'ondemand-video';
+          else if (route.name === 'Videos') iconName = 'ondemand-video';
+          else iconName = 'help';
+
           return <MaterialIcons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: '#007acc',
@@ -28,7 +30,7 @@ export default function AppTabs() {
     >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Quiz" component={QuizScreen} />
-      <Tab.Screen name="Games" component={GamesScreen} />
+      <Tab.Screen name="Games" component={GamesNavigation} />
       <Tab.Screen name="Stories" component={StoriesScreen} />
       <Tab.Screen name="Videos" component={VideosScreen} />
     </Tab.Navigator>

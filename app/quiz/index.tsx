@@ -40,7 +40,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#e6f2ff", // Softer blue background
         alignItems: "center",
-        // justifyContent: "space-between",
         paddingTop: 50,
         paddingBottom: 20,
     },

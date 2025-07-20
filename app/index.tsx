@@ -1,7 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import type { NavigationProp } from "@react-navigation/native"
 import { Link } from "expo-router";
-import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function App() {
   const navigation = useNavigation<NavigationProp<any>>();

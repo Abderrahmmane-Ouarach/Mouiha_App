@@ -1,8 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { useEffect, useState } from 'react';
 import {
-  View, Text, Button, StyleSheet,
-  TouchableOpacity, Animated, Easing,
-  ScrollView, Modal, Alert
+  Alert,
+  Animated,
+  Button,
+  Easing,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -83,6 +91,7 @@ const gameCardsFunction = (level) => {
 };
 
 const App = () => {
+  const navigation = useNavigation();
   const [currentLevel, setCurrentLevel] = useState(1);
   const [cards, setCards] = useState(gameCardsFunction(1));
   const [selectedCards, setSelectedCards] = useState([]);
@@ -186,12 +195,20 @@ const App = () => {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={[styles.headerTitle, { color: currentTheme.color }]}>
-            AquaMemory
-          </Text>
-          <Text style={styles.headerSubtitle}>
-            Jeu de conservation de l'eau
-          </Text>
+          <TouchableOpacity 
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Icon name="times" size={24} color="#666" />
+          </TouchableOpacity>
+          <View style={styles.headerContent}>
+            <Text style={[styles.headerTitle, { color: currentTheme.color }]}>
+              AquaMemory
+            </Text>
+            <Text style={styles.headerSubtitle}>
+              Jeu de conservation de l&apos;eau
+            </Text>
+          </View>
         </View>
 
         {/* Level Info */}
@@ -376,18 +393,28 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   header: {
+    flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
-  },
-  headerTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  headerSubtitle: {
-    fontSize: 16,
-    color: '#666',
-  },
+    paddingHorizontal: 10,
+},
+backButton: {
+  padding: 8,
+  marginRight: 10,
+},
+headerContent: {
+  flex: 1,
+  alignItems: 'center',
+},
+headerTitle: {
+  fontSize: 32,
+  fontWeight: 'bold',
+  marginBottom: 5,
+},
+headerSubtitle: {
+  fontSize: 16,
+  color: '#666',
+},
   levelInfo: {
     backgroundColor: 'white',
     padding: 15,
