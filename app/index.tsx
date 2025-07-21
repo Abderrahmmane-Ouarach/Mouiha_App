@@ -1,14 +1,13 @@
+import type { NavigationProp } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
-import type { NavigationProp } from "@react-navigation/native"
-import { Link } from "expo-router";
-import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function App() {
   const navigation = useNavigation<NavigationProp<any>>();
 
   const handleStart = () => {
-    navigation.navigate('Main');
-  };
+  navigation.navigate("Main", { screen: "Home" });
+};
 
   return (
     <View style={styles.container}>
@@ -31,11 +30,9 @@ export default function App() {
 
         <View style={{ height: 10 }} />
 
-        <Link href="/home" asChild>
-          <TouchableOpacity style={styles.button} onPress={handleStart}>
-            <Text style={styles.buttonText}>الدخول</Text>
-          </TouchableOpacity>
-        </Link>
+        <TouchableOpacity style={styles.button} onPress={handleStart}>
+  <Text style={styles.buttonText}>الدخول</Text>
+</TouchableOpacity>
       </View>
 
       {/* Footer */}
@@ -96,7 +93,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontSize: 18,
-    fontFamily:"Tajawal-Bold"
+    fontFamily: "Tajawal-Bold",
   },
   footer: {
     fontSize: 14,

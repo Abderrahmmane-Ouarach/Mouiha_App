@@ -161,6 +161,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 25,
     fontSize: 15,
+    fontFamily: "Tajawal-Regular",
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowOffset: { width: 0, height: 2 },
