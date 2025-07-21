@@ -1,6 +1,7 @@
+import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+
 import React, { useEffect, useState } from "react";
 import {
   Dimensions,
@@ -76,7 +77,12 @@ export default function Videos(): React.JSX.Element {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.searchContainer}>
-        <AntDesign name="search1" size={20} color="#999" style={styles.searchIcon} />
+        <AntDesign
+          name="search1"
+          size={20}
+          color="#999"
+          style={styles.searchIcon}
+        />
         <TextInput
           placeholder="بحث"
           style={styles.searchInput}
@@ -95,7 +101,9 @@ export default function Videos(): React.JSX.Element {
         >
           <View style={styles.thumbnailContainer}>
             <Image
-              source={{ uri: `https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg` }}
+              source={{
+                uri: `https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg`,
+              }}
               style={styles.thumbnail}
             />
             <AntDesign
@@ -110,17 +118,25 @@ export default function Videos(): React.JSX.Element {
             <Text numberOfLines={2} style={styles.title}>
               {video.title}
               {watched[video.id] && (
-                <AntDesign name="checkcircle" size={16} color="green" style={{ marginRight: 7,marginLeft:7}} />
+                <AntDesign
+                  name="checkcircle"
+                  size={16}
+                  color="green"
+                  style={{ marginRight: 7, marginLeft: 7 }}
+                />
               )}
             </Text>
             <Text style={styles.subtitle}>ONEE</Text>
           </View>
 
-          <TouchableOpacity onPress={() => toggleFavorite(video.id)} style={styles.favorite}>
-            <AntDesign
-              name={favorites[video.id] ? "heart" : "hearto"}
+          <TouchableOpacity
+            onPress={() => toggleFavorite(video.id)}
+            style={styles.favorite}
+          >
+            <FontAwesome
+              name={favorites[video.id] ? "bookmark" : "bookmark-o"}
               size={24}
-              color={favorites[video.id] ? "red" : "#555"}
+              color={favorites[video.id] ? "#007acc" : "#555"}
             />
           </TouchableOpacity>
         </TouchableOpacity>
@@ -128,10 +144,6 @@ export default function Videos(): React.JSX.Element {
     </ScrollView>
   );
 }
-
-// styles: نفس الموجودة عندك، يمكن فقط إضافة تنسيق لأيقونة check إن أحببت
-
-
 
 const styles = StyleSheet.create({
   container: {
@@ -181,7 +193,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#222",
     marginBottom: 4,
-    fontFamily: "Tajawal-Bold", 
+    fontFamily: "Tajawal-Bold",
   },
 
   subtitle: {
@@ -222,18 +234,15 @@ const styles = StyleSheet.create({
     paddingVertical: 0, // to align text vertically center on Android/iOS
   },
   thumbnailContainer: {
-  position: 'relative',
-  width: '100%',
-  height: screenWidth * 0.52,
-  backgroundColor: '#ccc',
-},
-playIcon: {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: [{ translateX: -24 }, { translateY: -24 }],
-
-  
-},
-
+    position: "relative",
+    width: "100%",
+    height: screenWidth * 0.52,
+    backgroundColor: "#ccc",
+  },
+  playIcon: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: [{ translateX: -24 }, { translateY: -24 }],
+  },
 });
