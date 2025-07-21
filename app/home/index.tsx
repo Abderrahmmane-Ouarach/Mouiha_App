@@ -40,7 +40,7 @@ export default function Home(){
                 <View style={styles.didYouKnowCard}>
                     <Text style={styles.didYouKnowTitle}>هل تعلم ؟</Text>
                     <Text style={styles.didYouKnowText}>
-                        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Delectus quam maiores vel. Sed rem aspernatur aut, deserunt deleniti sint incidunt omnis praesentium eaque quam et officiis hic. Vel, sit ducimus.
+                        أن كل قطرة ماء مهمة؟ الحفاظ على المياه يساعد في حماية البيئة وضمان توفرها للأجيال القادمة.
                     </Text>
                 </View>
             </View>
@@ -149,6 +149,8 @@ const styles = StyleSheet.create({
         color: '#333',
         fontSize: 15,
         textAlign: 'center',
+        fontFamily: "Tajawal-Regular",
+        lineHeight: 22,
     },
     
 })
