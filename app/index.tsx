@@ -1,14 +1,13 @@
+import type { NavigationProp } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
-import type { NavigationProp } from "@react-navigation/native"
-import { Link } from "expo-router";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function App() {
   const navigation = useNavigation<NavigationProp<any>>();
 
   const handleStart = () => {
-    navigation.navigate('Main');
-  };
+  navigation.navigate("Main", { screen: "Home" });
+};
 
   return (
     <View style={styles.container}>
@@ -21,8 +20,8 @@ export default function App() {
 
       {/* Section centrale */}
       <View style={styles.centerSection}>
-        <Text style={styles.welcomeText}>Bienvenue à Mouiha!</Text>
-        <Text style={styles.sloganText}>Préservons l’eau, protégeons la vie</Text>
+        <Text style={styles.welcomeText}>مرحبا بكم في تطبيق مويهة !</Text>
+        <Text style={styles.sloganText}>بالوعي... نحمي نعمة الماء</Text>
 
         <Image
           source={require("../assets/images/uyu.gif")}
@@ -31,11 +30,9 @@ export default function App() {
 
         <View style={{ height: 10 }} />
 
-        <Link href="/home" asChild>
-          <TouchableOpacity style={styles.button} onPress={handleStart}>
-            <Text style={styles.buttonText}>➔ Commencer</Text>
-          </TouchableOpacity>
-        </Link>
+        <TouchableOpacity style={styles.button} onPress={handleStart}>
+  <Text style={styles.buttonText}>الدخول</Text>
+</TouchableOpacity>
       </View>
 
       {/* Footer */}
@@ -63,10 +60,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 20,
+    marginTop: -10,
   },
   welcomeText: {
     fontSize: 23,
-    fontWeight: "600",
+    fontFamily: "Tajawal-ExtraBold",
     color: "#004080",
     textAlign: "center",
     marginBottom: 11,
@@ -75,10 +73,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 2,
     color: "#888",
+    fontFamily: "Tajawal-Bold",
   },
   gif: {
     width: 200,
     height: 300,
+    marginTop: 20,
+    marginBottom: -15,
   },
   button: {
     backgroundColor: "#007acc",
@@ -91,11 +92,12 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 18,
+    fontFamily: "Tajawal-Bold",
   },
   footer: {
     fontSize: 14,
     color: "#888",
+    marginBottom: 15,
   },
 });

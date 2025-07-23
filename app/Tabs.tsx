@@ -15,17 +15,15 @@ export default function AppTabs() {
         headerShown: false,
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-          if (route.name === 'Home') iconName = 'home';
-          else if (route.name === 'Quiz') iconName = 'quiz';
-          else if (route.name === 'Games') iconName = 'sports-esports';
-          else if (route.name === 'Stories') iconName = 'menu-book';
-          else if (route.name === 'Videos') iconName = 'ondemand-video';
-          else iconName = 'help';
-
+          if (route.name === "Home") iconName = "home";
+          else if (route.name === "Quiz") iconName = "quiz";
+          else if (route.name === "Games") iconName = "sports-esports";
+          else if (route.name === "Stories") iconName = "menu-book";
+          else iconName = "ondemand-video";
           return <MaterialIcons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#007acc',
-        tabBarInactiveTintColor: '#888',
+        tabBarActiveTintColor: "#007acc",
+        tabBarInactiveTintColor: "#888",
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
@@ -33,6 +31,48 @@ export default function AppTabs() {
       <Tab.Screen name="Games" component={GamesNavigation} />
       <Tab.Screen name="Stories" component={StoriesScreen} />
       <Tab.Screen name="Videos" component={VideosScreen} />
+      
+      
+      <Tab.Screen name="Games" component={GamesNavigation} options={{
+          tabBarLabel: "ألعاب",
+          tabBarLabelStyle: {
+            fontFamily: "Tajawal-Bold", // your custom font
+            color: "#007acc", // you can also set color here
+          },
+        }}/>
+      <Tab.Screen name="Stories" component={StoriesScreen} options={{
+          tabBarLabel: "قصص",
+          tabBarLabelStyle: {
+            fontFamily: "Tajawal-Bold", // your custom font
+            color: "#007acc", // you can also set color here
+          },
+        }}/>
+        <Tab.Screen name="Quiz" component={QuizScreen} options={{
+          tabBarLabel: "اسئلة",
+          tabBarLabelStyle: {
+            fontFamily: "Tajawal-Bold", // your custom font
+            color: "#007acc", // you can also set color here
+          },
+        }}/>
+      <Tab.Screen name="Videos" component={VideosScreen} options={{
+          tabBarLabel: "فيديوهات",
+          tabBarLabelStyle: {
+            fontFamily: "Tajawal-Bold", // your custom font
+            color: "#007acc", // you can also set color here
+          },
+        }}/>
+        <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          tabBarLabel: "الرئيسية",
+          tabBarLabelStyle: {
+            fontFamily: "Tajawal-Bold", // your custom font
+            color: "#007acc", // you can also set color here
+          },
+        }}
+      />
+      
     </Tab.Navigator>
   );
 }

@@ -1,59 +1,249 @@
+import { AntDesign, FontAwesome } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
+
+import React, { useEffect, useState } from "react";
 import {
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Dimensions,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
-export default function Videos() {
-    return(
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <Image
-                    source={require("../../assets/images/logoONEE .png")}
-                    style={styles.logo}
-                    resizeMode="contain"
-                />
-            </View>
-        </View>
+type VideoItem = {
+  id: string;
+  youtubeId: string;
+  title: string;
+};
+
+const screenWidth = Dimensions.get("window").width;
+
+const videoData: VideoItem[] = [
+  { id: "1", youtubeId: "gDqLYqdPEp4", title: "عاداتنا مع الماء" },
+  { id: "2", youtubeId: "-Fe6WU-cJ1g", title: "دورة الماء وأهمية الحفاظ عليه" },
+  { id: "3", youtubeId: "1iDQpgSggws", title: "الحفاظ على الماء" },
+  { id: "4", youtubeId: "2sX9Y1F7Qj0", title: "..." },
+];
+
+export default function Videos(): React.JSX.Element {
+  const navigation = useNavigation();
+  const [favorites, setFavorites] = useState<Record<string, boolean>>({});
+  const [watched, setWatched] = useState<Record<string, boolean>>({});
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    (async () => {
+      const data = await AsyncStorage.getItem("watchedVideos");
+      if (data) setWatched(JSON.parse(data));
+    })();
+  }, []);
+
+  const markAsWatched = async (id: string) => {
+    const updated = { ...watched, [id]: true };
+    setWatched(updated);
+    await AsyncStorage.setItem("watchedVideos", JSON.stringify(updated));
+  };
+
+  const goToPlayer = (video: VideoItem) => {
+    markAsWatched(video.id);
+    navigation.navigate(
+      "VideoPlayer" as never,
+      {
+        video: {
+          id: video.id,
+          title: video.title,
+          url: `https://www.youtube.com/embed/${video.youtubeId}`,
+        },
+      } as never
     );
+  };
+
+  const toggleFavorite = (id: string) => {
+    setFavorites((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const filteredVideos = videoData
+    .filter((video) => video.title.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => {
+      const aWatched = watched[a.id] ?? false;
+      const bWatched = watched[b.id] ?? false;
+      return Number(aWatched) - Number(bWatched); // false (0) comes before true (1)
+    });
+
+  return (
+    <ScrollView contentContainerStyle={styles.container}>
+      <View style={styles.searchContainer}>
+        <AntDesign
+          name="search1"
+          size={20}
+          color="#999"
+          style={styles.searchIcon}
+        />
+        <TextInput
+          placeholder="بحث"
+          style={styles.searchInput}
+          value={search}
+          onChangeText={setSearch}
+          placeholderTextColor="#999"
+        />
+      </View>
+
+      {filteredVideos.map((video) => (
+        <TouchableOpacity
+          key={video.id}
+          style={styles.card}
+          onPress={() => goToPlayer(video)}
+          activeOpacity={0.8}
+        >
+          <View style={styles.thumbnailContainer}>
+            <Image
+              source={{
+                uri: `https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg`,
+              }}
+              style={styles.thumbnail}
+            />
+            <AntDesign
+              name="playcircleo"
+              size={48}
+              color="rgba(255, 255, 255, 0.8)"
+              style={styles.playIcon}
+            />
+          </View>
+
+          <View style={styles.info}>
+            <Text numberOfLines={2} style={styles.title}>
+              {video.title}
+              {watched[video.id] && (
+                <AntDesign
+                  name="checkcircle"
+                  size={16}
+                  color="green"
+                  style={{ marginRight: 7, marginLeft: 7 }}
+                />
+              )}
+            </Text>
+            <Text style={styles.subtitle}>ONEE</Text>
+          </View>
+
+          <TouchableOpacity
+            onPress={() => toggleFavorite(video.id)}
+            style={styles.favorite}
+          >
+            <FontAwesome
+              name={favorites[video.id] ? "bookmark" : "bookmark-o"}
+              size={24}
+              color={favorites[video.id] ? "#007acc" : "#555"}
+            />
+          </TouchableOpacity>
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#e6f2ff", // Softer blue background
-        alignItems: "center",
-        justifyContent: "space-between",
-        paddingTop: 50,
-        paddingBottom: 20,
-    },
-    header: {
-        width: '100%',
-        height: 60,
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'relative',
-        marginBottom: 20,
-    },
-    logo: {
-        width: 280,
-        height: 45,
-        alignSelf: 'center',
-    },
-    iconButton: {
-        position: 'absolute',
-        right: 5,
-        top: 5,
-        padding: 8,
-    },
-    icon: {
-        fontSize: 28,
-        color: '#007acc',
-    },
-    placeholder: {
-        marginBottom: 15,
-    },
-    
-})
+  container: {
+    paddingTop: 30,
+    paddingBottom: 40,
+    backgroundColor: "#f7f9fc",
+    alignItems: "center",
+  },
+  searchInput: {
+    width: screenWidth * 0.92,
+    height: 45,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    backgroundColor: "#fff",
+    marginTop: 10,
+    marginBottom: 25,
+    fontSize: 15,
+    fontFamily: "Tajawal-Regular",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  card: {
+    width: screenWidth * 0.92,
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    marginBottom: 22,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  thumbnail: {
+    width: "100%",
+    height: screenWidth * 0.52, // 16:9 ratio
+    backgroundColor: "#ccc",
+  },
+  info: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#222",
+    marginBottom: 4,
+    fontFamily: "Tajawal-Bold",
+  },
+
+  subtitle: {
+    fontSize: 13,
+    color: "#777",
+  },
+  favorite: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    backgroundColor: "#ffffffcc",
+    padding: 6,
+    borderRadius: 50,
+  },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: screenWidth * 0.92,
+    height: 45,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    marginTop: 10,
+    marginBottom: 25,
+    paddingHorizontal: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 15,
+    color: "#222",
+    paddingVertical: 0, // to align text vertically center on Android/iOS
+  },
+  thumbnailContainer: {
+    position: "relative",
+    width: "100%",
+    height: screenWidth * 0.52,
+    backgroundColor: "#ccc",
+  },
+  playIcon: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: [{ translateX: -24 }, { translateY: -24 }],
+  },
+});
