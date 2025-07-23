@@ -29,8 +29,19 @@ const videoData: VideoItem[] = [
   { id: "4", youtubeId: "2sX9Y1F7Qj0", title: "..." },
 ];
 
+type RootStackParamList = {
+  VideoPlayer: {
+    video: {
+      id: string;
+      title: string;
+      url: string;
+    };
+  };
+  // Add other routes if needed
+};
+
 export default function Videos(): React.JSX.Element {
-  const navigation = useNavigation();
+  const navigation = useNavigation<import('@react-navigation/native').NavigationProp<RootStackParamList>>();
   const [favorites, setFavorites] = useState<Record<string, boolean>>({});
   const [watched, setWatched] = useState<Record<string, boolean>>({});
   const [search, setSearch] = useState("");
@@ -50,16 +61,13 @@ export default function Videos(): React.JSX.Element {
 
   const goToPlayer = (video: VideoItem) => {
     markAsWatched(video.id);
-    navigation.navigate(
-      "VideoPlayer" as never,
-      {
-        video: {
-          id: video.id,
-          title: video.title,
-          url: `https://www.youtube.com/embed/${video.youtubeId}`,
-        },
-      } as never
-    );
+    navigation.navigate("VideoPlayer", {
+      video: {
+        id: video.id,
+        title: video.title,
+        url: `https://www.youtube.com/embed/${video.youtubeId}`,
+      },
+    });
   };
 
   const toggleFavorite = (id: string) => {
@@ -152,22 +160,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f7f9fc",
     alignItems: "center",
   },
-  searchInput: {
-    width: screenWidth * 0.92,
-    height: 45,
-    paddingHorizontal: 14,
-    borderRadius: 12,
-    backgroundColor: "#fff",
-    marginTop: 10,
-    marginBottom: 25,
-    fontSize: 15,
-    fontFamily: "Tajawal-Regular",
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 2,
-  },
+  
   card: {
     width: screenWidth * 0.92,
     backgroundColor: "#fff",
@@ -232,6 +225,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     color: "#222",
+    fontFamily: "Tajawal-Regular",
     paddingVertical: 0, // to align text vertically center on Android/iOS
   },
   thumbnailContainer: {
