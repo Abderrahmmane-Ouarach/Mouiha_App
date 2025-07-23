@@ -37,6 +37,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000',
     justifyContent: 'center',
+    marginTop: 30,
   },
   video: {
     width: screenWidth,

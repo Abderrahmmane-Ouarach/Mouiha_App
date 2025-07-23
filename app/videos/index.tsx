@@ -51,14 +51,14 @@ export default function Videos(): React.JSX.Element {
   const goToPlayer = (video: VideoItem) => {
     markAsWatched(video.id);
     navigation.navigate(
-      "VideoPlayer" as never,
+      "VideoPlayer",
       {
         video: {
           id: video.id,
           title: video.title,
           url: `https://www.youtube.com/embed/${video.youtubeId}`,
         },
-      } as never
+      }
     );
   };
 
@@ -153,6 +153,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   searchInput: {
+    flex: 1,
+    color: "#222",
+    paddingVertical: 0,
     width: screenWidth * 0.92,
     height: 45,
     paddingHorizontal: 14,
@@ -227,12 +230,6 @@ const styles = StyleSheet.create({
   },
   searchIcon: {
     marginRight: 8,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 15,
-    color: "#222",
-    paddingVertical: 0, // to align text vertically center on Android/iOS
   },
   thumbnailContainer: {
     position: "relative",
