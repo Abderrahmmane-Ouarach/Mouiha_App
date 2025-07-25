@@ -27,6 +27,11 @@ export default function App() {
           source={require("../assets/images/uyu.gif")}
           style={styles.gif}
         />
+        <Image  
+          source={require("../assets/images/1753462668554.png")}
+          style={{ width: 200, height: 200, marginTop: 0, marginBottom: 0}}
+          resizeMode="contain"
+        />
 
         <View style={{ height: 10 }} />
 
@@ -79,7 +84,7 @@ const styles = StyleSheet.create({
     width: 200,
     height: 300,
     marginTop: 20,
-    marginBottom: -15,
+    marginBottom: -120,
   },
   button: {
     backgroundColor: "#007acc",
