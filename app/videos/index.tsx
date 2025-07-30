@@ -127,7 +127,7 @@ export default function Videos(): React.JSX.Element {
               {video.title}
               {watched[video.id] && (
                 <AntDesign
-                  name="checkcircle"
+                  name="check"
                   size={16}
                   color="green"
                   style={{ marginRight: 7, marginLeft: 7 }}

@@ -13,10 +13,10 @@ export default function Home(){
         <View style={styles.container}>
             <View style={styles.header}>
                 <Image
-                    source={require("../../assets/images/logoONEE .png")}
-                    style={styles.logo}
-                    resizeMode="contain"
-                />
+          source={require("../../assets/images/1753462668554.png")}
+          style={{ width: 185, height: 185, marginTop: 0, marginBottom: 0 }}
+          resizeMode="contain"
+        />
                 <TouchableOpacity style={styles.iconButton}>
                     <MaterialIcons name="settings" style={styles.icon} />
                 </TouchableOpacity>
