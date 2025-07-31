@@ -2,7 +2,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import GamesNavigation from './games/navigation';
 import HomeScreen from './home/index';
-import QuizScreen from './quiz/index';
+import QuizNavigator from './quizz/navigation'
 import StoriesScreen from './stories/index';
 import VideosNavigation from './videos/navigation';
 
@@ -43,7 +43,7 @@ export default function AppTabs() {
             // color: "#007acc", // you can also set color here
           },
         }}/>
-        <Tab.Screen name="Quiz" component={QuizScreen} options={{
+        <Tab.Screen name="Quiz" component={QuizNavigator} options={{
             tabBarLabel: "أسئلة",
             tabBarLabelStyle: {
               fontFamily: "Tajawal-Bold", // your custom font
