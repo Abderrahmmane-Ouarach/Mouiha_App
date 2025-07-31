@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontFamily: "Tajawal-Bold",
     marginBottom: 20,
-    
+    lineHeight:28,
     textAlign: "right",
     writingDirection: "rtl",
     color: "#1a1a1a",
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
   },
   optionText: {
     fontSize: 18,
-    fontFamily: "Tajawal-Regular",
+    fontFamily: "Tajawal-Medium",
     textAlign: "right",
     writingDirection: "rtl",
   },
@@ -230,13 +230,15 @@ const styles = StyleSheet.create({
     borderColor: "#ffe082",
     borderWidth: 1,
     
+    
   },
   explanationText: {
     fontSize: 18,
     color: "#7c5d00",
     textAlign: "right",
     writingDirection: "rtl",
-    fontFamily: "Tajawal-bold",
+    fontFamily: "Tajawal-Medium",
+    lineHeight:25,
   },
   nextButton: {
     backgroundColor: "#007acc",

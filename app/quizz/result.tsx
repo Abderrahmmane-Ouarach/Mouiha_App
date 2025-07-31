@@ -38,7 +38,10 @@ export default function Result() {
           </TouchableOpacity>
         </>
       ) : (
-        <Text style={styles.congratsText}>أحسنت! أجبت على جميع الأسئلة بشكل صحيح 🎉</Text>
+        <Text style={styles.congratsText}>
+  أحسنت!{'\n'}أجبت على جميع الأسئلة بشكل صحيح 🎉
+</Text>
+
       )}
 
       <TouchableOpacity
@@ -56,10 +59,11 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#E8F6FF',
     flexGrow: 1,
+    
   },
   title: {
-    fontSize: 26,
-    fontWeight: 'bold',
+    fontSize: 20,
+    
     marginBottom: 15,
     marginTop:70,
     textAlign: 'center',
@@ -69,12 +73,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginBottom: 20,
     textAlign: 'center',
-    fontFamily: 'Tajawal-Regular',
+    fontFamily: 'Tajawal-Medium',
   },
   subtitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
+    fontSize: 18,
+    marginTop:32,
+    marginBottom: 20,
     textAlign: 'right',
     fontFamily: 'Tajawal-Bold',
   },
@@ -85,8 +89,8 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   questionText: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 14,
+    
     textAlign: 'right',
     fontFamily: 'Tajawal-Bold',
   },
@@ -94,9 +98,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 5,
     textAlign: 'right',
-    fontFamily: 'TajawaL',
+    fontFamily: 'Tajawal-Regular',
   },
   retryButton: {
+    marginTop:50,
     backgroundColor: '#dc3545',
     padding: 15,
     borderRadius: 10,
@@ -105,16 +110,15 @@ const styles = StyleSheet.create({
   },
   retryButtonText: {
     color: 'white',
-    fontWeight: 'bold',
     fontSize: 16,
     fontFamily: 'Tajawal-Bold',
   },
   congratsText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 16,
     color: '#28a745',
     textAlign: 'center',
     marginBottom: 20,
+    lineHeight:26,
     fontFamily: 'Tajawal-Bold',
   },
   backButton: {
@@ -125,7 +129,6 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     color: 'white',
-    fontWeight: 'bold',
     fontSize: 16,
     fontFamily: 'Tajawal-Bold',
   },
