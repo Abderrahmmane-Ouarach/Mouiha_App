@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   card: {
     width: screenWidth * 0.92,
     backgroundColor: "#fff",
-    borderRadius: 14,
+    borderRadius: 8,
     marginBottom: 22,
     overflow: "hidden",
     shadowColor: "#000",

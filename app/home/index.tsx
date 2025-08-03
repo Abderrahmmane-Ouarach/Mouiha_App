@@ -42,7 +42,7 @@ export default function Home() {
           <Text style={styles.didYouKnowTitle}>هل تعلم ؟</Text>
           <Text style={styles.didYouKnowText}>
             أن كل قطرة ماء مهمة؟ الحفاظ على المياه يساعد في حماية البيئة وضمان
-            توفرها للأجيال القادمة.
+            توفرها للأجيال القادمة
           </Text>
         </View>
       </View>
