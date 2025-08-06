@@ -1,75 +1,129 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   Animated,
-  Button,
   Easing,
   Modal,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
+  Dimensions
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-// [FR] Thèmes de conservation de l'eau par niveau
+const { width, height } = Dimensions.get('window');
+
 const WATER_THEMES = {
   1: {
-    title: "Sources d'eau",
-    icons: ['tint', 'tint', 'cloud', 'cloud', 'tree', 'tree'],
+    title: "قطرات الماء الأولى",
+    icons: ['tint', 'tint', 'cloud', 'cloud'],
     tips: [
-      "Les rivières et les lacs fournissent de l'eau douce aux communautés",
-      "La récupération des eaux de pluie réduit le gaspillage",
-      "Les arbres aident à maintenir le cycle de l'eau"
+      "💧 كل قطرة ماء مهمة - لا تضيعها!",
+      "🌧️ مياه الأمطار كنز مجاني - اجمعها!"
     ],
-    color: '#4A90E2'
+    fact: "قطرة واحدة كل ثانية = 30 لتر مهدور شهرياً! 😱",
+    color: '#3498DB',
+    difficulty: '⭐ مبتدئ',
+    targetTime: 30,
+    reward: "🏆 محافظ مبتدئ على المياه",
+    xp: 100
   },
   2: {
-    title: "Économie d'eau",
-    icons: ['tint', 'tint', 'recycle', 'recycle', 'leaf', 'leaf', 'droplet', 'droplet'],
+    title: "بيتك الذكي",
+    icons: ['shower', 'shower', 'home', 'home', 'wrench', 'wrench'],
     tips: [
-      "Recycler l'eau diminue la consommation",
-      "Les plantes ont besoin d'eau, mais trop en gaspille",
-      "Chaque goutte compte dans la préservation de l'eau"
+      "🚿 5 دقائق استحمام = توفير 75 لتر يومياً",
+      "🔧 إصلاح التسرب = 15,000 لتر سنوياً",
+      "💡 الغسالة الممتلئة توفر 50 لتر"
     ],
-    color: '#2ECC71'
+    fact: "أسرتك تستطيع توفير 150 لتر يومياً بخطوات بسيطة! 🏠",
+    color: '#2ECC71',
+    difficulty: '⭐⭐ متقدم',
+    targetTime: 40,
+    reward: "🏆 خبير البيت الذكي",
+    xp: 200
   },
   3: {
-    title: "Pollution de l'eau",
-    icons: ['tint', 'tint', 'trash', 'trash', 'industry', 'industry', 'warning', 'warning'],
+    title: "حارس البيئة",
+    icons: ['leaf', 'leaf', 'recycle', 'recycle', 'shield', 'shield', 'industry', 'industry'],
     tips: [
-      "Les déchets industriels polluent les sources d'eau",
-      "Les détritus dans l'eau nuisent à la vie aquatique",
-      "Une eau propre est essentielle à la santé"
+      "🏭 70% من التلوث سببه المصانع",
+      "🔬 الفلاتر تزيل 99% من البكتيريا",
+      "🌱 النباتات تنقي المياه طبيعياً",
+      "♻️ لا تلقي الزيوت في المجاري"
     ],
-    color: '#E74C3C'
+    fact: "مليار إنسان بلا مياه نظيفة - كن جزء من الحل! 🌍",
+    color: '#E74C3C',
+    difficulty: '⭐⭐⭐ محترف',
+    targetTime: 50,
+    reward: "🏆 حارس البيئة المائية",
+    xp: 300
   },
   4: {
-    title: "Solutions pour l'eau",
-    icons: ['tint', 'tint', 'filter', 'filter', 'wrench', 'wrench', 'recycle', 'recycle', 'leaf', 'leaf'],
+    title: "تقني المستقبل",
+    icons: ['cogs', 'cogs', 'tree', 'tree', 'filter', 'filter', 'mobile', 'mobile', 'rocket', 'rocket'],
     tips: [
-      "Les filtres fournissent de l'eau potable",
-      "Réparer les fuites économise des milliers de litres",
-      "Recycler et économiser vont de pair"
+      "💧 الري بالتنقيط يوفر 60% من المياه",
+      "☀️ الطاقة الشمسية لتحلية المياه",
+      "♻️ إعادة تدوير المياه الرمادية",
+      "📱 التطبيقات الذكية تراقب الاستهلاك",
+      "🚀 تقنيات المستقبل في متناولك"
     ],
-    color: '#9B59B6'
+    fact: "التكنولوجيا الحديثة تستطيع توفير 40% من مياه العالم! 🚀",
+    color: '#9B59B6',
+    difficulty: '⭐⭐⭐⭐ خبير',
+    targetTime: 60,
+    reward: "🏆 مهندس المياه المستقبلي",
+    xp: 400
   },
   5: {
-    title: "Crise mondiale de l'eau",
-    icons: ['tint', 'tint', 'globe', 'globe', 'heart', 'heart', 'hand-holding-water', 'hand-holding-water', 'users', 'users', 'exclamation-triangle', 'exclamation-triangle'],
+    title: "بطل المياه العالمي",
+    icons: ['globe', 'globe', 'users', 'users', 'heart', 'heart', 'handshake-o', 'handshake-o', 'star', 'star', 'trophy', 'trophy'],
     tips: [
-      "Des milliards de personnes sont touchées par la pénurie d'eau",
-      "Les communautés doivent collaborer pour la sécurité de l'eau",
-      "Tout le monde mérite un accès à l'eau potable"
+      "🌍 5 مليارات شخص سيواجهون نقص المياه 2030",
+      "💰 كل دولار استثمار = 7 دولار عائد",
+      "🤝 التعاون الدولي ينقذ الأنهار",
+      "📢 التوعية تضاعف فعالية التوفير",
+      "🏆 أنت بطل المياه الآن!",
+      "🌟 تأثيرك يصل للعالم كله"
     ],
-    color: '#34495E'
+    fact: "احتياج المياه سيزيد 55% بحلول 2050 - أنت الحل! 🌟",
+    color: '#34495E',
+    difficulty: '⭐⭐⭐⭐⭐ أسطورة',
+    targetTime: 70,
+    reward: "👑 أسطورة حفظ المياه العالمية",
+    xp: 500
   }
 };
 
-// [FR] Fonction pour mélanger les icônes
-const randomArrFunction = (arr) => {
+const ACHIEVEMENTS = {
+  FIRST_WIN: { id: 'first_win', title: '🏆 أول انتصار', desc: 'بداية رحلتك المائية!', icon: 'trophy', color: '#F39C12', xp: 50 },
+  FAST_LEARNER: { id: 'fast_learner', title: '⚡ متعلم سريع', desc: 'أسرع من البرق!', icon: 'bolt', color: '#E74C3C', xp: 75 },
+  PERFECT_MEMORY: { id: 'perfect_memory', title: '🧠 ذاكرة مثالية', desc: 'دقة لا تُصدق!', icon: 'star', color: '#F1C40F', xp: 100 },
+  WATER_GUARDIAN: { id: 'water_guardian', title: '🛡️ حارس المياه', desc: 'حامي كوكب الأرض!', icon: 'shield', color: '#3498DB', xp: 200 },
+  ECO_EXPERT: { id: 'eco_expert', title: '🌱 خبير بيئي', desc: 'عالم البيئة الصغير!', icon: 'leaf', color: '#27AE60', xp: 150 },
+  STREAK_MASTER: { id: 'streak_master', title: '🔥 سيد المتتاليات', desc: '5 مستويات متتالية!', icon: 'fire', color: '#E67E22', xp: 125 },
+  TIME_CHAMPION: { id: 'time_champion', title: '⏰ بطل الوقت', desc: 'سرعة خارقة!', icon: 'clock-o', color: '#8E44AD', xp: 175 },
+  WATER_SAVER: { id: 'water_saver', title: '💧 موفر المياه', desc: 'كل قطرة تهم!', icon: 'tint', color: '#2980B9', xp: 90 }
+};
+
+const STORAGE_KEYS = {
+  CURRENT_LEVEL: '@water_game_level',
+  TOTAL_SCORE: '@water_game_score',
+  TOTAL_XP: '@water_game_xp',
+  PLAYER_LEVEL: '@water_game_player_level',
+  STREAK: '@water_game_streak',
+  COMPLETED_LEVELS: '@water_game_completed',
+  ACHIEVEMENTS: '@water_game_achievements',
+  STATISTICS: '@water_game_stats'
+};
+
+const shuffleArray = (arr) => {
   const shuffled = [...arr];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -78,232 +132,528 @@ const randomArrFunction = (arr) => {
   return shuffled;
 };
 
-// [FR] Génération des cartes de jeu par niveau
-const gameCardsFunction = (level) => {
+const createGameCards = (level) => {
   const theme = WATER_THEMES[level];
-  const icons = theme.icons;
-  const randomIcons = randomArrFunction(icons);
-  return randomIcons.map((icon, index) => ({
+  const shuffledIcons = shuffleArray(theme.icons);
+  return shuffledIcons.map((icon, index) => ({
     id: index,
     symbol: icon,
     isFlipped: false,
+    isMatched: false,
   }));
 };
 
-const App = () => {
+const WaterMemoryGame = () => {
   const navigation = useNavigation();
+  
   const [currentLevel, setCurrentLevel] = useState(1);
-  const [cards, setCards] = useState(gameCardsFunction(1));
+  const [cards, setCards] = useState([]);
   const [selectedCards, setSelectedCards] = useState([]);
   const [matches, setMatches] = useState(0);
-  const [winMessage, setWinMessage] = useState(new Animated.Value(0));
+  const [attempts, setAttempts] = useState(0);
+  const [mistakes, setMistakes] = useState(0);
   const [gameWon, setGameWon] = useState(false);
+  const [timeStarted, setTimeStarted] = useState(null);
+  const [currentTime, setCurrentTime] = useState(0);
   const [showLevelSelect, setShowLevelSelect] = useState(false);
   const [showTips, setShowTips] = useState(false);
+  const [showFact, setShowFact] = useState(false);
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [showPreview, setShowPreview] = useState(true);
   const [totalScore, setTotalScore] = useState(0);
-  const [attempts, setAttempts] = useState(0);
-  const [timeStarted, setTimeStarted] = useState(null);
   const [completedLevels, setCompletedLevels] = useState(new Set());
+  const [achievements, setAchievements] = useState(new Set());
+  const [statistics, setStatistics] = useState({
+    totalGames: 0,
+    perfectGames: 0,
+    totalTime: 0,
+    averageTime: 0
+  });
+  
+  const [cardAnimation] = useState(new Animated.Value(0));
+  const [winAnimation] = useState(new Animated.Value(0));
+  const [previewAnimation] = useState(new Animated.Value(1));
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!timeStarted) {
-      setTimeStarted(Date.now());
+    let interval = null;
+    if (timeStarted && !gameWon && !showPreview) {
+      interval = setInterval(() => {
+        setCurrentTime(Math.floor((Date.now() - timeStarted) / 1000));
+      }, 1000);
     }
-  }, [cards]);
+    return () => clearInterval(interval);
+  }, [timeStarted, gameWon, showPreview]);
 
-  const cardClickFunction = (card) => {
-    if (!gameWon && selectedCards.length < 2 && !card.isFlipped) {
-      const updatedSelectedCards = [...selectedCards, card];
-      const updatedCards = cards.map((c) =>
-        c.id === card.id ? { ...c, isFlipped: true } : c
-      );
+  const loadGameData = useCallback(async () => {
+    try {
+      const [savedLevel, savedScore, savedLevels, savedAchievements, savedStats] = await Promise.all([
+        AsyncStorage.getItem(STORAGE_KEYS.CURRENT_LEVEL),
+        AsyncStorage.getItem(STORAGE_KEYS.TOTAL_SCORE),
+        AsyncStorage.getItem(STORAGE_KEYS.COMPLETED_LEVELS),
+        AsyncStorage.getItem(STORAGE_KEYS.ACHIEVEMENTS),
+        AsyncStorage.getItem(STORAGE_KEYS.STATISTICS)
+      ]);
 
-      setSelectedCards(updatedSelectedCards);
-      setCards(updatedCards);
-      setAttempts(attempts + 1);
-
-      if (updatedSelectedCards.length === 2) {
-        if (updatedSelectedCards[0].symbol === updatedSelectedCards[1].symbol) {
-          setMatches(matches + 1);
-          setSelectedCards([]);
-          
-          if (matches + 1 === cards.length / 2) {
-            winGameFunction();
-            setGameWon(true);
-          }
-        } else {
-          setTimeout(() => {
-            const flippedCards = updatedCards.map((c) =>
-              updatedSelectedCards.some((s) => s.id === c.id) ?
-                { ...c, isFlipped: false } : c
-            );
-            setSelectedCards([]);
-            setCards(flippedCards);
-          }, 1000);
-        }
-      }
+      if (savedLevel) setCurrentLevel(Math.max(1, parseInt(savedLevel) || 1));
+      if (savedScore) setTotalScore(parseInt(savedScore) || 0);
+      if (savedLevels) setCompletedLevels(new Set(JSON.parse(savedLevels) || []));
+      if (savedAchievements) setAchievements(new Set(JSON.parse(savedAchievements) || []));
+      if (savedStats) setStatistics(JSON.parse(savedStats) || statistics);
+    } catch (error) {
+      console.error('Error loading game data:', error);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, []);
 
-  const winGameFunction = () => {
-    const timeTaken = Math.floor((Date.now() - timeStarted) / 1000);
-    const levelScore = Math.max(100 - attempts * 2 - timeTaken, 20);
-    setTotalScore(totalScore + levelScore);
-    setCompletedLevels(prev => new Set([...prev, currentLevel]));
-    
-    Animated.timing(winMessage, {
-      toValue: 1,
-      duration: 1000,
-      easing: Easing.bounce,
-      useNativeDriver: false,
-    }).start();
-  };
+  const saveGameData = useCallback(async () => {
+    try {
+      await Promise.all([
+        AsyncStorage.setItem(STORAGE_KEYS.CURRENT_LEVEL, currentLevel.toString()),
+        AsyncStorage.setItem(STORAGE_KEYS.TOTAL_SCORE, totalScore.toString()),
+        AsyncStorage.setItem(STORAGE_KEYS.COMPLETED_LEVELS, JSON.stringify([...completedLevels])),
+        AsyncStorage.setItem(STORAGE_KEYS.ACHIEVEMENTS, JSON.stringify([...achievements])),
+        AsyncStorage.setItem(STORAGE_KEYS.STATISTICS, JSON.stringify(statistics))
+      ]);
+    } catch (error) {
+      console.error('Error saving game data:', error);
+    }
+  }, [currentLevel, totalScore, completedLevels, achievements, statistics]);
 
-  const startNewLevel = (level) => {
-    setCurrentLevel(level);
-    setCards(gameCardsFunction(level));
-    setSelectedCards([]);
-    setMatches(0);
-    setWinMessage(new Animated.Value(0));
-    setGameWon(false);
-    setShowLevelSelect(false);
-    setAttempts(0);
-    setTimeStarted(Date.now());
-  };
+  useEffect(() => {
+    loadGameData();
+  }, [loadGameData]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      resetGame();
+    }
+  }, [currentLevel, isLoading]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      saveGameData();
+    }
+  }, [saveGameData, isLoading]);
 
   const resetGame = () => {
-    startNewLevel(currentLevel);
+    const newCards = createGameCards(currentLevel);
+    setCards(newCards);
+    setSelectedCards([]);
+    setMatches(0);
+    setAttempts(0);
+    setMistakes(0);
+    setGameWon(false);
+    setTimeStarted(null);
+    setCurrentTime(0);
+    setShowPreview(true);
+    startPreviewSequence(newCards);
+  };
+
+  const startPreviewSequence = (gameCards) => {
+    const flippedCards = gameCards.map(card => ({ ...card, isFlipped: true }));
+    setCards(flippedCards);
+    
+    // Temps de preview adaptatif selon le niveau
+    const previewTime = Math.max(1500, 2500 - (currentLevel * 200));
+    
+    setTimeout(() => {
+      Animated.timing(previewAnimation, {
+        toValue: 0,
+        duration: 500,
+        easing: Easing.inOut(Easing.quad),
+        useNativeDriver: true,
+      }).start(() => {
+        const hiddenCards = gameCards.map(card => ({ ...card, isFlipped: false }));
+        setCards(hiddenCards);
+        setShowPreview(false);
+        setTimeStarted(Date.now());
+        animateCards();
+      });
+    }, previewTime);
+  };
+
+  const animateCards = () => {
+    cardAnimation.setValue(0);
+    Animated.stagger(30,
+      cards.map(() =>
+        Animated.timing(cardAnimation, {
+          toValue: 1,
+          duration: 200,
+          easing: Easing.out(Easing.back(1.1)),
+          useNativeDriver: true,
+        })
+      )
+    ).start();
+  };
+
+  const checkAchievements = (gameData) => {
+    const newAchievements = new Set([...achievements]);
+    let hasNewAchievement = false;
+
+    if (!achievements.has('first_win') && completedLevels.size === 0) {
+      newAchievements.add('first_win');
+      hasNewAchievement = true;
+    }
+
+    if (!achievements.has('fast_learner') && gameData.time <= WATER_THEMES[currentLevel].targetTime) {
+      newAchievements.add('fast_learner');
+      hasNewAchievement = true;
+    }
+
+    if (!achievements.has('perfect_memory') && gameData.mistakes <= 2) {
+      newAchievements.add('perfect_memory');
+      hasNewAchievement = true;
+    }
+
+    if (!achievements.has('water_guardian') && completedLevels.size + 1 === 5) {
+      newAchievements.add('water_guardian');
+      hasNewAchievement = true;
+    }
+
+    if (!achievements.has('eco_expert') && completedLevels.size + 1 >= 3) {
+      newAchievements.add('eco_expert');
+      hasNewAchievement = true;
+    }
+
+    if (hasNewAchievement) {
+      setAchievements(newAchievements);
+    }
+  };
+
+  const handleCardPress = (pressedCard) => {
+    if (
+      gameWon ||
+      showPreview ||
+      selectedCards.length === 2 ||
+      pressedCard.isFlipped ||
+      pressedCard.isMatched
+    ) {
+      return;
+    }
+
+    const newSelectedCards = [...selectedCards, pressedCard];
+    const newCards = cards.map(card =>
+      card.id === pressedCard.id ? { ...card, isFlipped: true } : card
+    );
+
+    setCards(newCards);
+    setSelectedCards(newSelectedCards);
+    setAttempts(attempts + 1);
+
+    if (newSelectedCards.length === 2) {
+      const [firstCard, secondCard] = newSelectedCards;
+
+      setTimeout(() => {
+        if (firstCard.symbol === secondCard.symbol) {
+          const matchedCards = newCards.map(card =>
+            card.id === firstCard.id || card.id === secondCard.id
+              ? { ...card, isMatched: true }
+              : card
+          );
+
+          setCards(matchedCards);
+          setMatches(matches + 1);
+
+          if (matches + 1 === cards.length / 2) {
+            handleWin();
+          }
+        } else {
+          const resetCards = newCards.map(card =>
+            card.id === firstCard.id || card.id === secondCard.id
+              ? { ...card, isFlipped: false }
+              : card
+          );
+
+          setCards(resetCards);
+          setMistakes(mistakes + 1);
+        }
+
+        setSelectedCards([]);
+      }, 600);
+    }
+  };
+
+  const handleWin = () => {
+    const finalTime = Math.floor((Date.now() - timeStarted) / 1000);
+    const theme = WATER_THEMES[currentLevel];
+
+    const baseScore = 100;
+    const timeBonus = Math.max(0, theme.targetTime - finalTime) * 2;
+    const mistakesPenalty = mistakes * 10;
+    const levelMultiplier = currentLevel;
+    const finalScore = Math.max(20, (baseScore + timeBonus - mistakesPenalty) * levelMultiplier);
+
+    setGameWon(true);
+    setTotalScore(totalScore + finalScore);
+    setCompletedLevels(new Set([...completedLevels, currentLevel]));
+
+    const newStats = {
+      totalGames: statistics.totalGames + 1,
+      perfectGames: statistics.perfectGames + (mistakes <= 2 ? 1 : 0),
+      totalTime: statistics.totalTime + finalTime,
+      averageTime: Math.round((statistics.totalTime + finalTime) / (statistics.totalGames + 1))
+    };
+
+    setStatistics(newStats);
+    checkAchievements({ time: finalTime, mistakes });
+
+    Animated.spring(winAnimation, {
+      toValue: 1,
+      tension: 100,
+      friction: 8,
+      useNativeDriver: true,
+    }).start();
+
+    // Réduction du délai pour montrer les faits plus rapidement
+    setTimeout(() => setShowFact(true), 800);
+  };
+
+  const startLevel = (level) => {
+    setCurrentLevel(level);
+    setShowLevelSelect(false);
+    winAnimation.setValue(0);
+    previewAnimation.setValue(1);
   };
 
   const nextLevel = () => {
     if (currentLevel < 5) {
-      startNewLevel(currentLevel + 1);
+      startLevel(currentLevel + 1);
     } else {
       Alert.alert(
-        "Congratulations!",
-        `You've completed all levels! Final Score: ${totalScore}`,
-        [{ text: "Play Again", onPress: () => startNewLevel(1) }]
+        "مبروك! 🎉",
+        "لقد أكملت جميع المستويات وأصبحت خبيراً في المحافظة على المياه!",
+        [
+          { text: "العب مرة أخرى", onPress: () => startLevel(1) },
+          { text: "عرض الإنجازات", onPress: () => setShowAchievements(true) }
+        ]
       );
     }
   };
 
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Icon name="tint" size={50} color="#3498DB" />
+        <Text style={styles.loadingText}>جاري التحميل...</Text>
+      </View>
+    );
+  }
+
   const currentTheme = WATER_THEMES[currentLevel];
-  const progress = `${matches}/${cards.length / 2}`;
+  const progress = (matches / (cards.length / 2)) * 100;
 
   return (
-    <View style={[styles.container, { backgroundColor: currentTheme.color + '20' }]}>
+    <View style={[styles.container, { backgroundColor: currentTheme.color + '10' }]}>
+      <StatusBar backgroundColor={currentTheme.color} barStyle="light-content" />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* Header */}
+        
         <View style={styles.header}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}
           >
-            <Icon name="times" size={24} color="#666" />
+            <Icon name="times" size={20} color="#666" />
           </TouchableOpacity>
           <View style={styles.headerContent}>
-            <Text style={[styles.headerTitle, { color: currentTheme.color }]}>
-              AquaMemory
-            </Text>
-            <Text style={styles.headerSubtitle}>
-              Jeu de conservation de l&apos;eau
-            </Text>
+            <Text style={styles.headerTitle}>ذاكرة المياه 💧</Text>
+            <Text style={styles.headerSubtitle}>تعلم وحافظ على المياه</Text>
           </View>
-        </View>
-
-        {/* Level Info */}
-        <View style={[styles.levelInfo, { borderColor: currentTheme.color }]}>
-          <Text style={[styles.levelTitle, { color: currentTheme.color }]}>
-            Level {currentLevel}: {currentTheme.title}
-          </Text>
-          <View style={styles.statsRow}>
-            <Text style={styles.statText}>Matches: {progress}</Text>
-            <Text style={styles.statText}>Essaies:{attempts}</Text>
-            <Text style={styles.statText}>Score: {totalScore}</Text>
-          </View>
-        </View>
-
-        {/* Action Buttons */}
-        <View style={styles.buttonRow}>
           <TouchableOpacity
-            style={[styles.actionButton, { backgroundColor: currentTheme.color }]}
-            onPress={() => setShowLevelSelect(true)}
+            style={styles.achievementButton}
+            onPress={() => setShowAchievements(true)}
           >
-            <Icon name="list" size={16} color="white" />
-            <Text style={styles.actionButtonText}>Niveaux</Text>
+            <Icon name="trophy" size={16} color="#F39C12" />
+            <Text style={styles.achievementCount}>{achievements.size}</Text>
           </TouchableOpacity>
+        </View>
+
+        <View style={[styles.gameInfo, { borderColor: currentTheme.color }]}>
+          <Text style={[styles.levelTitle, { color: currentTheme.color }]}>
+            المستوى {currentLevel}: {currentTheme.title}
+          </Text>
+          <Text style={styles.difficulty}>الصعوبة: {currentTheme.difficulty}</Text>
           
+          {showPreview && (
+            <View style={styles.previewContainer}>
+              <Text style={styles.previewText}>احفظ مواقع البطاقات!</Text>
+              <Text style={styles.previewCountdown}>
+                {Math.max(1, Math.ceil((2500 - currentLevel * 200) / 1000))} ثانية
+              </Text>
+              <Animated.View style={[
+                styles.previewIndicator,
+                {
+                  opacity: previewAnimation,
+                  transform: [{
+                    scale: previewAnimation.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.8, 1.2]
+                    })
+                  }]
+                }
+              ]}>
+                <Icon name="eye" size={24} color={currentTheme.color} />
+              </Animated.View>
+            </View>
+          )}
+
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Icon name="puzzle-piece" size={16} color={currentTheme.color} />
+              <Text style={styles.statLabel}>المطابقات</Text>
+              <Text style={[styles.statValue, { color: currentTheme.color }]}>
+                {matches}/{cards.length / 2}
+              </Text>
+            </View>
+            <View style={styles.statItem}>
+              <Icon name="clock-o" size={16} color="#E67E22" />
+              <Text style={styles.statLabel}>الوقت</Text>
+              <Text style={[styles.statValue, { color: '#E67E22' }]}>{currentTime}ث</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Icon name="times-circle" size={16} color="#E74C3C" />
+              <Text style={styles.statLabel}>الأخطاء</Text>
+              <Text style={[styles.statValue, { color: '#E74C3C' }]}>{mistakes}</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Icon name="star" size={16} color="#F39C12" />
+              <Text style={styles.statLabel}>النقاط</Text>
+              <Text style={[styles.statValue, { color: '#F39C12' }]}>{totalScore}</Text>
+            </View>
+          </View>
+
+          <View style={styles.progressContainer}>
+            <View style={styles.progressBar}>
+              <View
+                style={[
+                  styles.progressFill,
+                  {
+                    width: `${progress}%`,
+                    backgroundColor: currentTheme.color
+                  }
+                ]}
+              />
+            </View>
+            <Text style={styles.progressText}>{Math.round(progress)}%</Text>
+          </View>
+        </View>
+
+        <View style={styles.actionButtons}>
           <TouchableOpacity
-            style={[styles.actionButton, { backgroundColor: currentTheme.color }]}
+            style={[styles.actionButton, { backgroundColor: '#2ECC71' }]}
             onPress={() => setShowTips(true)}
           >
             <Icon name="lightbulb-o" size={16} color="white" />
-            <Text style={styles.actionButtonText}>Tips</Text>
+            <Text style={styles.actionButtonText}>نصائح المياه</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: '#9B59B6' }]}
+            onPress={() => setShowLevelSelect(true)}
+          >
+            <Icon name="list" size={16} color="white" />
+            <Text style={styles.actionButtonText}>المستويات</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: '#95A5A6' }]}
+            onPress={resetGame}
+          >
+            <Icon name="refresh" size={16} color="white" />
+            <Text style={styles.actionButtonText}>إعادة</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Game Board */}
-        {gameWon ? (
+        <View style={styles.gameBoard}>
+          <View style={styles.cardsGrid}>
+            {cards.map((card, index) => (
+              <Animated.View
+                key={card.id}
+                style={[
+                  styles.cardContainer,
+                  {
+                    transform: [{
+                      scale: cardAnimation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.8, 1]
+                      })
+                    }]
+                  }
+                ]}
+              >
+                <TouchableOpacity
+                  style={[
+                    styles.card,
+                    card.isFlipped && styles.cardFlipped,
+                    card.isMatched && [styles.cardMatched, { borderColor: '#2ECC71' }],
+                    { borderColor: currentTheme.color }
+                  ]}
+                  onPress={() => handleCardPress(card)}
+                  activeOpacity={0.8}
+                >
+                  {card.isFlipped || card.isMatched ? (
+                    <Icon
+                      name={card.symbol}
+                      size={Math.min(width * 0.06, 28)}
+                      color={card.isMatched ? '#2ECC71' : currentTheme.color}
+                    />
+                  ) : (
+                    <Icon
+                      name="tint"
+                      size={Math.min(width * 0.05, 24)}
+                      color={currentTheme.color + '40'}
+                    />
+                  )}
+                </TouchableOpacity>
+              </Animated.View>
+            ))}
+          </View>
+        </View>
+
+        {gameWon && (
           <Animated.View
             style={[
-              styles.winMessage,
-              { backgroundColor: currentTheme.color + 'DD' }
+              styles.winContainer,
+              {
+                opacity: winAnimation,
+                transform: [{
+                  scale: winAnimation.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.5, 1]
+                  })
+                }]
+              }
             ]}
           >
-            <View style={styles.winMessageContent}>
-              <Icon name="trophy" size={50} color="#FFD700" />
-              <Text style={styles.winText}>Niveau complété!</Text>
-              <Text style={styles.winSubText}>
-                Bien joué!
+            <View style={styles.winContent}>
+              <Icon name="trophy" size={50} color="#F39C12" />
+              <Text style={styles.winTitle}>مبروك! 🎉</Text>
+              <Text style={styles.winDetails}>
+                المستوى {currentLevel} مكتمل في {currentTime} ث
+              </Text>
+              <Text style={styles.winScore}>
+                +{Math.max(20, (100 - mistakes * 10) * currentLevel)} نقطة
               </Text>
               <View style={styles.winButtons}>
-                <Button
-                  title="Restart Level"
+                <TouchableOpacity
+                  style={[styles.winButton, { backgroundColor: currentTheme.color }]}
                   onPress={resetGame}
-                  color={currentTheme.color}
-                />
+                >
+                  <Text style={styles.winButtonText}>إعادة</Text>
+                </TouchableOpacity>
                 {currentLevel < 5 && (
-                  <Button
-                    title="Next Level"
+                  <TouchableOpacity
+                    style={[styles.winButton, { backgroundColor: '#2ECC71' }]}
                     onPress={nextLevel}
-                    color="#2ECC71"
-                  />
+                  >
+                    <Text style={styles.winButtonText}>التالي →</Text>
+                  </TouchableOpacity>
                 )}
               </View>
             </View>
           </Animated.View>
-        ) : (
-          <View style={styles.grid}>
-            {cards.map((card) => (
-              <TouchableOpacity
-                key={card.id}
-                style={[
-                  styles.card,
-                  card.isFlipped && styles.cardFlipped,
-                  { borderColor: currentTheme.color }
-                ]}
-                onPress={() => cardClickFunction(card)}
-              >
-                {card.isFlipped ? (
-                  <Icon
-                    name={card.symbol}
-                    size={30}
-                    style={[styles.cardIcon, { color: currentTheme.color }]}
-                  />
-                ) : (
-                  <Icon
-                    name="tint"
-                    size={20}
-                    style={[styles.cardIcon, { color: currentTheme.color + '40' }]}
-                  />
-                )}
-              </TouchableOpacity>
-            ))}
-          </View>
         )}
       </ScrollView>
 
-      {/* Level Selection Modal */}
       <Modal
         visible={showLevelSelect}
         animationType="slide"
@@ -312,49 +662,54 @@ const App = () => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Choisir un niveau</Text>
-            <ScrollView style={styles.levelList}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>اختر المستوى</Text>
+              <TouchableOpacity onPress={() => setShowLevelSelect(false)}>
+                <Icon name="times" size={24} color="#666" />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.levelsList}>
               {Object.keys(WATER_THEMES).map((level) => {
                 const levelNum = parseInt(level);
                 const theme = WATER_THEMES[levelNum];
                 const isCompleted = completedLevels.has(levelNum);
                 const isLocked = levelNum > 1 && !completedLevels.has(levelNum - 1);
-                
+
                 return (
                   <TouchableOpacity
                     key={level}
                     style={[
-                      styles.levelOption,
-                      { backgroundColor: theme.color + '20' },
-                      isLocked && styles.levelLocked
+                      styles.levelItem,
+                      { borderColor: theme.color },
+                      isLocked && styles.levelLocked,
+                      currentLevel === levelNum && styles.levelCurrent
                     ]}
-                    onPress={() => !isLocked && startNewLevel(levelNum)}
+                    onPress={() => !isLocked && startLevel(levelNum)}
                     disabled={isLocked}
                   >
-                    <View style={styles.levelOptionContent}>
-                      <Text style={[styles.levelOptionText, { Couleur: theme.color }]}>
-                        Niveau {level}: {theme.title}
+                    <View style={styles.levelInfo}>
+                      <Text style={[styles.levelNumber, { color: theme.color }]}>
+                        {level}
                       </Text>
-                      {isCompleted && <Icon name="check" size={20} color="#2ECC71" />}
-                      {isLocked && <Icon name="lock" size={20} color="#95A5A6" />}
+                      <View style={styles.levelDetails}>
+                        <Text style={styles.levelName}>{theme.title}</Text>
+                        <Text style={styles.levelDifficulty}>{theme.difficulty}</Text>
+                        <Text style={styles.levelTarget}>الهدف: {theme.targetTime}ث</Text>
+                      </View>
                     </View>
-                    <Text style={styles.levelDifficulty}>
-                      {levelNum <= 2 ? 'Easy' : levelNum <= 4 ? 'Medium' : 'Hard'}
-                    </Text>
+                    <View style={styles.levelStatus}>
+                      {isCompleted && <Icon name="check-circle" size={20} color="#2ECC71" />}
+                      {isLocked && <Icon name="lock" size={20} color="#95A5A6" />}
+                      {currentLevel === levelNum && <Icon name="play" size={20} color={theme.color} />}
+                    </View>
                   </TouchableOpacity>
                 );
               })}
             </ScrollView>
-            <Button
-              title="Close"
-              onPress={() => setShowLevelSelect(false)}
-              color="#E74C3C"
-            />
           </View>
         </View>
       </Modal>
 
-      {/* Tips Modal */}
       <Modal
         visible={showTips}
         animationType="fade"
@@ -363,20 +718,119 @@ const App = () => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Water Conservation Tips</Text>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>نصائح المحافظة على المياه</Text>
+              <TouchableOpacity onPress={() => setShowTips(false)}>
+                <Icon name="times" size={24} color="#666" />
+              </TouchableOpacity>
+            </View>
             <ScrollView style={styles.tipsList}>
               {currentTheme.tips.map((tip, index) => (
-                <View key={index} style={styles.tipItem}>
-                  <Icon name="tint" size={16} color={currentTheme.color} />
+                <View key={index} style={[styles.tipItem, { borderLeftColor: currentTheme.color }]}>
+                  <View style={[styles.tipNumber, { backgroundColor: currentTheme.color }]}>
+                    <Text style={styles.tipNumberText}>{index + 1}</Text>
+                  </View>
                   <Text style={styles.tipText}>{tip}</Text>
                 </View>
               ))}
             </ScrollView>
-            <Button
-              title="Close"
-              onPress={() => setShowTips(false)}
-              color={currentTheme.color}
-            />
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={showFact}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowFact(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.factModal, { borderColor: currentTheme.color }]}>
+            <Icon name="info-circle" size={40} color={currentTheme.color} />
+            <Text style={styles.factTitle}>هل تعلم؟</Text>
+            <Text style={styles.factText}>{currentTheme.fact}</Text>
+            <TouchableOpacity
+              style={[styles.factButton, { backgroundColor: currentTheme.color }]}
+              onPress={() => setShowFact(false)}
+            >
+              <Text style={styles.factButtonText}>رائع!</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={showAchievements}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowAchievements(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>الإنجازات</Text>
+              <TouchableOpacity onPress={() => setShowAchievements(false)}>
+                <Icon name="times" size={24} color="#666" />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.achievementsList}>
+              {Object.values(ACHIEVEMENTS).map(achievement => {
+                const isUnlocked = achievements.has(achievement.id);
+                return (
+                  <View
+                    key={achievement.id}
+                    style={[
+                      styles.achievementItem,
+                      isUnlocked ? styles.achievementUnlocked : styles.achievementLocked
+                    ]}
+                  >
+                    <View style={[
+                      styles.achievementIcon,
+                      { backgroundColor: isUnlocked ? achievement.color : '#BDC3C7' }
+                    ]}>
+                      <Icon
+                        name={achievement.icon}
+                        size={24}
+                        color={isUnlocked ? 'white' : '#7F8C8D'}
+                      />
+                    </View>
+                    <View style={styles.achievementInfo}>
+                      <Text style={[
+                        styles.achievementTitle,
+                        { color: isUnlocked ? '#2C3E50' : '#95A5A6' }
+                      ]}>
+                        {achievement.title}
+                      </Text>
+                      <Text style={[
+                        styles.achievementDesc,
+                        { color: isUnlocked ? '#34495E' : '#BDC3C7' }
+                      ]}>
+                        {achievement.desc}
+                      </Text>
+                    </View>
+                    {isUnlocked && (
+                      <Icon name="check-circle" size={20} color="#2ECC71" />
+                    )}
+                  </View>
+                );
+              })}
+            </ScrollView>
+            <View style={styles.achievementProgress}>
+              <Text style={styles.progressLabel}>
+                التقدم: {achievements.size}/{Object.keys(ACHIEVEMENTS).length}
+              </Text>
+              <View style={styles.progressBar}>
+                <View
+                  style={[
+                    styles.progressFill,
+                    {
+                      width: `${(achievements.size / Object.keys(ACHIEVEMENTS).length) * 100}%`,
+                      backgroundColor: '#F39C12'
+                    }
+                  ]}
+                />
+              </View>
+            </View>
           </View>
         </View>
       </Modal>
@@ -388,60 +842,161 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#ECF0F1',
+  },
+  loadingText: {
+    fontSize: 18,
+    fontFamily: 'Tajawal-Bold',
+    color: '#3498DB',
+    marginTop: 15,
+  },
   scrollContainer: {
     flexGrow: 1,
-    padding: 20,
+    padding: 15,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
-    paddingHorizontal: 10,
-},
-backButton: {
-  padding: 8,
-  marginRight: 10,
-},
-headerContent: {
-  flex: 1,
-  alignItems: 'center',
-},
-headerTitle: {
-  fontSize: 32,
-  fontWeight: 'bold',
-  marginBottom: 5,
-},
-headerSubtitle: {
-  fontSize: 16,
-  color: '#666',
-},
-  levelInfo: {
+  },
+  backButton: {
+    padding: 10,
+    borderRadius: 20,
     backgroundColor: 'white',
-    padding: 15,
-    borderRadius: 10,
-    borderWidth: 2,
-    marginBottom: 15,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
+  headerContent: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontFamily: 'Tajawal-Bold',
+    color: '#2C3E50',
+    textAlign: 'center',
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    fontFamily: 'Tajawal-Regular',
+    color: '#7F8C8D',
+    textAlign: 'center',
+    marginTop: 2,
+  },
+  achievementButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: 'white',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  achievementCount: {
+    marginLeft: 5,
+    fontSize: 12,
+    fontFamily: 'Tajawal-Bold',
+    color: '#F39C12',
+  },
+  gameInfo: {
+    backgroundColor: 'white',
+    padding: 15,
+    borderRadius: 15,
+    borderWidth: 2,
+    marginBottom: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 4,
+  },
   levelTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: 'Tajawal-Bold',
     textAlign: 'center',
+    marginBottom: 5,
+  },
+  difficulty: {
+    fontSize: 14,
+    fontFamily: 'Tajawal-Regular',
+    color: '#7F8C8D',
+    textAlign: 'center',
+    marginBottom: 15,
+  },
+  previewContainer: {
+    alignItems: 'center',
+    marginBottom: 15,
+    padding: 10,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 10,
+  },
+  previewText: {
+    fontSize: 16,
+    fontFamily: 'Tajawal-Medium',
+    color: '#2C3E50',
     marginBottom: 10,
   },
-  statsRow: {
+  previewCountdown: {
+    fontSize: 20,
+    fontFamily: 'Tajawal-Bold',
+    color: '#E74C3C',
+    marginBottom: 5,
+  },
+  previewIndicator: {
+    padding: 10,
     flexDirection: 'row',
     justifyContent: 'space-around',
+    marginBottom: 15,
   },
-  statText: {
-    fontSize: 14,
-    color: '#666',
+    
+  statItem: {
+    alignItems: 'center',
+    flex: 1,
   },
-  buttonRow: {
+  statLabel: {
+    fontSize: 11,
+    fontFamily: 'Tajawal-Regular',
+    color: '#95A5A6',
+    marginTop: 3,
+    textAlign: 'center',
+  },
+  statValue: {
+    fontSize: 16,
+    fontFamily: 'Tajawal-Bold',
+    marginTop: 2,
+  },
+  progressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  progressBar: {
+    flex: 1,
+    height: 8,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  progressText: {
+    marginLeft: 10,
+    fontSize: 12,
+    fontFamily: 'Tajawal-Bold',
+    color: '#7F8C8D',
+  },
+  actionButtons: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginBottom: 20,
@@ -449,81 +1004,107 @@ headerSubtitle: {
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
     borderRadius: 20,
-    minWidth: 80,
-    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
   },
   actionButtonText: {
     color: 'white',
-    marginLeft: 5,
-    fontSize: 14,
+    marginLeft: 6,
+    fontSize: 12,
+    fontFamily: 'Tajawal-Bold',
   },
-  grid: {
+  gameBoard: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  cardsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    marginTop: 10,
+    maxWidth: width * 0.9,
+  },
+  cardContainer: {
+    margin: width * 0.015,
   },
   card: {
-    width: 70,
-    height: 70,
-    margin: 8,
+    width: width * 0.18,
+    height: width * 0.18,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
     borderRadius: 10,
     borderWidth: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 5,
   },
   cardFlipped: {
     backgroundColor: '#F8F9FA',
   },
-  cardIcon: {
-    textAlign: 'center',
+  cardMatched: {
+    backgroundColor: '#D5EDDA',
+    borderWidth: 3,
   },
-  winMessage: {
+  winContainer: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
+    top: 50,
+    left: 20,
+    right: 20,
     alignItems: 'center',
   },
-  winMessageContent: {
+  winContent: {
     backgroundColor: 'white',
-    padding: 30,
-    borderRadius: 15,
+    padding: 25,
+    borderRadius: 20,
     alignItems: 'center',
-    margin: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowRadius: 12,
+    elevation: 10,
   },
-  winText: {
-    fontSize: 24,
-    fontWeight: 'bold',
+  winTitle: {
+    fontSize: 22,
+    fontFamily: 'Tajawal-Bold',
     color: '#2ECC71',
     marginTop: 10,
+    marginBottom: 5,
   },
-  winSubText: {
-    fontSize: 16,
-    color: '#666',
+  winDetails: {
+    fontSize: 14,
+    fontFamily: 'Tajawal-Regular',
+    color: '#7F8C8D',
     textAlign: 'center',
-    marginVertical: 10,
+    marginBottom: 5,
+  },
+  winScore: {
+    fontSize: 18,
+    fontFamily: 'Tajawal-Bold',
+    color: '#F39C12',
+    marginBottom: 15,
   },
   winButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    marginTop: 15,
+    gap: 15,
+  },
+  winButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    minWidth: 80,
+  },
+  winButtonText: {
+    color: 'white',
+    fontFamily: 'Tajawal-Bold',
+    textAlign: 'center',
   },
   modalOverlay: {
     flex: 1,
@@ -538,58 +1119,201 @@ headerSubtitle: {
     borderRadius: 15,
     maxHeight: '80%',
     width: '90%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 15,
+    fontSize: 18,
+    fontFamily: 'Tajawal-Bold',
     color: '#2C3E50',
   },
-  levelList: {
-    maxHeight: 300,
+  levelsList: {
+    maxHeight: 400,
   },
-  levelOption: {
+  levelItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 15,
     borderRadius: 10,
-    marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    marginBottom: 10,
+    backgroundColor: '#F8F9FA',
   },
   levelLocked: {
     opacity: 0.5,
   },
-  levelOptionContent: {
+  levelCurrent: {
+    backgroundColor: '#E8F5E8',
+  },
+  levelInfo: {
+    flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
   },
-  levelOptionText: {
-    fontSize: 16,
-    fontWeight: '600',
+  levelNumber: {
+    fontSize: 24,
+    fontFamily: 'Tajawal-Bold',
+    marginRight: 15,
+    width: 30,
+    textAlign: 'center',
+  },
+  levelDetails: {
+    flex: 1,
+  },
+  levelName: {
+    fontSize: 14,
+    fontFamily: 'Tajawal-Bold',
+    color: '#2C3E50',
   },
   levelDifficulty: {
     fontSize: 12,
-    color: '#666',
-    marginTop: 5,
+    fontFamily: 'Tajawal-Regular',
+    color: '#7F8C8D',
+    marginTop: 2,
+  },
+  levelTarget: {
+    fontSize: 11,
+    fontFamily: 'Tajawal-Regular',
+    color: '#95A5A6',
+    marginTop: 1,
+  },
+  levelStatus: {
+    width: 30,
+    alignItems: 'center',
   },
   tipsList: {
-    maxHeight: 200,
+    maxHeight: 350,
   },
   tipItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
+    padding: 15,
     marginBottom: 10,
-    padding: 10,
     backgroundColor: '#F8F9FA',
-    borderRadius: 8,
+    borderRadius: 10,
+    borderLeftWidth: 4,
+  },
+  tipNumber: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  tipNumberText: {
+    color: 'white',
+    fontSize: 12,
+    fontFamily: 'Tajawal-Bold',
   },
   tipText: {
     flex: 1,
-    marginLeft: 10,
     fontSize: 14,
+    fontFamily: 'Tajawal-Regular',
     color: '#2C3E50',
+    lineHeight: 20,
+  },
+  factModal: {
+    backgroundColor: 'white',
+    margin: 30,
+    padding: 25,
+    borderRadius: 20,
+    borderWidth: 3,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 10,
+  },
+  factTitle: {
+    fontSize: 20,
+    fontFamily: 'Tajawal-Bold',
+    color: '#2C3E50',
+    marginTop: 10,
+    marginBottom: 15,
+  },
+  factText: {
+    fontSize: 16,
+    fontFamily: 'Tajawal-Regular',
+    color: '#34495E',
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 20,
+  },
+  factButton: {
+    paddingHorizontal: 30,
+    paddingVertical: 12,
+    borderRadius: 25,
+  },
+  factButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontFamily: 'Tajawal-Bold',
+  },
+  achievementsList: {
+    maxHeight: 350,
+  },
+  achievementItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  achievementUnlocked: {
+    backgroundColor: '#FFF3CD',
+    borderColor: '#F39C12',
+    borderWidth: 1,
+  },
+  achievementLocked: {
+    backgroundColor: '#F8F9FA',
+    borderColor: '#E0E0E0',
+    borderWidth: 1,
+  },
+  achievementIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  achievementInfo: {
+    flex: 1,
+  },
+  achievementTitle: {
+    fontSize: 14,
+    fontFamily: 'Tajawal-Bold',
+  },
+  achievementDesc: {
+    fontSize: 12,
+    fontFamily: 'Tajawal-Regular',
+    marginTop: 2,
+  },
+  achievementProgress: {
+    marginTop: 15,
+    alignItems: 'center',
+  },
+  progressLabel: {
+    fontSize: 14,
+    fontFamily: 'Tajawal-Bold',
+    color: '#2C3E50',
+    marginBottom: 8,
+  },
+  statsRow:{
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
 
-export default App;
+export default WaterMemoryGame;

@@ -20,7 +20,7 @@ export default function App() {
 
       {/* Section centrale */}
       <View style={styles.centerSection}>
-        <Text style={styles.welcomeText}>مرحبا بكم في تطبيق مويهة !</Text>
+        <Text style={styles.welcomeText}>مرحبا بكم في مويهة !</Text>
         <Text style={styles.sloganText}>بالوعي... نحمي نعمة الماء</Text>
 
         <Image

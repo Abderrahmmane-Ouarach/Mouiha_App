@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import GameHome from './index'
-import FlipMatcher from './game'
+import FlipMatcher from './game';
+import GameHome from './index';
 
 const Stack = createNativeStackNavigator();
 

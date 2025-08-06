@@ -25,7 +25,7 @@ export default function Home() {
       <View style={styles.placeholder} />
       <View style={styles.blueContainer}>
         <Text style={styles.blueContainerText}>
-          مرحبًا بك في تطبيق التوعية بالمياه لدينا! تعرف على أهمية الحفاظ على
+          مرحبًا بك في تطبيق التوعية بالمياه مويهة! تعرف على أهمية الحفاظ على
           المياه من خلال الأنشطة الترفيهية والألعاب.
         </Text>
       </View>
