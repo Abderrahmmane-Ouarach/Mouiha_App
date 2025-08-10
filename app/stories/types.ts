@@ -2,8 +2,8 @@ export interface Story {
     id: string;
     title: string;
     description: string;
-    coverImage: string | any; // Can be URL string or require() result
-    storyImages: (string | any)[]; // Array of URLs or require() results for story pages
+    coverImage: string | any; 
+    storyImages: (string | any)[]; 
     isFavorite: boolean;
     createdAt: Date;
   }

@@ -62,11 +62,7 @@ const FilterButtons: React.FC<FilterButtonsProps> = ({
             size={20}
             color={currentFilter === 'favorites' ? '#ffffff' : '#3b82f6'}
         />
-        {/* {favoriteCount > 0 && (
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{favoriteCount}</Text>
-          </View>
-        )} */}
+        
       </TouchableOpacity>
     </View>
   );
@@ -74,7 +70,7 @@ const FilterButtons: React.FC<FilterButtonsProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row', // Keep normal row direction
+    flexDirection: 'row', 
     marginBottom: 20,
     backgroundColor: '#ffffff',
     borderRadius: 12,
@@ -100,10 +96,10 @@ const styles = StyleSheet.create({
   },
   filterText: {
     fontSize: 14,
-    fontWeight: '600',
+    
     color: '#3b82f6',
     marginRight: 6,
-    fontFamily: 'Tajawal-Regular', // Replace with Arabic font
+    fontFamily: 'Tajawal-Regular', 
   },
   activeText: {
     color: '#ffffff',

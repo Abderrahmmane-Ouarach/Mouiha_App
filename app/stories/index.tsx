@@ -20,12 +20,10 @@ const StoriesIndex: React.FC = () => {
   const [filteredStories, setFilteredStories] = useState<Story[]>([]);
   const [currentFilter, setCurrentFilter] = useState<'all' | 'favorites'>('all');
 
-  // Load and shuffle stories only on initial mount
   useEffect(() => {
     loadStoriesWithFavorites();
   }, []);
 
-  // Update favorites when component comes into focus (without reshuffling)
   useFocusEffect(
     React.useCallback(() => {
       updateFavoritesOnly();
@@ -46,14 +44,14 @@ const StoriesIndex: React.FC = () => {
       setFilteredStories(storiesWithFavorites);
     } catch (error) {
       console.error('Error loading stories with favorites:', error);
-      // Fallback to shuffle without favorites
+
       const shuffledStories = shuffleArray([...storiesData]);
       setStories(shuffledStories);
       setFilteredStories(shuffledStories);
     }
   };
 
-  // Update only favorite status without reshuffling
+
   const updateFavoritesOnly = async () => {
     // Only update if stories are already loaded
     if (stories.length === 0) return;
@@ -67,7 +65,7 @@ const StoriesIndex: React.FC = () => {
       }));
       
       setStories(updatedStories);
-      // Apply current filter to updated stories
+
       if (currentFilter === 'favorites') {
         setFilteredStories(updatedStories.filter(story => story.isFavorite));
       } else {
@@ -78,7 +76,7 @@ const StoriesIndex: React.FC = () => {
     }
   };
 
-  // Apply filter whenever stories or filter changes
+
   useEffect(() => {
     if (currentFilter === 'favorites') {
       setFilteredStories(stories.filter(story => story.isFavorite));
@@ -91,10 +89,10 @@ const StoriesIndex: React.FC = () => {
     const story = stories.find(s => s.id === storyId);
     if (story) {
       try {
-        // Update AsyncStorage
+        
         await toggleFavoriteStorage(storyId, story.isFavorite);
         
-        // Update local state
+        
         setStories(prevStories =>
           prevStories.map(s =>
             s.id === storyId
@@ -161,26 +159,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    marginTop:22,
+    fontSize: 28,
+    
     color: '#1e40af',
     textAlign: 'center',
     marginBottom: 8,
-    fontFamily: 'Tajawal-Bold', // You can replace with Arabic font
+    fontFamily: 'Tajawal-Bold', 
   },
   subtitle: {
     fontSize: 16,
     color: '#3b82f6',
     textAlign: 'center',
     marginBottom: 20,
-    fontFamily: 'Tajawal-Medium', // You can replace with Arabic font
+    fontFamily: 'Tajawal-Medium', 
   },
   storiesGrid: {
     paddingBottom: 20,
   },
   row: {
     justifyContent: 'space-between',
-    flexDirection: 'row', // Keep normal row direction
+    flexDirection: 'row', 
   },
 });
 

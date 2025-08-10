@@ -11,7 +11,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Story } from '../types';
 
 const { width } = Dimensions.get('window');
-const cardWidth = (width - 48) / 2; // 16px padding on each side + 16px gap
+const cardWidth = (width - 48) / 2; 
 
 interface StoryCardProps {
   story: Story;
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
   favoriteButton: {
     position: 'absolute',
     top: 8,
-    right: 8, // Keep consistent positioning
+    right: 8, 
     backgroundColor: '#ffffff',
     borderRadius: 20,
     padding: 6,
@@ -95,18 +95,18 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    fontWeight: 'bold',
+    
     color: '#1e40af',
     marginBottom: 6,
     lineHeight: 20,
-    textAlign: 'right', // Keep Arabic text aligned to right
-    fontFamily: 'Tajawal-Medium',
+    textAlign: 'right', 
+    fontFamily: 'Tajawal-Bold',
   },
   description: {
     fontSize: 12,
     color: '#64748b',
     lineHeight: 16,
-    textAlign: 'right', // Keep Arabic text aligned to right
+    textAlign: 'right', 
     fontFamily: 'Tajawal-Regular',
   },
 });
