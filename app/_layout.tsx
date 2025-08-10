@@ -27,7 +27,7 @@ export default function RootLayout() {
   return (
     <Stack.Navigator
       initialRouteName="Landing"
-      screenOptions={{ headerShown: false }}
+      screenOptions={{ headerShown: false, }}
     >
       <Stack.Screen name="Landing" component={LandingScreen} />
       <Stack.Screen name="Main" component={AppTabs} />

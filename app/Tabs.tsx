@@ -5,7 +5,7 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import GamesNavigation from "./games/navigation";
 import HomeScreen from "./home/index";
 import QuizNavigator from "./quizz/navigation";
-import StoriesScreen from "./stories/index";
+import StoriesNavigator from "./stories/navigation";
 import VideosNavigation from "./videos/navigation";
 
 const Tab = createBottomTabNavigator();
@@ -31,6 +31,7 @@ export default function AppTabs() {
           tabBarInactiveTintColor: "#888",
           tabBarStyle: {
             flexDirection: "row",
+            backgroundColor: '#000', // dark bar
           },
         })}
         tabBar={(props) => {
@@ -145,7 +146,7 @@ export default function AppTabs() {
         />
         <Tab.Screen
           name="Stories"
-          component={StoriesScreen}
+          component={StoriesNavigator}
           options={{
             tabBarLabel: "قصص",
             tabBarLabelStyle: {

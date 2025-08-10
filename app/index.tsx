@@ -1,6 +1,6 @@
 import type { NavigationProp } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function App() {
   const navigation = useNavigation<NavigationProp<any>>();
@@ -11,6 +11,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#000000" />
       {/* Logo */}
       <Image
         source={require("../assets/images/logoONEE .png")}
