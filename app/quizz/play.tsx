@@ -1,20 +1,22 @@
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from "react-native";
-import { getQuestionsByLevel, Question } from "./lib/questions"; // ✅ Utiliser le type importé
+import { useQuestions } from "../../lib/useQuestions"; 
 import type { QuizStackParamList } from "./types";
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Question } from "../../lib/questions";
 
 type PlayNavigationProp = NativeStackNavigationProp<QuizStackParamList, "Play">;
 type PlayRouteProp = RouteProp<QuizStackParamList, "Play">;
+
 const levelLabels: Record<string, string> = {
   niveau1: "الأول",
   niveau2: "الثاني",
@@ -31,28 +33,15 @@ export default function Play() {
   const navigation = useNavigation<PlayNavigationProp>();
   const route = useRoute<PlayRouteProp>();
 
+  const { level, retryQuestions } = route.params;
+
+  // Utilisation de useQuestions qui gère cache + fetch
+  const { questions, loading } = useQuestions(level, retryQuestions);
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
   const [wrongQuestions, setWrongQuestions] = useState<Question[]>([]);
-
-  const { level, retryQuestions } = route.params;
-  const [questions, setQuestions] = useState<Question[]>([]);
-
-  useEffect(() => {
-    if (retryQuestions && retryQuestions.length > 0) {
-      setQuestions(retryQuestions);
-    } else {
-      getQuestionsByLevel(level).then((q) => {
-        setQuestions(q);
-      });
-    }
-
-    setCurrentIndex(0);
-    setSelectedOption(null);
-    setShowFeedback(false);
-    setWrongQuestions([]);
-  }, [level, retryQuestions]);
 
   const onSelectOption = (index: number) => {
     if (selectedOption !== null) return;
@@ -107,10 +96,29 @@ export default function Play() {
     }
   };
 
+  if (loading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color="#007acc" />
+        <Text
+          style={{
+            marginTop: 10,
+            fontFamily: "Tajawal-Regular",
+            color: "#007acc",
+          }}
+        >
+          جاري تحميل الأسئلة...
+        </Text>
+      </View>
+    );
+  }
+
   if (questions.length === 0) {
     return (
       <View style={styles.centered}>
-        <Text>Aucune question disponible pour ce niveau.</Text>
+        <Text style={{ fontFamily: "Tajawal-Regular" }}>
+          لا توجد أسئلة لهذا المستوى.
+        </Text>
       </View>
     );
   }
@@ -119,7 +127,7 @@ export default function Play() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-<Text style={styles.levelText}>{getArabicLevelLabel(level)}</Text>
+      <Text style={styles.levelText}>{getArabicLevelLabel(level)}</Text>
 
       <Text style={styles.questionCount}>
         السؤال {currentIndex + 1} من {questions.length}
@@ -174,9 +182,9 @@ export default function Play() {
   );
 }
 
+// Garde tes styles inchangés
 const styles = StyleSheet.create({
   container: {
-    
     padding: 20,
     backgroundColor: "#F5F9FC",
     flexGrow: 1,
@@ -197,13 +205,12 @@ const styles = StyleSheet.create({
     textAlign: "right",
     writingDirection: "rtl",
     color: "#333",
-    
   },
   questionText: {
     fontSize: 22,
     fontFamily: "Tajawal-Bold",
     marginBottom: 20,
-    lineHeight:28,
+    lineHeight: 28,
     textAlign: "right",
     writingDirection: "rtl",
     color: "#1a1a1a",
@@ -229,8 +236,6 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     borderColor: "#ffe082",
     borderWidth: 1,
-    
-    
   },
   explanationText: {
     fontSize: 18,
@@ -238,7 +243,7 @@ const styles = StyleSheet.create({
     textAlign: "right",
     writingDirection: "rtl",
     fontFamily: "Tajawal-Medium",
-    lineHeight:25,
+    lineHeight: 25,
   },
   nextButton: {
     backgroundColor: "#007acc",

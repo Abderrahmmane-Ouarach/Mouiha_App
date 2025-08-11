@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Question } from '../lib/questions';
+import { useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Question } from '../../../lib/questions';
 
 type Props = {
   question: Question;
