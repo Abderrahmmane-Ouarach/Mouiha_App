@@ -6,6 +6,7 @@ export type Question = {
   options: string[];
   correctIndex: number;
   explanation: string;
+  imageUrl?: string;
 };
 
 export async function getQuestionsByLevel(level: string): Promise<Question[]> {
@@ -24,10 +25,13 @@ export async function getQuestionsByLevel(level: string): Promise<Question[]> {
   console.log("✅ Supabase data:", data);
 
   return (data || []).map((q) => ({
-    id: q.id,
-    question: q.question ?? '',
-    options: q.options ?? [],
-    correctIndex: q.correct_index ?? 0,
-    explanation: q.explanation ?? '',
-  }));
+  id: q.id,
+  question: q.question ?? '',
+  options: q.options ?? [],
+  correctIndex: q.correct_index ?? 0,
+  explanation: q.explanation ?? '',
+  imageUrl: q.image_url?.replace(/^"+|"+$/g, '') ?? '' 
+}));
+
 }
+
