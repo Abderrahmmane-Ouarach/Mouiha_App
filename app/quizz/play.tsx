@@ -58,7 +58,6 @@ export default function Play() {
       setWrongQuestions((prev) => [...prev, questions[currentIndex]]);
     }
 
-    // Faire défiler vers le bas pour voir explication et bouton
     setTimeout(() => {
       scrollViewRef.current?.scrollToEnd({ animated: true });
     }, 100);
@@ -145,7 +144,6 @@ export default function Play() {
 
       
 
-      {/* صورة السؤال (إذا موجودة) */}
       {question.imageUrl ? (
   <View
     style={{
@@ -158,7 +156,7 @@ export default function Play() {
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.1,
       shadowRadius: 4,
-      elevation: 3, // للأندرويد
+      elevation: 3,
     }}
   >
     <Image
@@ -171,13 +169,13 @@ export default function Play() {
     />
   </View>
 ) : (
-  // View فارغ لكن بمساحة ثابتة للحفاظ على التنسيق
+
   <View
     style={{
       width: '100%',
       height: 4,
       marginBottom: 15,
-      backgroundColor: 'transparent', // أو لون خفيف إذا أردت
+      backgroundColor: 'transparent',      
     }}
   />
 )}
@@ -188,7 +186,6 @@ export default function Play() {
 
       {showFeedback ? (
         <>
-          {/* Affiche uniquement la réponse sélectionnée et la bonne réponse */}
 
           <View style={{ marginBottom: -5 }}>
             
@@ -203,7 +200,14 @@ export default function Play() {
                 },
               ]}
             >
-              <Text style={styles.optionText}>{question.options[selectedOption!]}</Text>
+              <Text style={[
+    styles.optionText,
+    { color: selectedOption === question.correctIndex ? "#28a745" : "#dc3545" }
+]}>
+    {selectedOption === question.correctIndex ? "✓ " : "✗ "}
+    {question.options[selectedOption!]}
+</Text>
+
             </View>
           </View>
 
@@ -234,7 +238,7 @@ export default function Play() {
           </TouchableOpacity>
         </>
       ) : (
-        // Affiche toutes les options tant que l'utilisateur n'a pas répondu
+
         question.options.map((option, idx) => {
           const isPressed = pressedOption === idx;
 
@@ -271,7 +275,7 @@ export default function Play() {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: "#E8F4FD", // أزرق فاتح مريح
+    backgroundColor: "#E8F4FD", 
     flexGrow: 1,
   },
   
@@ -308,7 +312,6 @@ const styles = StyleSheet.create({
     borderColor: "#007acc",
     backgroundColor: "white",
     justifyContent: "center",
-    // لمسة ظل خفيف لتصبح الخيارات مرتفعة قليلا
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -345,6 +348,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderColor: "#ffffff",
+    marginTop: -10,
   
     
   },
@@ -375,7 +379,7 @@ const styles = StyleSheet.create({
   textAlign: "right",
   writingDirection: "rtl",
   color: "#004a8f",
-  marginTop: 35,
+  marginTop: 5,
   flexDirection: "column",
   alignItems: "flex-end",
   paddingHorizontal: 20,
@@ -399,11 +403,11 @@ progressBarFill: {
   top: 0,
   bottom: 0,
   backgroundColor: "#123456",
-  borderRadius: 5, // لكي يتناسب مع الحواف في progressBarContainer
+  borderRadius: 5,    
   zIndex: 1,
   justifyContent: "center",
   alignItems: "center",
-  paddingHorizontal: 5,  // بعض المسافة لتجنب تقطيع النص عند الأطراف
+  paddingHorizontal: 5,  
   flexDirection: "row",
 },
 

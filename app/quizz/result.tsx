@@ -42,7 +42,12 @@ export default function Result() {
   أحسنت!{'\n'}أجبت على جميع الأسئلة بشكل صحيح 🎉
 </Text>
 
+
+
       )}
+      <Text style={[styles.congratsTtext]}>
+  يمكنك الآن الانتقال إلى المستوى التالي 
+</Text>
 
       <TouchableOpacity
         style={styles.backButton}
@@ -60,12 +65,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#E8F6FF',
     flexGrow: 1,
     
+    
   },
   title: {
     fontSize: 20,
     
     marginBottom: 15,
-    marginTop:70,
+    marginTop:100,
     textAlign: 'center',
     fontFamily: 'Tajawal-Bold',
   },
@@ -116,6 +122,14 @@ const styles = StyleSheet.create({
   congratsText: {
     fontSize: 16,
     color: '#28a745',
+    textAlign: 'center',
+    marginBottom: 20,
+    lineHeight:26,
+    fontFamily: 'Tajawal-Bold',
+  },
+  congratsTtext: {
+    fontSize: 16,
+    color: '#000000ff',
     textAlign: 'center',
     marginBottom: 20,
     lineHeight:26,
