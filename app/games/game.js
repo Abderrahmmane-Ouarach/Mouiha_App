@@ -20,8 +20,12 @@ const { width, height } = Dimensions.get('window');
 
 const WATER_THEMES = {
   1: {
-    title: "قطرات الماء الأولى",
-    icons: ['tint', 'tint', 'cloud', 'cloud'],
+    title: "المستوى الأول",
+    icons: ['tint', 'tint', 'shower', 'shower'],
+    iconTips: {
+      tint: "💧 كل قطرة ماء تحتوي على مليارات الجزيئات وهي أساس الحياة على الأرض",
+      shower: "🚿 الاستحمام لمدة 10 دقائق يستهلك 150 لتر من الماء - قلل المدة لتوفر المياه"
+    },
     tips: [
       "💧 كل قطرة ماء مهمة - لا تضيعها!",
       "🌧️ مياه الأمطار كنز مجاني - اجمعها!"
@@ -34,8 +38,13 @@ const WATER_THEMES = {
     xp: 100
   },
   2: {
-    title: "بيتك الذكي",
-    icons: ['shower', 'shower', 'home', 'home', 'wrench', 'wrench'],
+    title: " المستوى الثاني",
+    icons: ['home', 'home', 'wrench', 'wrench', 'faucet', 'faucet'],
+    iconTips: {
+      home: "🏠 البيت المتوسط يستهلك 300 لتر يومياً - يمكن تقليلها إلى النصف بالوعي",
+      wrench: "🔧 إصلاح التسرب الصغير يوفر 15000 لتر سنوياً - فحص دوري ضروري",
+      faucet: "🚰 الصنبور المفتوح لدقيقة واحدة يهدر 6 لترات - أغلقه دائماً"
+    },
     tips: [
       "🚿 5 دقائق استحمام = توفير 75 لتر يومياً",
       "🔧 إصلاح التسرب = 15,000 لتر سنوياً",
@@ -49,8 +58,14 @@ const WATER_THEMES = {
     xp: 200
   },
   3: {
-    title: "حارس البيئة",
-    icons: ['leaf', 'leaf', 'recycle', 'recycle', 'shield', 'shield', 'industry', 'industry'],
+    title: " المستوى الثالث",
+    icons: ['leaf', 'leaf', 'recycle', 'recycle', 'industry', 'industry', 'filter', 'filter'],
+    iconTips: {
+      leaf: "🌱 النباتات تنقي المياه طبيعياً وتعيد تدوير الأكسجين - ازرع حديقة مائية",
+      recycle: "♻️ إعادة تدوير المياه الرمادية يقلل الاستهلاك 40% - استخدم مياه الغسيل للري",
+      industry: "🏭 الصناعات تستهلك 22% من المياه العالمية - ادعم المنتجات الصديقة للبيئة",
+      filter: "🔬 الفلاتر الحديثة تزيل 99.9% من الملوثات وتجعل المياه صالحة للشرب"
+    },
     tips: [
       "🏭 70% من التلوث سببه المصانع",
       "🔬 الفلاتر تزيل 99% من البكتيريا",
@@ -65,8 +80,15 @@ const WATER_THEMES = {
     xp: 300
   },
   4: {
-    title: "تقني المستقبل",
-    icons: ['cogs', 'cogs', 'tree', 'tree', 'filter', 'filter', 'mobile', 'mobile', 'rocket', 'rocket'],
+    title: " المستوى الرابع",
+    icons: ['cogs', 'cogs', 'tree', 'tree', 'mobile', 'mobile', 'solar-panel', 'solar-panel', 'database', 'database'],
+    iconTips: {
+      cogs: "⚙️ التقنيات الذكية تراقب استهلاك المياه وتوفر 30% من الاستهلاك تلقائياً",
+      tree: "🌳 الري بالتنقيط يوفر 60% من مياه الزراعة ويزيد إنتاج المحاصيل",
+      mobile: "📱 تطبيقات الهاتف تساعد في مراقبة استهلاك المياه وتقديم نصائح ذكية",
+      'solar-panel': "☀️ الطاقة الشمسية تشغل محطات تحلية المياه بتكلفة أقل وبيئة أنظف",
+      database: "💾 البيانات الضخمة تساعد في توزيع المياه بكفاءة وتوقع مناطق الجفاف"
+    },
     tips: [
       "💧 الري بالتنقيط يوفر 60% من المياه",
       "☀️ الطاقة الشمسية لتحلية المياه",
@@ -82,8 +104,16 @@ const WATER_THEMES = {
     xp: 400
   },
   5: {
-    title: "بطل المياه العالمي",
+    title: " المستوى الخامس",
     icons: ['globe', 'globe', 'users', 'users', 'heart', 'heart', 'handshake-o', 'handshake-o', 'star', 'star', 'trophy', 'trophy'],
+    iconTips: {
+      globe: "🌍 كوكب الأرض 71% مياه لكن 97% منها مالحة - المياه العذبة أثمن من الذهب",
+      users: "👥 التعاون بين المجتمعات يحل أزمة المياه - كل فرد يستطيع إحداث فرق",
+      heart: "❤️ المياه النظيفة تنقذ 5 ملايين طفل سنوياً من الأمراض المائية",
+      'handshake-o': "🤝 الشراكة الدولية ضرورية لحماية الأنهار والبحيرات من التلوث",
+      star: "⭐ أنت نجم في حفظ المياه - قدوة للآخرين في المحافظة على الموارد",
+      trophy: "🏆 بطل المياه العالمي - تأثيرك الإيجابي يصل لملايين الأشخاص"
+    },
     tips: [
       "🌍 5 مليارات شخص سيواجهون نقص المياه 2030",
       "💰 كل دولار استثمار = 7 دولار عائد",
@@ -160,6 +190,8 @@ const WaterMemoryGame = () => {
   const [showFact, setShowFact] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
+  const [showMatchTip, setShowMatchTip] = useState(false);
+  const [currentMatchTip, setCurrentMatchTip] = useState('');
   const [totalScore, setTotalScore] = useState(0);
   const [completedLevels, setCompletedLevels] = useState(new Set());
   const [achievements, setAchievements] = useState(new Set());
@@ -173,6 +205,7 @@ const WaterMemoryGame = () => {
   const [cardAnimation] = useState(new Animated.Value(0));
   const [winAnimation] = useState(new Animated.Value(0));
   const [previewAnimation] = useState(new Animated.Value(1));
+  const [tipAnimation] = useState(new Animated.Value(0));
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -237,6 +270,32 @@ const WaterMemoryGame = () => {
     }
   }, [saveGameData, isLoading]);
 
+  const showEducationalTip = (icon) => {
+    const theme = WATER_THEMES[currentLevel];
+    const tip = theme.iconTips[icon];
+    if (tip) {
+      setCurrentMatchTip(tip);
+      setShowMatchTip(true);
+      
+      Animated.spring(tipAnimation, {
+        toValue: 1,
+        tension: 100,
+        friction: 8,
+        useNativeDriver: true,
+      }).start();
+
+      setTimeout(() => {
+        Animated.timing(tipAnimation, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: true,
+        }).start(() => {
+          setShowMatchTip(false);
+        });
+      }, 3000);
+    }
+  };
+
   const resetGame = () => {
     const newCards = createGameCards(currentLevel);
     setCards(newCards);
@@ -248,6 +307,8 @@ const WaterMemoryGame = () => {
     setTimeStarted(null);
     setCurrentTime(0);
     setShowPreview(true);
+    setShowMatchTip(false);
+    tipAnimation.setValue(0);
     startPreviewSequence(newCards);
   };
 
@@ -255,7 +316,6 @@ const WaterMemoryGame = () => {
     const flippedCards = gameCards.map(card => ({ ...card, isFlipped: true }));
     setCards(flippedCards);
     
-    // Temps de preview adaptatif selon le niveau
     const previewTime = Math.max(1500, 2500 - (currentLevel * 200));
     
     setTimeout(() => {
@@ -355,9 +415,11 @@ const WaterMemoryGame = () => {
 
           setCards(matchedCards);
           setMatches(matches + 1);
+          
+          showEducationalTip(firstCard.symbol);
 
           if (matches + 1 === cards.length / 2) {
-            handleWin();
+            setTimeout(() => handleWin(), 1000);
           }
         } else {
           const resetCards = newCards.map(card =>
@@ -406,7 +468,6 @@ const WaterMemoryGame = () => {
       useNativeDriver: true,
     }).start();
 
-    // Réduction du délai pour montrer les faits plus rapidement
     setTimeout(() => setShowFact(true), 800);
   };
 
@@ -608,6 +669,28 @@ const WaterMemoryGame = () => {
             ))}
           </View>
         </View>
+
+        {showMatchTip && (
+          <Animated.View
+            style={[
+              styles.matchTipContainer,
+              {
+                opacity: tipAnimation,
+                transform: [{
+                  translateY: tipAnimation.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [50, 0]
+                  })
+                }]
+              }
+            ]}
+          >
+            <View style={[styles.matchTipContent, { borderColor: currentTheme.color }]}>
+              <Icon name="info-circle" size={24} color={currentTheme.color} />
+              <Text style={styles.matchTipText}>{currentMatchTip}</Text>
+            </View>
+          </Animated.View>
+        )}
 
         {gameWon && (
           <Animated.View
@@ -958,7 +1041,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     marginBottom: 15,
   },
-    
+  statsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
   statItem: {
     alignItems: 'center',
     flex: 1,
@@ -1052,6 +1139,37 @@ const styles = StyleSheet.create({
   cardMatched: {
     backgroundColor: '#D5EDDA',
     borderWidth: 3,
+  },
+  matchTipContainer: {
+    position: 'absolute',
+    top: height * 0.4,
+    left: 20,
+    right: 20,
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  matchTipContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 15,
+    borderWidth: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    maxWidth: '95%',
+  },
+  matchTipText: {
+    fontSize: 14,
+    fontFamily: 'Tajawal-Medium',
+    color: '#2C3E50',
+    marginLeft: 15,
+    flex: 1,
+    textAlign: 'right',
+    lineHeight: 22,
   },
   winContainer: {
     position: 'absolute',
@@ -1309,10 +1427,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Tajawal-Bold',
     color: '#2C3E50',
     marginBottom: 8,
-  },
-  statsRow:{
-    flexDirection: 'row',
-    alignItems: 'center',
   },
 });
 
