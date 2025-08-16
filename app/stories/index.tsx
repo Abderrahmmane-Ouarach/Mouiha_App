@@ -13,12 +13,51 @@ import { Story } from './types';
 import { storiesData } from './data/storiesData';
 import { shuffleArray } from './utils/arrayUtils';
 import { loadFavorites, toggleFavorite as toggleFavoriteStorage } from './utils/storageUtils';
+import { Asset } from 'expo-asset';
 
 const StoriesIndex: React.FC = () => {
   const navigation = useNavigation();
   const [stories, setStories] = useState<Story[]>([]);
   const [filteredStories, setFilteredStories] = useState<Story[]>([]);
   const [currentFilter, setCurrentFilter] = useState<'all' | 'favorites'>('all');
+
+  useEffect(() => {
+    const loadAssets = async () => {
+      await Asset.loadAsync([
+        require('../../assets/stories/BrossageDesDents/1.jpg'),
+        require('../../assets/stories/BrossageDesDents/2.jpg'),
+        require('../../assets/stories/BrossageDesDents/3.jpg'),
+        require('../../assets/stories/BrossageDesDents/4.jpg'),
+        require('../../assets/stories/BrossageDesDents/5.jpg'),
+        require('../../assets/stories/BrossageDesDents/6.jpg'),
+        require('../../assets/stories/FuiteEau/1.jpg'),
+        require('../../assets/stories/FuiteEau/2.jpg'),
+        require('../../assets/stories/FuiteEau/3.jpg'),
+        require('../../assets/stories/FuiteEau/4.jpg'),
+        require('../../assets/stories/FuiteEau/5.jpg'),
+        require('../../assets/stories/FuiteEau/6.jpg'),
+        require('../../assets/stories/LavageVoiture/1.jpg'),
+        require('../../assets/stories/LavageVoiture/2.jpg'),
+        require('../../assets/stories/LavageVoiture/3.jpg'),
+        require('../../assets/stories/LavageVoiture/4.jpg'),
+        require('../../assets/stories/LavageVoiture/5.jpg'),
+        require('../../assets/stories/LavageVoiture/6.jpg'),
+        require('../../assets/stories/Pollution/1.jpg'),
+        require('../../assets/stories/Pollution/2.jpg'),
+        require('../../assets/stories/Pollution/3.jpg'),
+        require('../../assets/stories/Pollution/4.jpg'),
+        require('../../assets/stories/Pollution/5.jpg'),
+        require('../../assets/stories/Pollution/6.jpg'),
+        require('../../assets/stories/PollutionSourceEau/1.jpg'),
+        require('../../assets/stories/PollutionSourceEau/2.jpg'),
+        require('../../assets/stories/PollutionSourceEau/3.jpg'),
+        require('../../assets/stories/PollutionSourceEau/4.jpg'),
+        require('../../assets/stories/PollutionSourceEau/5.jpg'),
+        require('../../assets/stories/PollutionSourceEau/6.jpg'),
+      ]);
+    };
+    loadAssets();
+  }, []);
 
   // Load and shuffle stories only on initial mount
   useEffect(() => {

@@ -4,115 +4,120 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
+  Animated
 } from "react-native";
+import { useRef } from "react";
 
 const games = [
-    { title: 'ذاكرة الماء', path: 'FlipMacher', image: require('../../assets/images/mouiha.png') },
-    { title: 'التلوين', path: 'FlipMacher', image: require('../../assets/images/mouiha.png') },
-]
+  { title: "ذاكرة الماء", path: "FlipMacher", image: require("../../assets/images/mouiha.png") },
+  { title: "التلوين", path: "FlipMacher", image: require("../../assets/images/mouiha.png") },
+  { title: "احفظ القطرة", path: "SaveTheDrop", image: require("../../assets/images/mouiha.png") },
+];
 
 export default function Games() {
-    const navigation = useNavigation();
-    
-    return(
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <Image
-                    source={require("../../assets/images/logoONEE .png")}
-                    style={styles.logo}
-                    resizeMode="contain"
-                />
-            </View>
-            <View style={styles.gamesGrid}>
-                { games.map((game) => (
-                    <View key={game.title} style={styles.gameCard}>
-                        <TouchableOpacity
-                            style={{ alignItems: 'center', width: '100%' }}
-                            onPress={() => {
-                                console.log('Navigating to game:', game.path);
-                                navigation.navigate(game.path as never);
-                            }}
-                        >
-                            <Image
-                                source={game.image}
-                                style={styles.gameImage}
-                            />
-                            <Text style={styles.gameCardText}>{game.title}</Text>
-                        </TouchableOpacity>
-                    </View>
-                ))}
-            </View>
-        </View>
-    );
+  const navigation = useNavigation();
+
+  // Create an array of refs for animations
+  const scaleAnims = useRef(games.map(() => new Animated.Value(1))).current;
+
+  const handlePress = (path: string) => {
+    navigation.navigate(path as never);
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.header}> ألعاب التوعية بالماء</Text>
+
+      <View style={styles.gamesGrid}>
+        {games.map((game, index) => {
+          const onPressIn = () => {
+            Animated.spring(scaleAnims[index], {
+              toValue: 0.95,
+              useNativeDriver: true,
+            }).start();
+          };
+
+          const onPressOut = () => {
+            Animated.spring(scaleAnims[index], {
+              toValue: 1,
+              friction: 3,
+              useNativeDriver: true,
+            }).start(() => handlePress(game.path));
+          };
+
+          return (
+            <Animated.View
+              key={game.title}
+              style={[styles.gameCard, { transform: [{ scale: scaleAnims[index] }] }]}
+            >
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPressIn={onPressIn}
+                onPressOut={onPressOut}
+                style={{ alignItems: "center", width: "100%" }}
+              >
+                <Image source={game.image} style={styles.gameImage} />
+                <Text style={styles.gameCardText}>{game.title}</Text>
+              </TouchableOpacity>
+            </Animated.View>
+          );
+        })}
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#e6f2ff", // Softer blue background
-        alignItems: "center",
-        paddingTop: 50,
-        paddingBottom: 20,
-    },
-    header: {
-        width: '100%',
-        height: 60,
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'relative',
-        marginBottom: 20,
-    },
-    logo: {
-        width: 280,
-        height: 45,
-        alignSelf: 'center',
-    },
-    iconButton: {
-        position: 'absolute',
-        right: 5,
-        top: 5,
-        padding: 8,
-    },
-    icon: {
-        fontSize: 28,
-        color: '#007acc',
-    },
-    placeholder: {
-        marginBottom: 15,
-    },
-    gamesGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'center',
-        marginTop: 20,
-        gap: 12,
-    },
-    gameCard: {
-        backgroundColor: '#fff',
-        borderRadius: 14,
-        padding: 12,
-        margin: 6,
-        alignItems: 'center',
-        width: 140,
-        shadowColor: '#007acc',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.10,
-        shadowRadius: 6,
-        elevation: 2,
-    },
-    gameImage: {
-        width: 60,
-        height: 60,
-        borderRadius: 10,
-        marginBottom: 8,
-        resizeMode: 'contain',
-        alignSelf: 'center',
-    },
-    gameCardText: {
-        fontSize: 15,
-        color: '#007acc',
-        textAlign: 'center',
-        fontFamily: 'Tajawal-Bold',
-    },
-})
+  container: {
+    flex: 1,
+    backgroundColor: "#e6f2ff",
+    alignItems: "center",
+    paddingTop: 40,
+    paddingBottom: 20,
+  },
+  header: {
+    fontSize: 22,
+    fontFamily: "Tajawal-Bold",
+    color: "#007acc",
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  gamesGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    marginTop: 10,
+    gap: 14,
+  },
+  gameCard: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 14,
+    margin: 6,
+    alignItems: "center",
+    width: 150,
+    shadowColor: "#007acc",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 3,
+    borderWidth: 2,
+    borderColor: "#cce6ff",
+  },
+  gameImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 16,
+    marginBottom: 10,
+    resizeMode: "contain",
+    backgroundColor: "#f0f8ff",
+    padding: 10,
+  },
+  gameCardText: {
+    fontSize: 16,
+    color: "#007acc",
+    textAlign: "center",
+    fontFamily: "Tajawal-Bold",
+  },
+});
