@@ -1,20 +1,56 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import { useState, useEffect } from "react";
+
+const didYouKnowData = [
+  "70٪ من سطح الأرض مغطى بالمياه، ولكن أقل من 1٪ فقط صالح للشرب.",
+  "تسرب صنبور بمعدل قطرة في الثانية يمكن أن يهدر أكثر من 11,000 لتر ماء في السنة.",
+  "غسل السيارة بدلو ماء بدل الخرطوم يوفر أكثر من 200 لتر في كل غسلة.",
+  "زراعة الأرز تستهلك كميات ضخمة من المياه مقارنة بمحاصيل أخرى.",
+  "إغلاق الصنبور أثناء تنظيف الأسنان يوفر حتى 30 لتراً يومياً للفرد.",
+  "إعادة تدوير لتر واحد من المياه الرمادية يمكن أن يوفر كميات كبيرة من المياه العذبة.",
+  "في بعض الدول، أكثر من 80٪ من استهلاك المياه يذهب للزراعة.",
+  "ترشيد استهلاك المياه يساهم أيضاً في تقليل استهلاك الطاقة المستخدمة في ضخها وتسخينها.",
+  "الماء يشكل حوالي 60٪ من وزن جسم الإنسان.",
+  "إنتاج كيلو واحد من اللحم البقري يحتاج إلى أكثر من 15,000 لتر ماء."
+];
 
 export default function Home() {
+  const [didYouKnowText, setDidYouKnowText] = useState("");
+
+  // Fonction qui choisit un fait aléatoire différent
+  const getRandomFact = (currentFact?: string) => {
+    let newFact = currentFact;
+    while (newFact === currentFact) {
+      const randomIndex = Math.floor(Math.random() * didYouKnowData.length);
+      newFact = didYouKnowData[randomIndex];
+    }
+    return newFact;
+  };
+
+  useEffect(() => {
+    // Premier affichage
+    setDidYouKnowText(getRandomFact());
+  }, []);
+
+  const handleDidYouKnowPress = () => {
+    // Nouveau fait différent
+    setDidYouKnowText(getRandomFact(didYouKnowText));
+  };
+
   return (
     <View style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
         <Image
           source={require("../../assets/images/1753462668554.png")}
-          style={{ width: 185, height: 185, marginTop: 0, marginBottom: 0 }}
+          style={{ width: 185, height: 185 }}
           resizeMode="contain"
         />
-        <TouchableOpacity style={styles.iconButton}>
-          <MaterialIcons name="settings" style={styles.icon} />
-        </TouchableOpacity>
       </View>
+
       <View style={styles.placeholder} />
+
+      {/* Gif central */}
       <View style={styles.mouihaContainer}>
         <Image
           style={styles.mouiha}
@@ -22,30 +58,29 @@ export default function Home() {
           resizeMode="contain"
         />
       </View>
+
       <View style={styles.placeholder} />
+
+      {/* Texte de bienvenue */}
       <View style={styles.blueContainer}>
         <Text style={styles.blueContainerText}>
           مرحبًا بك في تطبيق التوعية بالمياه مويهة! تعرف على أهمية الحفاظ على
           المياه من خلال الأنشطة الترفيهية والألعاب.
         </Text>
       </View>
-      <View style={styles.placeholder} />
-      <View>
-        <View style={styles.didYouKnowCard}>
-          {/* Image en fond */}
-          <Image
-            source={require("../../assets/images/lampe.png")}
-            style={styles.backgroundImage}
-          />
 
-          {/* Contenu principal */}
-          <Text style={styles.didYouKnowTitle}>هل تعلم ؟</Text>
-          <Text style={styles.didYouKnowText}>
-            أن كل قطرة ماء مهمة؟ الحفاظ على المياه يساعد في حماية البيئة وضمان
-            توفرها للأجيال القادمة
-          </Text>
-        </View>
-      </View>
+      <View style={styles.placeholder} />
+
+      {/* Section Did You Know */}
+      <TouchableOpacity style={styles.didYouKnowCard} onPress={handleDidYouKnowPress}>
+        <Image
+          source={require("../../assets/images/lampe.png")}
+          style={styles.backgroundImage}
+        />
+        <Text style={styles.didYouKnowTitle}>هل تعلم ؟</Text>
+        <Text style={styles.didYouKnowText}>{didYouKnowText}</Text>
+        <Text style={styles.tapHint}>اضغط لمعرفة معلومة جديدة 💡</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -53,7 +88,7 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#e6f2ff", // Softer blue background
+    backgroundColor: "#e6f2ff",
     alignItems: "center",
     justifyContent: "space-between",
     paddingTop: 50,
@@ -64,23 +99,7 @@ const styles = StyleSheet.create({
     height: 60,
     justifyContent: "center",
     alignItems: "center",
-    position: "relative",
     marginBottom: 20,
-  },
-  logo: {
-    width: 280,
-    height: 45,
-    alignSelf: "center",
-  },
-  iconButton: {
-    position: "absolute",
-    right: 5,
-    top: 5,
-    padding: 8,
-  },
-  icon: {
-    fontSize: 28,
-    color: "#007acc",
   },
   placeholder: {
     marginBottom: 15,
@@ -94,10 +113,6 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     alignSelf: "center",
     padding: 10,
-  },
-  gif: {
-    width: 200,
-    height: 300,
   },
   mouiha: {
     width: 350,
@@ -128,11 +143,11 @@ const styles = StyleSheet.create({
   backgroundImage: {
     position: "absolute",
     top: 0.9,
-    left:-1,
+    left: -1,
     width: 90,
     height: 90,
     resizeMode: "contain",
-    opacity:0.15, // très discret, effet watermark
+    opacity: 0.15,
     zIndex: 0,
   },
   didYouKnowCard: {
@@ -166,5 +181,12 @@ const styles = StyleSheet.create({
     fontFamily: "Tajawal-Regular",
     lineHeight: 22,
     zIndex: 1,
+  },
+  tapHint: {
+    marginTop: 8,
+    fontSize: 13,
+    color: "#acb1b4ff",
+    textAlign: "center",
+    fontFamily: "Tajawal-Medium",
   },
 });

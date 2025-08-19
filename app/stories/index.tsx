@@ -14,6 +14,7 @@ import { storiesData } from './data/storiesData';
 import { shuffleArray } from './utils/arrayUtils';
 import { loadFavorites, toggleFavorite as toggleFavoriteStorage } from './utils/storageUtils';
 
+
 const StoriesIndex: React.FC = () => {
   const navigation = useNavigation();
   const [stories, setStories] = useState<Story[]>([]);

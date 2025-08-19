@@ -14,15 +14,17 @@ export function useQuestions(level: string, retryQuestions?: Question[]) {
       if (json) {
         const cachedQuestions: Question[] = JSON.parse(json);
         setQuestions(cachedQuestions);
+        setLoading(false);
+        return true;
       }
     } catch (e) {
       console.warn("Erreur lecture cache questions:", e);
     }
+    return false;
   };
 
   const fetchAndCacheQuestions = async () => {
     try {
-      // Si retryQuestions passées, ne pas fetch
       if (retryQuestions && retryQuestions.length > 0) {
         setQuestions(retryQuestions);
       } else {
@@ -42,8 +44,10 @@ export function useQuestions(level: string, retryQuestions?: Question[]) {
 
   useEffect(() => {
     setLoading(true);
-    loadFromCache().then(() => {
-      fetchAndCacheQuestions();
+    loadFromCache().then((found) => {
+      if (!found) {
+        fetchAndCacheQuestions();
+      }
     });
   }, [level, retryQuestions]);
 
