@@ -1,13 +1,10 @@
 // SaveTheDropGame.tsx
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
-  View,
-  Text,
-  TouchableOpacity,
   Dimensions,
-  StatusBar,
   StyleSheet,
 } from 'react-native';
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { StartScreen } from './components/StartScreen';
 import { GameScreen } from './components/GameScreen';
 import { LevelCompleteModal } from './components/LevelCompleteModal';
@@ -15,7 +12,7 @@ import { Drop } from './types/GameTypes';
 import { educationalContent } from './data/WaterFacts';
 import { gameConfig } from './config/GameConfig';
 
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get('window');
 
 export const SaveTheDropGame: React.FC = () => {
   // Game state
@@ -31,6 +28,7 @@ export const SaveTheDropGame: React.FC = () => {
   // Game intervals
   const dropSpawnInterval = useRef<NodeJS.Timeout | null>(null);
   const dropMoveInterval = useRef<NodeJS.Timeout | null>(null);
+  const lastSpawnPositions = useRef<{x: number, time: number}[]>([]);
 
   // Calculate current game settings based on level
   const getCurrentSettings = useCallback(() => {
@@ -38,12 +36,11 @@ export const SaveTheDropGame: React.FC = () => {
     return {
       dropSpeed: gameConfig.initialDropSpeed + (levelMultiplier * 1.2),
       spawnRate: Math.max(
-        gameConfig.initialSpawnRate - (levelMultiplier * 300),
+        gameConfig.initialSpawnRate - (levelMultiplier * 1000), // Reduced from 300 to 200 for more gradual difficulty
         gameConfig.minSpawnRate
       ),
-      pollutedDropChance: Math.min(0.15 + (levelMultiplier * 0.1), 0.5),
+      pollutedDropChance: Math.min(0.15 + (levelMultiplier * 0.08), 0.45), // Slightly reduced pollution increase
       waterTarget: gameConfig.baseWaterTarget + (levelMultiplier * 8),
-      dropsPerSpawn: Math.min(1 + Math.floor(levelMultiplier / 2), 4), // More drops per spawn as level increases
     };
   }, [currentLevel]);
 
@@ -55,6 +52,7 @@ export const SaveTheDropGame: React.FC = () => {
     setPollutedWaterCollected(0);
     setDrops([]);
     setDropIdCounter(0);
+    lastSpawnPositions.current = [];
   }, []);
 
   // Complete current level
@@ -96,29 +94,56 @@ export const SaveTheDropGame: React.FC = () => {
     startGame(); // Restart the same level
   }, [startGame]);
 
-  // Spawn multiple drops
-  const spawnDrop = useCallback(() => {
-    const settings = getCurrentSettings();
-    const newDrops: Drop[] = [];
+  // Generate a safe spawn position that avoids overlapping with recent drops
+  const generateSafeSpawnPosition = useCallback(() => {
+    const currentTime = Date.now();
+    const minDistance = 80; // Minimum distance between drops
+    const maxAttempts = 10;
     
-    // Spawn multiple drops based on level
-    for (let i = 0; i < settings.dropsPerSpawn; i++) {
-      const isPolluted = Math.random() < settings.pollutedDropChance;
+    // Clean up old positions (older than 2 seconds)
+    lastSpawnPositions.current = lastSpawnPositions.current.filter(
+      pos => currentTime - pos.time < 2000
+    );
+    
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      const x = Math.random() * (screenWidth - gameConfig.dropSize - 140); // Leave space for water container
       
-      const newDrop: Drop = {
-        id: dropIdCounter + i,
-        x: Math.random() * (screenWidth - gameConfig.dropSize - 120), // Leave space for water container
-        y: gameConfig.faucetY + 60 + (i * 10), // Slight vertical offset for multiple drops
-        size: gameConfig.dropSize,
-        isPolluted,
-      };
+      // Check if this position is too close to recent spawn positions
+      const tooClose = lastSpawnPositions.current.some(pos => 
+        Math.abs(pos.x - x) < minDistance
+      );
       
-      newDrops.push(newDrop);
+      if (!tooClose) {
+        // Add this position to recent positions
+        lastSpawnPositions.current.push({ x, time: currentTime });
+        return x;
+      }
     }
     
-    setDrops(prevDrops => [...prevDrops, ...newDrops]);
-    setDropIdCounter(prev => prev + settings.dropsPerSpawn);
-  }, [dropIdCounter, getCurrentSettings]);
+    // If we can't find a safe position after max attempts, use a random one
+    // but still record it
+    const fallbackX = Math.random() * (screenWidth - gameConfig.dropSize - 140);
+    lastSpawnPositions.current.push({ x: fallbackX, time: currentTime });
+    return fallbackX;
+  }, []);
+
+  // Spawn a single drop (changed from multiple drops)
+  const spawnDrop = useCallback(() => {
+    const settings = getCurrentSettings();
+    const isPolluted = Math.random() < settings.pollutedDropChance;
+    const x = generateSafeSpawnPosition();
+    
+    const newDrop: Drop = {
+      id: dropIdCounter,
+      x,
+      y: gameConfig.faucetY + 60,
+      size: gameConfig.dropSize,
+      isPolluted,
+    };
+    
+    setDrops(prevDrops => [...prevDrops, newDrop]);
+    setDropIdCounter(prev => prev + 1);
+  }, [dropIdCounter, getCurrentSettings, generateSafeSpawnPosition]);
 
   // Move all drops down
   const moveDrops = useCallback(() => {
@@ -176,7 +201,7 @@ export const SaveTheDropGame: React.FC = () => {
 
     const settings = getCurrentSettings();
 
-    // Spawn drops interval
+    // Spawn drops interval - now spawns one drop at a time
     const spawnInterval = setInterval(spawnDrop, settings.spawnRate) as unknown as NodeJS.Timeout;
     dropSpawnInterval.current = spawnInterval;
 
@@ -191,36 +216,36 @@ export const SaveTheDropGame: React.FC = () => {
   }, [gameState, spawnDrop, moveDrops, getCurrentSettings]);
 
   return (
-    <View style={styles.container}>
-      <StatusBar backgroundColor="#87CEEB" barStyle="dark-content" />
-      
-      {gameState === 'start' && (
-        <StartScreen onStartGame={startGame} />
-      )}
-      
-      {gameState === 'playing' && (
-        <GameScreen
-          currentLevel={currentLevel}
-          score={score}
-          waterCollected={waterCollected}
-          pollutedWaterCollected={pollutedWaterCollected}
-          waterTarget={getCurrentSettings().waterTarget}
-          drops={drops}
-          onDropTap={onDropTap}
-          onLeaveGame={() => setGameState('start')}
-        />
-      )}
-      
-      {gameState === 'levelComplete' && levelCompleteData && (
-        <LevelCompleteModal
-          visible={true}
-          data={levelCompleteData}
-          onNextLevel={nextLevel}
-          onRetryLevel={retryLevel}
-          onBackToMenu={() => setGameState('start')}
-        />
-      )}
-    </View>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>      
+        {gameState === 'start' && (
+          <StartScreen onStartGame={startGame} />
+        )}
+        
+        {gameState === 'playing' && (
+          <GameScreen
+            currentLevel={currentLevel}
+            score={score}
+            waterCollected={waterCollected}
+            pollutedWaterCollected={pollutedWaterCollected}
+            waterTarget={getCurrentSettings().waterTarget}
+            drops={drops}
+            onDropTap={onDropTap}
+            onLeaveGame={() => setGameState('start')}
+          />
+        )}
+        
+        {gameState === 'levelComplete' && levelCompleteData && (
+          <LevelCompleteModal
+            visible={true}
+            data={levelCompleteData}
+            onNextLevel={nextLevel}
+            onRetryLevel={retryLevel}
+            onBackToMenu={() => setGameState('start')}
+          />
+        )}
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 };
 

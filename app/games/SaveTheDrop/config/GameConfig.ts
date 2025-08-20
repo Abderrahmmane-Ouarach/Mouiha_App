@@ -10,8 +10,8 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 export const gameConfig = {
   // Game mechanics
   initialDropSpeed: 3, // pixels per frame
-  initialSpawnRate: 1200, // milliseconds between drop spawns
-  minSpawnRate: 600, // minimum time between spawns
+  initialSpawnRate: 1000, // milliseconds between drop spawns
+  minSpawnRate: 400, // minimum time between spawns
   gameLoopSpeed: 16, // ~60 FPS (1000ms/60fps ≈ 16ms)
   baseWaterTarget: 20, // Base amount of water needed to complete level
   

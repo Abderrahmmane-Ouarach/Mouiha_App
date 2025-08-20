@@ -1,84 +1,79 @@
 // components/StartScreen.tsx
 import React from 'react';
 import {
-  View,
+  Dimensions,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  StyleSheet,
-  Dimensions,
+  View,
 } from 'react-native';
-import { StartScreenProps } from '../types/GameTypes';
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { gameConfig } from '../config/GameConfig';
+import { StartScreenProps } from '../types/GameTypes';
 
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get('window');
 
 export const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
   return (
-    <View style={styles.container}>
-      {/* Decorative clouds */}
-      <View style={styles.cloudsContainer}>
-        <View style={[styles.cloud, styles.cloud1]} />
-        <View style={[styles.cloud, styles.cloud2]} />
-        <View style={[styles.cloud, styles.cloud3]} />
-      </View>
-
-      {/* Game Title */}
-      <View style={styles.titleContainer}>
-        <View style={styles.titleBubble}>
-          <Text style={styles.titleArabic}>احفظ القطرة</Text>
-          <Text style={styles.titleSubtext}>لعبة المياه المرحة</Text>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        {/* Decorative clouds */}
+        <View style={styles.cloudsContainer}>
+          <View style={[styles.cloud, styles.cloud1]} />
+          <View style={[styles.cloud, styles.cloud2]} />
+          <View style={[styles.cloud, styles.cloud3]} />
         </View>
-      </View>
 
-      {/* Game Icon/Illustration */}
-      <View style={styles.iconContainer}>
-        <View style={styles.mainDropContainer}>
-          <View style={styles.dropIconBig}>
-            <View style={styles.waterDropShape} />
-          </View>
-          <View style={styles.sparkles}>
-            <View style={[styles.sparkle, styles.sparkle1]} />
-            <View style={[styles.sparkle, styles.sparkle2]} />
-            <View style={[styles.sparkle, styles.sparkle3]} />
+        {/* Game Title */}
+        <View style={styles.titleContainer}>
+          <View style={styles.titleBubble}>
+            <Text style={styles.titleArabic}>احفظ القطرة</Text>
+            <Text style={styles.titleSubtext}>لعبة المياه المرحة</Text>
           </View>
         </View>
-        <View style={styles.tapIcon}>
-          <View style={styles.faucetShape} />
-        </View>
-      </View>
 
-      {/* Instructions */}
-      <View style={styles.instructionsContainer}>
-        <View style={styles.instructionBubble}>
-          <Text style={styles.instructionText}>
-            اضغط على قطرات الماء{'\n'}
-            قبل أن تصل للمصرف!
-          </Text>
+        {/* Game Icon/Illustration */}
+        <View style={styles.iconContainer}>
+          <View style={styles.mainDropContainer}>
+            <View style={styles.dropIconBig}>
+              <View style={styles.cuteDrop}>
+                <View style={styles.dropBody} />
+                <View style={styles.dropTip} />
+                <View style={styles.highlight} />
+                <View style={styles.eyeLeft} />
+                <View style={styles.eyeRight} />
+                <View style={styles.smile} />
+                <View style={styles.cheekLeft} />
+                <View style={styles.cheekRight} />
+              </View>
+            </View>
+            <View style={styles.sparkles}>
+              <View style={[styles.sparkle, styles.sparkle1]} />
+              <View style={[styles.sparkle, styles.sparkle2]} />
+              <View style={[styles.sparkle, styles.sparkle3]} />
+            </View>
+          </View>
+          <View style={styles.tapIcon}>
+            <View style={styles.faucetShape} />
+          </View>
         </View>
-      </View>
 
-      {/* Play Button */}
-      <TouchableOpacity style={styles.playButton} onPress={onStartGame} activeOpacity={0.8}>
-        <Text style={styles.playButtonText}>ابدأ اللعب</Text>
-      </TouchableOpacity>
-
-      {/* Game Info */}
-      <View style={styles.gameInfoContainer}>
-        <View style={styles.infoCard}>
-          <View style={styles.infoIcon} />
-          <Text style={styles.infoText}>احفظ القطرات</Text>
+        {/* Instructions */}
+        <View style={styles.instructionsContainer}>
+          <View style={styles.instructionBubble}>
+            <Text style={styles.instructionText}>
+              اضغط على قطرات الماء{'\n'}
+              قبل أن تصل للمصرف!
+            </Text>
+          </View>
         </View>
-        <View style={styles.infoCard}>
-          <View style={styles.infoIcon2} />
-          <Text style={styles.infoText}>احم البيئة</Text>
-        </View>
-      </View>
 
-      {/* Fun waves at bottom */}
-      <View style={styles.wavesContainer}>
-        <View style={styles.wave} />
-      </View>
-    </View>
+        {/* Play Button */}
+        <TouchableOpacity style={styles.playButton} onPress={onStartGame} activeOpacity={0.8}>
+          <Text style={styles.playButtonText}>ابدأ اللعب</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 };
 
@@ -172,16 +167,89 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
   },
-  waterDropShape: {
-    width: 50,
-    height: 60,
+  cuteDrop: {
+    width: 90,
+    height: 110,
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
+  dropBody: {
+    position: 'absolute',
+    bottom: 0,
+    width: 90,
+    height: 90,
     backgroundColor: gameConfig.colors.cleanWater,
-    borderRadius: 25,
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
-    borderBottomLeftRadius: 5,
-    borderBottomRightRadius: 5,
+    borderRadius: 45,
+    borderWidth: 3,
+    borderColor: 'rgba(74, 144, 226, 0.5)',
+  },
+  dropTip: {
+    position: 'absolute',
+    top: 4,
+    left: 32,
+    width: 26,
+    height: 26,
+    backgroundColor: gameConfig.colors.cleanWater,
+    borderRadius: 13,
     transform: [{ rotate: '45deg' }],
+    borderWidth: 3,
+    borderColor: 'rgba(74, 144, 226, 0.5)',
+  },
+  highlight: {
+    position: 'absolute',
+    top: 34,
+    left: 20,
+    width: 16,
+    height: 8,
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    borderRadius: 6,
+  },
+  eyeLeft: {
+    position: 'absolute',
+    top: 54,
+    left: 26,
+    width: 10,
+    height: 10,
+    backgroundColor: '#1b4f9c',
+    borderRadius: 5,
+  },
+  eyeRight: {
+    position: 'absolute',
+    top: 54,
+    right: 26,
+    width: 10,
+    height: 10,
+    backgroundColor: '#1b4f9c',
+    borderRadius: 5,
+  },
+  smile: {
+    position: 'absolute',
+    top: 70,
+    left: 31,
+    width: 28,
+    height: 14,
+    borderBottomWidth: 3,
+    borderColor: '#1b4f9c',
+    borderRadius: 14,
+  },
+  cheekLeft: {
+    position: 'absolute',
+    top: 66,
+    left: 18,
+    width: 8,
+    height: 8,
+    backgroundColor: '#ffd1d9',
+    borderRadius: 4,
+  },
+  cheekRight: {
+    position: 'absolute',
+    top: 66,
+    right: 18,
+    width: 8,
+    height: 8,
+    backgroundColor: '#ffd1d9',
+    borderRadius: 4,
   },
   sparkles: {
     position: 'absolute',
@@ -265,60 +333,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: gameConfig.colors.white,
     textAlign: 'center',
-  },
-  gameInfoContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    maxWidth: 280,
-    marginBottom: 20,
-  },
-  infoCard: {
-    alignItems: 'center',
-    flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    marginHorizontal: 8,
-    paddingVertical: 15,
-    paddingHorizontal: 12,
-    borderRadius: 15,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    borderWidth: 2,
-    borderColor: 'rgba(74, 144, 226, 0.3)',
-  },
-  infoIcon: {
-    width: 24,
-    height: 24,
-    backgroundColor: gameConfig.colors.secondary,
-    borderRadius: 12,
-    marginBottom: 8,
-  },
-  infoIcon2: {
-    width: 24,
-    height: 24,
-    backgroundColor: gameConfig.colors.primary,
-    borderRadius: 12,
-    marginBottom: 8,
-  },
-  infoText: {
-    fontSize: 13,
-    color: gameConfig.colors.text,
-    textAlign: 'center',
-    fontWeight: '600',
-  },
-  wavesContainer: {
-    position: 'absolute',
-    bottom: 20,
-    alignItems: 'center',
-  },
-  wave: {
-    width: 200,
-    height: 15,
-    backgroundColor: 'rgba(30, 144, 255, 0.3)',
-    borderRadius: 10,
-    marginBottom: 5,
   },
 });

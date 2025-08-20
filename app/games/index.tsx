@@ -1,18 +1,18 @@
 import { useNavigation } from "@react-navigation/native";
+import { useRef } from "react";
 import {
+  Animated,
   Image,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
-  Animated
+  View
 } from "react-native";
-import { useRef } from "react";
 
 const games = [
-  { title: "ذاكرة الماء", path: "FlipMacher", image: require("../../assets/images/mouiha.png") },
-  { title: "التلوين", path: "FlipMacher", image: require("../../assets/images/mouiha.png") },
-  { title: "احفظ القطرة", path: "SaveTheDrop", image: require("../../assets/images/mouiha.png") },
+  { title: "ذاكرة الماء", path: "FlipMacher", image: require("../../assets/images/mouiha.png"), disabled: false },
+  { title: "احفظ القطرة", path: "SaveTheDrop", image: require("../../assets/images/mouiha.png"), disabled: false },
+  { title: "التلوين", path: "FlipMacher", image: require("../../assets/images/mouiha.png"), disabled: true },
 ];
 
 export default function Games() {
@@ -32,6 +32,7 @@ export default function Games() {
       <View style={styles.gamesGrid}>
         {games.map((game, index) => {
           const onPressIn = () => {
+            if (game.disabled) return;
             Animated.spring(scaleAnims[index], {
               toValue: 0.95,
               useNativeDriver: true,
@@ -39,6 +40,7 @@ export default function Games() {
           };
 
           const onPressOut = () => {
+            if (game.disabled) return;
             Animated.spring(scaleAnims[index], {
               toValue: 1,
               friction: 3,
@@ -49,10 +51,11 @@ export default function Games() {
           return (
             <Animated.View
               key={game.title}
-              style={[styles.gameCard, { transform: [{ scale: scaleAnims[index] }] }]}
+              style={[styles.gameCard, game.disabled && styles.disabledCard, { transform: [{ scale: scaleAnims[index] }] }]}
             >
               <TouchableOpacity
                 activeOpacity={0.8}
+                disabled={game.disabled}
                 onPressIn={onPressIn}
                 onPressOut={onPressOut}
                 style={{ alignItems: "center", width: "100%" }}
@@ -104,6 +107,9 @@ const styles = StyleSheet.create({
     elevation: 3,
     borderWidth: 2,
     borderColor: "#cce6ff",
+  },
+  disabledCard: {
+    opacity: 0.5,
   },
   gameImage: {
     width: 80,

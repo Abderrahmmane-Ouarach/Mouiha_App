@@ -97,11 +97,6 @@ export const WaterContainer: React.FC<WaterContainerProps> = ({
           نظافة: {Math.round(cleanWaterPercentage)}%
         </Text>
       </View>
-      
-      {/* Target indicator */}
-      <View style={styles.targetIndicator}>
-        <View style={styles.targetIcon} />
-      </View>
     </View>
   );
 };
@@ -109,7 +104,7 @@ export const WaterContainer: React.FC<WaterContainerProps> = ({
 const styles = StyleSheet.create({
   containerWrapper: {
     position: 'absolute',
-    right: 20,
+    right: 5,
     top: 100,
     alignItems: 'center',
     zIndex: 20,
@@ -187,18 +182,5 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: gameConfig.colors.secondary,
-  },
-  targetIndicator: {
-    position: 'absolute',
-    top: -10,
-    right: -15,
-  },
-  targetIcon: {
-    width: 20,
-    height: 20,
-    backgroundColor: gameConfig.colors.danger,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: gameConfig.colors.white,
   },
 });
