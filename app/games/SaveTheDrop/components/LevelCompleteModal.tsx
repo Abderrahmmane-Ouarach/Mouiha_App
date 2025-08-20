@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontFamily: 'Tajawal-Bold',
     color: gameConfig.colors.primary,
     textAlign: 'right',
     writingDirection: 'rtl',
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: 12,
-    fontWeight: 'bold',
+    fontFamily: 'Tajawal-Bold',
     color: gameConfig.colors.primary,
     marginBottom: 1,
     writingDirection: 'rtl',
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 9,
     color: gameConfig.colors.text,
-    fontWeight: '600',
+    fontFamily: 'Tajawal-Medium',
     writingDirection: 'rtl',
     textAlign: 'right',
   },
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
   },
   percentageLabel: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: 'Tajawal-Medium',
     color: gameConfig.colors.text,
     marginBottom: 2,
     textAlign: 'right',
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
   },
   percentageValue: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: 'Tajawal-Bold',
     textAlign: 'right',
     writingDirection: 'rtl',
   },
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
     color: gameConfig.colors.danger,
     textAlign: 'right',
     marginBottom: 12,
-    fontWeight: '600',
+    fontFamily: 'Tajawal-Medium',
     backgroundColor: '#FFE6E6',
     paddingVertical: 6,
     paddingHorizontal: 10,
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   },
   tipsTitle: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontFamily: 'Tajawal-Bold',
     color: gameConfig.colors.primary,
     textAlign: 'right',
     writingDirection: 'rtl',
@@ -348,6 +348,7 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     textAlign: 'right',
     writingDirection: 'rtl',
+    fontFamily: 'Tajawal-Regular',
   },
   factContainer: {
     flexDirection: 'row-reverse',
@@ -365,7 +366,7 @@ const styles = StyleSheet.create({
   },
   factTitle: {
     fontSize: 12,
-    fontWeight: 'bold',
+    fontFamily: 'Tajawal-Bold',
     color: gameConfig.colors.primary,
     marginLeft: 6,
     textAlign: 'right',
@@ -378,6 +379,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     lineHeight: 16,
     writingDirection: 'rtl',
+    fontFamily: 'Tajawal-Regular',
   },
   buttonsContainer: {
     gap: 8,
@@ -401,7 +403,7 @@ const styles = StyleSheet.create({
   },
   nextLevelButtonText: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontFamily: 'Tajawal-Bold',
     color: gameConfig.colors.white,
   },
   retryButton: {
@@ -409,7 +411,7 @@ const styles = StyleSheet.create({
   },
   retryButtonText: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontFamily: 'Tajawal-Bold',
     color: gameConfig.colors.white,
   },
   menuButton: {
@@ -417,7 +419,7 @@ const styles = StyleSheet.create({
   },
   menuButtonText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'Tajawal-Medium',
     color: gameConfig.colors.white,
   },
 });

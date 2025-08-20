@@ -36,7 +36,7 @@ export const SaveTheDropGame: React.FC = () => {
     return {
       dropSpeed: gameConfig.initialDropSpeed + (levelMultiplier * 1.2),
       spawnRate: Math.max(
-        gameConfig.initialSpawnRate - (levelMultiplier * 1000), // Reduced from 300 to 200 for more gradual difficulty
+        gameConfig.initialSpawnRate - (levelMultiplier * 500), // Reduced from 300 to 200 for more gradual difficulty
         gameConfig.minSpawnRate
       ),
       pollutedDropChance: Math.min(0.15 + (levelMultiplier * 0.08), 0.45), // Slightly reduced pollution increase

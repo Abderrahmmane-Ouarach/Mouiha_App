@@ -1,10 +1,10 @@
 // components/WaterContainer.tsx
 import React, { useEffect, useRef } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
   Animated,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 import { gameConfig } from '../config/GameConfig';
 
@@ -168,19 +168,19 @@ const styles = StyleSheet.create({
   },
   waterLabel: {
     fontSize: 12,
-    fontWeight: 'bold',
+    fontFamily: 'Tajawal-Bold',
     color: gameConfig.colors.primary,
     marginBottom: 5,
   },
   progressText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'Tajawal-Medium',
     color: gameConfig.colors.text,
     marginBottom: 2,
   },
   percentageText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: 'Tajawal-Bold',
     color: gameConfig.colors.secondary,
   },
 });
