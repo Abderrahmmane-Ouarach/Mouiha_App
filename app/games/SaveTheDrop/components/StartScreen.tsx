@@ -1,4 +1,5 @@
 // components/StartScreen.tsx
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import {
   Dimensions,
@@ -7,13 +8,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { gameConfig } from '../config/GameConfig';
 import { StartScreenProps } from '../types/GameTypes';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 export const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
+  const navigation = useNavigation();
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
@@ -71,6 +73,15 @@ export const StartScreen: React.FC<StartScreenProps> = ({ onStartGame }) => {
         {/* Play Button */}
         <TouchableOpacity style={styles.playButton} onPress={onStartGame} activeOpacity={0.8}>
           <Text style={styles.playButtonText}>ابدأ اللعب</Text>
+        </TouchableOpacity>
+
+        {/* Games List Button */}
+        <TouchableOpacity
+          style={styles.menuButton}
+          onPress={() => navigation.navigate('GameHome' as never)}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.menuButtonText}>قائمة الألعاب</Text>
         </TouchableOpacity>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -136,14 +147,14 @@ const styles = StyleSheet.create({
   },
   titleArabic: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontFamily: 'Tajawal-Bold',
     color: gameConfig.colors.primary,
     textAlign: 'center',
   },
   titleSubtext: {
     fontSize: 16,
     color: gameConfig.colors.secondary,
-    fontWeight: '600',
+    fontFamily: 'Tajawal-Medium',
     marginTop: 5,
   },
   iconContainer: {
@@ -311,7 +322,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: gameConfig.colors.text,
     textAlign: 'center',
-    fontWeight: '600',
+    fontFamily: 'Tajawal-Medium',
     lineHeight: 24,
   },
   playButton: {
@@ -324,13 +335,33 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 6,
-    marginBottom: 30,
+    marginBottom: 20,
     borderWidth: 3,
     borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   playButtonText: {
     fontSize: 22,
-    fontWeight: 'bold',
+    fontFamily: 'Tajawal-Bold',
+    color: gameConfig.colors.white,
+    textAlign: 'center',
+  },
+  menuButton: {
+    backgroundColor: '#8B9DC3',
+    paddingVertical: 18,
+    paddingHorizontal: 25,
+    borderRadius: 35,
+    borderWidth: 3,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    marginTop: -10,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+  },
+  menuButtonText: {
+    fontSize: 22,
+    fontFamily: 'Tajawal-Bold',
     color: gameConfig.colors.white,
     textAlign: 'center',
   },

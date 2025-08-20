@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 
 const games = [
   { title: "ذاكرة الماء", path: "FlipMacher", image: require("../../assets/images/mouiha.png"), disabled: false },
@@ -26,48 +27,50 @@ export default function Games() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}> ألعاب التوعية بالماء</Text>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        <Text style={styles.header}> ألعاب التوعية بالماء</Text>
 
-      <View style={styles.gamesGrid}>
-        {games.map((game, index) => {
-          const onPressIn = () => {
-            if (game.disabled) return;
-            Animated.spring(scaleAnims[index], {
-              toValue: 0.95,
-              useNativeDriver: true,
-            }).start();
-          };
+        <View style={styles.gamesGrid}>
+          {games.map((game, index) => {
+            const onPressIn = () => {
+              if (game.disabled) return;
+              Animated.spring(scaleAnims[index], {
+                toValue: 0.95,
+                useNativeDriver: true,
+              }).start();
+            };
 
-          const onPressOut = () => {
-            if (game.disabled) return;
-            Animated.spring(scaleAnims[index], {
-              toValue: 1,
-              friction: 3,
-              useNativeDriver: true,
-            }).start(() => handlePress(game.path));
-          };
+            const onPressOut = () => {
+              if (game.disabled) return;
+              Animated.spring(scaleAnims[index], {
+                toValue: 1,
+                friction: 3,
+                useNativeDriver: true,
+              }).start(() => handlePress(game.path));
+            };
 
-          return (
-            <Animated.View
-              key={game.title}
-              style={[styles.gameCard, game.disabled && styles.disabledCard, { transform: [{ scale: scaleAnims[index] }] }]}
-            >
-              <TouchableOpacity
-                activeOpacity={0.8}
-                disabled={game.disabled}
-                onPressIn={onPressIn}
-                onPressOut={onPressOut}
-                style={{ alignItems: "center", width: "100%" }}
+            return (
+              <Animated.View
+                key={game.title}
+                style={[styles.gameCard, game.disabled && styles.disabledCard, { transform: [{ scale: scaleAnims[index] }] }]}
               >
-                <Image source={game.image} style={styles.gameImage} />
-                <Text style={styles.gameCardText}>{game.title}</Text>
-              </TouchableOpacity>
-            </Animated.View>
-          );
-        })}
-      </View>
-    </View>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  disabled={game.disabled}
+                  onPressIn={onPressIn}
+                  onPressOut={onPressOut}
+                  style={{ alignItems: "center", width: "100%" }}
+                >
+                  <Image source={game.image} style={styles.gameImage} />
+                  <Text style={styles.gameCardText}>{game.title}</Text>
+                </TouchableOpacity>
+              </Animated.View>
+            );
+          })}
+        </View>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
@@ -76,11 +79,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#e6f2ff",
     alignItems: "center",
-    paddingTop: 40,
+    paddingTop: 20,
     paddingBottom: 20,
   },
   header: {
-    fontSize: 22,
+    fontSize: 32,
     fontFamily: "Tajawal-Bold",
     color: "#007acc",
     marginBottom: 15,

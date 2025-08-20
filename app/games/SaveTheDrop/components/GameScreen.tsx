@@ -1,17 +1,17 @@
 // components/GameScreen.tsx
 import React from 'react';
 import {
-  View,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  StyleSheet,
+  View,
 } from 'react-native';
-import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
-import { GameScreenProps } from '../types/GameTypes';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { gameConfig } from '../config/GameConfig';
+import { GameScreenProps } from '../types/GameTypes';
 import { DropComponent } from './DropComponent';
-import { WaterContainer } from './WaterContainer';
 import { Faucet } from './Faucet';
+import { WaterContainer } from './WaterContainer';
 export const GameScreen: React.FC<GameScreenProps> = ({
   currentLevel,
   score,
@@ -225,13 +225,13 @@ const styles = StyleSheet.create({
   scoreValue: {
     fontSize: 20,
     color: gameConfig.colors.secondary,
-    fontWeight: 'bold',
+    fontFamily: 'Tajawal-Bold',
     marginBottom: 2,
   },
   scoreLabel: {
     fontSize: 11,
     color: gameConfig.colors.text,
-    fontWeight: '600',
+    fontFamily: 'Tajawal-Medium',
   },
   rightContainer: {
     alignItems: 'center',
@@ -267,13 +267,13 @@ const styles = StyleSheet.create({
   levelValue: {
     fontSize: 20,
     color: gameConfig.colors.primary,
-    fontWeight: 'bold',
+    fontFamily: 'Tajawal-Bold',
     marginBottom: 2,
   },
   levelLabel: {
     fontSize: 11,
     color: gameConfig.colors.text,
-    fontWeight: '600',
+    fontFamily: 'Tajawal-Medium',
   },
   gameArea: {
     flex: 1,

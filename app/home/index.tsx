@@ -1,52 +1,52 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import { Image, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
+
 
 export default function Home() {
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Image
-          source={require("../../assets/images/1753462668554.png")}
-          style={{ width: 185, height: 185, marginTop: 0, marginBottom: 0 }}
-          resizeMode="contain"
-        />
-        <TouchableOpacity style={styles.iconButton}>
-          <MaterialIcons name="settings" style={styles.icon} />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.placeholder} />
-      <View style={styles.mouihaContainer}>
-        <Image
-          style={styles.mouiha}
-          source={require("../../assets/images/uyu.gif")}
-          resizeMode="contain"
-        />
-      </View>
-      <View style={styles.placeholder} />
-      <View style={styles.blueContainer}>
-        <Text style={styles.blueContainerText}>
-          مرحبًا بك في تطبيق التوعية بالمياه مويهة! تعرف على أهمية الحفاظ على
-          المياه من خلال الأنشطة الترفيهية والألعاب.
-        </Text>
-      </View>
-      <View style={styles.placeholder} />
-      <View>
-        <View style={styles.didYouKnowCard}>
-          {/* Image en fond */}
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
           <Image
-            source={require("../../assets/images/lampe.png")}
-            style={styles.backgroundImage}
+            source={require("../../assets/images/1753462668554.png")}
+            style={{ width: 185, height: 100, marginTop: 0, marginBottom: 0 }}
+            resizeMode="contain"
           />
-
-          {/* Contenu principal */}
-          <Text style={styles.didYouKnowTitle}>هل تعلم ؟</Text>
-          <Text style={styles.didYouKnowText}>
-            أن كل قطرة ماء مهمة؟ الحفاظ على المياه يساعد في حماية البيئة وضمان
-            توفرها للأجيال القادمة
+        </View>
+        <View style={styles.placeholder} />
+        <View style={styles.mouihaContainer}>
+          <Image
+            style={styles.mouiha}
+            source={require("../../assets/images/uyu.gif")}
+            resizeMode="contain"
+          />
+        </View>
+        <View style={styles.placeholder} />
+        <View style={styles.blueContainer}>
+          <Text style={styles.blueContainerText}>
+            مرحبًا بك في تطبيق التوعية بالمياه مويهة! تعرف على أهمية الحفاظ على
+            المياه من خلال الأنشطة الترفيهية والألعاب.
           </Text>
         </View>
-      </View>
-    </View>
+        <View style={styles.placeholder} />
+        <View>
+          <View style={styles.didYouKnowCard}>
+            {/* Image en fond */}
+            <Image
+              source={require("../../assets/images/lampe.png")}
+              style={styles.backgroundImage}
+            />
+
+            {/* Contenu principal */}
+            <Text style={styles.didYouKnowTitle}>هل تعلم ؟</Text>
+            <Text style={styles.didYouKnowText}>
+              أن كل قطرة ماء مهمة؟ الحفاظ على المياه يساعد في حماية البيئة وضمان
+              توفرها للأجيال القادمة
+            </Text>
+          </View>
+        </View>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
@@ -56,31 +56,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#e6f2ff", // Softer blue background
     alignItems: "center",
     justifyContent: "space-between",
-    paddingTop: 50,
     paddingBottom: 20,
   },
   header: {
     width: "100%",
-    height: 60,
     justifyContent: "center",
     alignItems: "center",
-    position: "relative",
     marginBottom: 20,
-  },
-  logo: {
-    width: 280,
-    height: 45,
-    alignSelf: "center",
-  },
-  iconButton: {
-    position: "absolute",
-    right: 5,
-    top: 5,
-    padding: 8,
-  },
-  icon: {
-    fontSize: 28,
-    color: "#007acc",
   },
   placeholder: {
     marginBottom: 15,

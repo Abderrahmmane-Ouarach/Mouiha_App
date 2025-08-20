@@ -27,7 +27,7 @@ export const gameConfig = {
   // Colors
   colors: {
     primary: '#4A90E2',
-    secondary: '#7ED321',
+    secondary: '#1C7D13',
     danger: '#D0021B',
     background: '#87CEEB',
     white: '#FFFFFF',
