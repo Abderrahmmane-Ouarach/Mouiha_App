@@ -1,12 +1,14 @@
 import React from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import { WebView } from 'react-native-webview';
+import { Video } from "expo-av";
 import { RouteProp, useRoute } from '@react-navigation/native';
 
 type VideoItem = {
   id: string;
+  youtubeId?: string;   // optionnel
+  localUri?: string;    // string pour les vidéos locales
   title: string;
-  url: string;
 };
 
 type RouteParams = {
@@ -21,13 +23,21 @@ export default function VideoPlayer(): React.JSX.Element {
 
   return (
     <View style={styles.container}>
-      <WebView
-        source={{ uri: video.url }}
-        style={styles.video}
-        javaScriptEnabled
-        domStorageEnabled
-        allowsFullscreenVideo
-      />
+      {video.localUri ? (
+        <Video
+          source={{ uri: video.localUri }}
+          style={styles.video}
+          useNativeControls
+          
+          shouldPlay
+        />
+      ) : video.youtubeId ? (
+        <WebView
+          style={styles.video}
+          javaScriptEnabled
+          source={{ uri: `https://www.youtube.com/embed/${video.youtubeId}` }}
+        />
+      ) : null}
     </View>
   );
 }

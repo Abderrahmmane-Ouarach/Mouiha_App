@@ -1,6 +1,7 @@
 import { AntDesign, FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
+import { Video } from 'expo-av';
 
 import React, { useEffect, useState } from "react";
 import {
@@ -16,28 +17,26 @@ import {
 
 type VideoItem = {
   id: string;
-  youtubeId: string;
+  youtubeId?: string;   // optionnel
+  localUri?: any;       // pour les vidéos locales
   title: string;
 };
+
 
 const screenWidth = Dimensions.get("window").width;
 
 const videoData: VideoItem[] = [
-  { id: "1", youtubeId: "gDqLYqdPEp4", title: "عاداتنا مع الماء" },
-  { id: "2", youtubeId: "-Fe6WU-cJ1g", title: "دورة الماء وأهمية الحفاظ عليه" },
-  { id: "3", youtubeId: "1iDQpgSggws", title: "الحفاظ على الماء" },
-  { id: "4", youtubeId: "2sX9Y1F7Qj0", title: "توفير المياه في المنزل" },
-  { id: "5", youtubeId: "abc123def456", title: "تقنيات الري الحديثة" },
-  { id: "6", youtubeId: "xyz789uvw012", title: "معالجة المياه العادمة" },
+  { id: "1", localUri: require("../../assets/images/capsule_onee_arabe_.mp4"), title: "طرق لترشيد استعمال " },
+  { id: "2", youtubeId: "1iDQpgSggws", title: "عاداتنا مع الماء " },
+    { id: "3", youtubeId: "-Fe6WU-cJ1g", title: "دورة الماء وأهمية الحفاظ عليه" },
+
+  { id: "3", youtubeId: "zHXpnPQbhfc", title: " شرح موضوع الصرف الصحي" },
+  { id: "4", youtubeId: "E0emEQq-otk", title: "معلومات أساسية حول ضمان جودة مياه الشرب" },
 ];
 
 type RootStackParamList = {
   VideoPlayer: {
-    video: {
-      id: string;
-      title: string;
-      url: string;
-    };
+    video: VideoItem;
   };
 };
 
@@ -76,15 +75,12 @@ export default function Videos(): React.JSX.Element {
   };
 
   const goToPlayer = (video: VideoItem) => {
-    markAsWatched(video.id);
-    navigation.navigate("VideoPlayer", {
-      video: {
-        id: video.id,
-        title: video.title,
-        url: `https://www.youtube.com/embed/${video.youtubeId}`,
-      },
-    });
-  };
+  markAsWatched(video.id);
+  navigation.navigate("VideoPlayer", {
+    video,
+  });
+};
+
 
   const toggleFavorite = async (id: string) => {
     const updated = { ...favorites, [id]: !favorites[id] };
@@ -164,53 +160,62 @@ export default function Videos(): React.JSX.Element {
     </TouchableOpacity>
   );
 
-  const VideoCard = ({ video }: { video: VideoItem }) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => goToPlayer(video)}
-      activeOpacity={0.8}
-    >
-      <View style={styles.thumbnailContainer}>
+  
+
+// Correction: thumbnail pour vidéo locale
+const VideoCard = ({ video }: { video: VideoItem }) => (
+  <TouchableOpacity
+    style={styles.card}
+    onPress={() => goToPlayer(video)}
+    activeOpacity={0.8}
+  >
+    <View style={styles.thumbnailContainer}>
+      {video.youtubeId ? (
         <Image
           source={{
             uri: `https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg`,
           }}
           style={styles.thumbnail}
         />
-        <AntDesign
-          name="playcircleo"
-          size={48}
-          color="rgba(255, 255, 255, 0.9)"
-          style={styles.playIcon}
+      ) : (
+        <Image
+          source={require("../../assets/images/video_placeholder.png")}
+          style={styles.thumbnail}
         />
-        {watched[video.id] && (
-          <View style={styles.watchedBadge}>
-            <AntDesign name="check" size={16} color="white" />
-          </View>
-        )}
-      </View>
-      <View style={styles.info}>
-        <Text numberOfLines={2} style={styles.title}>
-          {video.title}
-        </Text>
-        <Text style={styles.subtitle}>ONEE - المكتب الوطني للكهرباء والماء الصالح للشرب</Text>
-        <View style={styles.videoStats}>
-          
-          {favorites[video.id]}
+      )}
+      <AntDesign
+        name="playcircleo"
+        size={48}
+        color="rgba(255, 255, 255, 0.9)"
+        style={styles.playIcon}
+      />
+      {watched[video.id] && (
+        <View style={styles.watchedBadge}>
+          <AntDesign name="check" size={16} color="white" />
         </View>
+      )}
+    </View>
+    <View style={styles.info}>
+      <Text numberOfLines={2} style={styles.title}>
+        {video.title}
+      </Text>
+      <Text style={styles.subtitle}>ONEE - المكتب الوطني للكهرباء والماء الصالح للشرب</Text>
+      <View style={styles.videoStats}>
+        {/* Retirer l'affichage direct du booléen */}
       </View>
-      <TouchableOpacity
-        onPress={() => toggleFavorite(video.id)}
-        style={styles.favorite}
-      >
-        <FontAwesome
-          name={favorites[video.id] ? "bookmark" : "bookmark-o"}
-          size={24}
-          color={favorites[video.id] ? "#007acc" : "#555"}
-        />
-      </TouchableOpacity>
+    </View>
+    <TouchableOpacity
+      onPress={() => toggleFavorite(video.id)}
+      style={styles.favorite}
+    >
+      <FontAwesome
+        name={favorites[video.id] ? "bookmark" : "bookmark-o"}
+        size={24}
+        color={favorites[video.id] ? "#007acc" : "#555"}
+      />
     </TouchableOpacity>
-  );
+  </TouchableOpacity>
+);
 
   const EmptyState = ({ type }: { type: string }) => (
     <View style={styles.emptyState}>
@@ -235,13 +240,11 @@ export default function Videos(): React.JSX.Element {
 
   return (
     <View style={styles.container}>
-      {/* Header with Statistics */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>مكتبة الفيديوهات التعليمية</Text>
-        <Text style={styles.headerSubtitle}>تعلم كيفية المحافظة على المياه</Text>
+        <Text style={styles.headerSubtitle}>اكتشف أهمية كل قطرة ماء</Text>
       </View>
 
-      {/* Search Bar */}
       <View style={styles.searchContainer}>
         <AntDesign
           name="search1"
@@ -263,7 +266,6 @@ export default function Videos(): React.JSX.Element {
         )}
       </View>
 
-      {/* Tab Navigation */}
       <View style={styles.tabContainer}>
         
         <TabButton 
@@ -281,7 +283,6 @@ export default function Videos(): React.JSX.Element {
         />
       </View>
 
-      {/* Videos List */}
       <ScrollView 
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
