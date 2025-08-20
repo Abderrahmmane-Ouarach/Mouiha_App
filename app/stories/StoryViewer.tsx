@@ -125,7 +125,6 @@ const StoryViewer: React.FC = () => {
     </Modal>
   );
 
-  // Simple navigation functions
   const goToNextPage = () => {
     if (currentPage < story.storyImages.length - 1) {
       flatListRef.current?.scrollToIndex({
@@ -170,7 +169,6 @@ const StoryViewer: React.FC = () => {
             inverted={I18nManager.isRTL}
           />
           
-          {/* Navigation arrows - correct direction for RTL */}
           <TouchableOpacity
             style={[styles.navButton, styles.prevButton]}
             onPress={goToPreviousPage}
@@ -196,7 +194,6 @@ const StoryViewer: React.FC = () => {
           </TouchableOpacity>
         </View>
         
-        {/* Page indicators */}
         <View style={styles.pageIndicators}>
           {story.storyImages.map((_, index) => (
             <TouchableOpacity
@@ -248,10 +245,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 20,
     color: '#1e40af',
-    fontFamily: 'Tajawal-Medium', // Replace with Arabic font
+    fontFamily: 'Tajawal-Bold', // Replace with Arabic font
   },
   pageInfo: {
     fontSize: 14,
