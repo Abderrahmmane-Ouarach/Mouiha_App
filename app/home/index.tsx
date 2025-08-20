@@ -1,5 +1,5 @@
+import { useEffect, useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useState, useEffect } from "react";
 
 const didYouKnowData = [
   "70٪ من سطح الأرض مغطى بالمياه، ولكن أقل من 1٪ فقط صالح للشرب.",
@@ -11,30 +11,53 @@ const didYouKnowData = [
   "في بعض الدول، أكثر من 80٪ من استهلاك المياه يذهب للزراعة.",
   "ترشيد استهلاك المياه يساهم أيضاً في تقليل استهلاك الطاقة المستخدمة في ضخها وتسخينها.",
   "الماء يشكل حوالي 60٪ من وزن جسم الإنسان.",
-  "إنتاج كيلو واحد من اللحم البقري يحتاج إلى أكثر من 15,000 لتر ماء."
+  "إنتاج كيلو واحد من اللحم البقري يحتاج إلى أكثر من 15,000 لتر ماء (معظمها مياه أمطار).",
+  "الاستحمام لمدة 5 دقائق بدلاً من 10 دقائق يوفر حوالي 50 لتراً من الماء يومياً.",
+  "استخدام غسالة الأطباق الممتلئة بدلاً من الغسيل اليدوي يوفر حتى 100 لتر لكل دورة غسيل.",
+  "قطرة ماء واحدة تحتوي على حوالي 166 مليار مليار جزيء من الماء.",
+  "المياه الجوفية تشكل أكثر من 30٪ من المياه العذبة في العالم.",
+  "الأمطار في صحراء أتاكاما بتشيلي نادرة جداً، مما يجعلها من أجف الأماكن على الأرض.",
+  "شجرة واحدة كبيرة يمكن أن تمتص أكثر من 150 لتراً من الماء يومياً.",
+  "إنتاج قميص قطني واحد يتطلب حوالي 2,700 لتر من الماء.",
+  "المحيطات تحتوي على 97٪ من كل الماء الموجود على الأرض.",
+  "يمكن للإنسان أن يعيش بدون طعام لأسابيع، لكن بدون ماء لأيام قليلة فقط.",
+  "تركيب أجهزة توفير المياه في الصنابير يمكن أن يقلل استهلاك الماء بنسبة 50٪.",
+  "الجليد القطبي يحتوي على حوالي 68٪ من المياه العذبة في العالم.",
+  "حوض استحمام ممتلئ يستهلك حوالي 300 لتر، بينما الدش لـ5 دقائق يستهلك 100 لتر فقط.",
+  "إنتاج فنجان قهوة واحد يحتاج إلى حوالي 140 لتراً من الماء.",
+  "المياه تتبخر من المحيطات بمعدل تريليون لتر كل ثانية.",
+  "استخدام نظام الري بالتنقيط يوفر حتى 90٪ من المياه مقارنة بالري التقليدي.",
+  "البحر الميت يحتوي على 10 أضعاف ملوحة المحيطات العادية.",
+  "كل دقيقة، يموت طفل في مكان ما بالعالم بسبب عدم توفر المياه النظيفة.",
+  "إنتاج كيلو واحد من الشوكولاتة يتطلب أكثر من 17,000 لتر من الماء.",
+  "المياه الجوفية في بعض طبقات الأرض قد تكون عمرها آلاف السنين.",
+  "غسل الخضروات والفواكه في وعاء بدلاً من الماء الجاري يوفر حتى 25 لتراً يومياً."
 ];
 
 export default function Home() {
   const [didYouKnowText, setDidYouKnowText] = useState("");
 
-  // Fonction qui choisit un fait aléatoire différent
   const getRandomFact = (currentFact?: string) => {
-    let newFact = currentFact;
-    while (newFact === currentFact) {
-      const randomIndex = Math.floor(Math.random() * didYouKnowData.length);
-      newFact = didYouKnowData[randomIndex];
-    }
-    return newFact;
-  };
+  if (didYouKnowData.length === 0) return "";
+  if (didYouKnowData.length === 1) return didYouKnowData[0];
+  let newFact = currentFact;
+  let tries = 0;
+  while (newFact === currentFact && tries < 10) {
+    const randomIndex = Math.floor(Math.random() * didYouKnowData.length);
+    newFact = didYouKnowData[randomIndex];
+    tries++;
+  }
+  return newFact;
+};
 
   useEffect(() => {
-    // Premier affichage
-    setDidYouKnowText(getRandomFact());
+    const nextFact = getRandomFact() || "";
+    setDidYouKnowText(nextFact);
   }, []);
 
   const handleDidYouKnowPress = () => {
-    // Nouveau fait différent
-    setDidYouKnowText(getRandomFact(didYouKnowText));
+const nextFact = getRandomFact(didYouKnowText) || "";
+  setDidYouKnowText(nextFact);
   };
 
   return (
@@ -43,7 +66,7 @@ export default function Home() {
       <View style={styles.header}>
         <Image
           source={require("../../assets/images/1753462668554.png")}
-          style={{ width: 185, height: 185 }}
+          style={{ width: 165, height: 185 }}
           resizeMode="contain"
         />
       </View>
@@ -64,9 +87,9 @@ export default function Home() {
       {/* Texte de bienvenue */}
       <View style={styles.blueContainer}>
         <Text style={styles.blueContainerText}>
-          مرحبًا بك في تطبيق التوعية بالمياه مويهة! تعرف على أهمية الحفاظ على
-          المياه من خلال الأنشطة الترفيهية والألعاب.
-        </Text>
+  مرحبًا بك في مويهة ! {"\n"}
+  اكتشف أهمية الحفاظ على المياه من خلال الألعاب والأنشطة التعليمية.
+</Text>
       </View>
 
       <View style={styles.placeholder} />
@@ -113,6 +136,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     alignSelf: "center",
     padding: 10,
+    marginTop: -30,
   },
   mouiha: {
     width: 350,
@@ -131,6 +155,9 @@ const styles = StyleSheet.create({
     elevation: 4,
     width: "90%",
     alignSelf: "center",
+    marginBottom: -50,
+    marginTop: -50,
+    position: "relative",
   },
   blueContainerText: {
     color: "#fff",
@@ -165,6 +192,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     position: "relative",
     overflow: "hidden",
+    
   },
   didYouKnowTitle: {
     color: "#007acc",

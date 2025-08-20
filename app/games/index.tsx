@@ -17,13 +17,13 @@ export default function Games() {
     
     return(
         <View style={styles.container}>
-            <View style={styles.header}>
-                <Image
-                    source={require("../../assets/images/logoONEE .png")}
-                    style={styles.logo}
-                    resizeMode="contain"
-                />
-            </View>
+           <View style={styles.header}>
+                   <Image
+                     source={require("../../assets/images/1753462668554.png")}
+                     style={{ width: 165, height: 185 }}
+                     resizeMode="contain"
+                   />
+                 </View>
             <View style={styles.gamesGrid}>
                 { games.map((game) => (
                     <View key={game.title} style={styles.gameCard}>
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
         marginBottom: 15,
     },
     gamesGrid: {
-        flexDirection: 'row',
+        flexDirection: 'column',
         flexWrap: 'wrap',
         justifyContent: 'center',
         marginTop: 20,

@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import {useState} from 'react';
+import { View, StyleSheet, Dimensions,ActivityIndicator } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { Video } from "expo-av";
+import { Video,ResizeMode } from "expo-av";
 import { RouteProp, useRoute } from '@react-navigation/native';
 
 type VideoItem = {
@@ -20,17 +20,22 @@ const screenWidth = Dimensions.get('window').width;
 export default function VideoPlayer(): React.JSX.Element {
   const route = useRoute<RouteProp<{ params: RouteParams }, 'params'>>();
   const { video } = route.params;
+  const [isReady, setIsReady] = useState(false);
 
   return (
     <View style={styles.container}>
       {video.localUri ? (
-        <Video
-          source={{ uri: video.localUri }}
-          style={styles.video}
-          useNativeControls
-          
-          shouldPlay
-        />
+        <>
+          <Video
+            source={typeof video.localUri === "number" ? video.localUri : { uri: video.localUri }}
+            style={styles.video}
+            useNativeControls
+            resizeMode={ResizeMode.CONTAIN} // Use enum value
+            shouldPlay
+            onLoad={() => setIsReady(true)}
+          />
+          {!isReady && <ActivityIndicator size="large" color="#fff" />}
+        </>
       ) : video.youtubeId ? (
         <WebView
           style={styles.video}

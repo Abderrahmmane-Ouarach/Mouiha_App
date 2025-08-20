@@ -17,8 +17,8 @@ import {
 
 type VideoItem = {
   id: string;
-  youtubeId?: string;   // optionnel
-  localUri?: any;       // pour les vidéos locales
+  youtubeId?: string;
+  localUri?: number; // require retourne un number
   title: string;
 };
 
@@ -30,8 +30,8 @@ const videoData: VideoItem[] = [
   { id: "2", youtubeId: "1iDQpgSggws", title: "عاداتنا مع الماء " },
     { id: "3", youtubeId: "-Fe6WU-cJ1g", title: "دورة الماء وأهمية الحفاظ عليه" },
 
-  { id: "3", youtubeId: "zHXpnPQbhfc", title: " شرح موضوع الصرف الصحي" },
-  { id: "4", youtubeId: "E0emEQq-otk", title: "معلومات أساسية حول ضمان جودة مياه الشرب" },
+  { id: "4", youtubeId: "zHXpnPQbhfc", title: " شرح موضوع الصرف الصحي" },
+  { id: "5", youtubeId: "E0emEQq-otk", title: "معلومات أساسية حول ضمان جودة مياه الشرب" },
 ];
 
 type RootStackParamList = {
