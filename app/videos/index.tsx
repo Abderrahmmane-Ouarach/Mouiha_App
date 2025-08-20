@@ -1,7 +1,6 @@
 import { AntDesign, FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
-import { Video } from 'expo-av';
 
 import React, { useEffect, useState } from "react";
 import {
@@ -28,10 +27,16 @@ const screenWidth = Dimensions.get("window").width;
 const videoData: VideoItem[] = [
   { id: "1", localUri: require("../../assets/images/capsule_onee_arabe_.mp4"), title: "طرق لترشيد استعمال " },
   { id: "2", youtubeId: "1iDQpgSggws", title: "عاداتنا مع الماء " },
-    { id: "3", youtubeId: "-Fe6WU-cJ1g", title: "دورة الماء وأهمية الحفاظ عليه" },
-
+  { id: "3", youtubeId: "-Fe6WU-cJ1g", title: "دورة الماء وأهمية الحفاظ عليه" },
   { id: "4", youtubeId: "zHXpnPQbhfc", title: " شرح موضوع الصرف الصحي" },
   { id: "5", youtubeId: "E0emEQq-otk", title: "معلومات أساسية حول ضمان جودة مياه الشرب" },
+  { id: "6", youtubeId: "EvhWVhcsjuk", title: "مراحل تصفية المياه العادمة" },
+  { id: "7", youtubeId: "kz0Zo0_PB9o", title: "مزايا التطهير السائل" },
+  { id: "8", youtubeId: "bRmBRjLfc9k", title: "بعض مشاريع المكتب الوطني للكهرباء والماء الصالح للشرب" },
+  
+  
+
+
 ];
 
 type RootStackParamList = {

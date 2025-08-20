@@ -124,9 +124,9 @@ const StoriesIndex: React.FC = () => {
         <SafeAreaView style={styles.container}>
         
         <View style={styles.content}>
-            <Text style={styles.title}>قصص المياه</Text>
+            <Text style={styles.title}>قصص مويهة</Text>
             <Text style={styles.subtitle}>
-            اكتشف قصصاً مذهلة عن المياه !
+            اكتشف قصصاً عن المياه !
             </Text>
 
             <FilterButtons

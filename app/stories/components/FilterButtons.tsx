@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     
     color: '#3b82f6',
     marginRight: 6,
-    fontFamily: 'Tajawal-Regular', 
+    fontFamily: 'Tajawal-Medium', 
   },
   activeText: {
     color: '#ffffff',
