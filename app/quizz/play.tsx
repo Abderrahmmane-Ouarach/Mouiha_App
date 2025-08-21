@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useRef, useState } from "react";
+import { Ionicons } from '@expo/vector-icons'; // déjà importé
 
 import {
   ActivityIndicator,
@@ -128,7 +129,12 @@ export default function Play() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      
+      <TouchableOpacity
+  style={styles.backIconButton}
+  onPress={() => navigation.navigate("SelectLevel")}
+>
+  <Ionicons name="arrow-back" size={28} color="#007acc" />
+</TouchableOpacity>
   <Text style={styles.levelText}>{getArabicLevelLabel(level)}</Text>
 <View style={styles.progressBarContainer}>
   <View
@@ -278,6 +284,21 @@ const styles = StyleSheet.create({
     backgroundColor: "#E8F4FD", 
     flexGrow: 1,
   },
+  backIconButton: {
+  position: 'absolute',
+  top: 20,
+  left: 20, // pour RTL, tu peux le mettre à gauche
+  zIndex: 10,
+  backgroundColor: 'white',
+  borderRadius: 20,
+  padding: 6,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.3,
+  shadowRadius: 3,
+  elevation: 4,
+},
+
   
   questionCount: {
     fontSize: 18,
