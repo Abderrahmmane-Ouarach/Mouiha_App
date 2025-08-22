@@ -1,7 +1,6 @@
 import { AntDesign, FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
-
 import React, { useEffect, useState } from "react";
 import {
   Dimensions,
@@ -12,32 +11,31 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from "react-native";
+import { createClient } from "@supabase/supabase-js";
+import { Video } from "expo-av";
+
 
 type VideoItem = {
   id: string;
-  youtubeId?: string;
-  localUri?: number; // require retourne un number
   title: string;
+  url?: string;      
+  youtubeId?: string; 
+  is_local?: boolean;
+  localUri?: any; 
+  thumbnailUrl?: string;   
 };
 
 
+// ⚡️ config supabase
+const SUPABASE_URL = "https://pkajxvtwgqgzjfqnmlef.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBrYWp4dnR3Z3FnempmcW5tbGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0NzU5MzAsImV4cCI6MjA3MDA1MTkzMH0.QSAqEKqNsTi15F7859iPG8Uf4P4saChrX5yFjuWEtmg";
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 const screenWidth = Dimensions.get("window").width;
-
-const videoData: VideoItem[] = [
-  { id: "1", localUri: require("../../assets/images/capsule_onee_arabe_.mp4"), title: "طرق لترشيد استعمال " },
-  { id: "2", youtubeId: "1iDQpgSggws", title: "عاداتنا مع الماء " },
-  { id: "3", youtubeId: "-Fe6WU-cJ1g", title: "دورة الماء وأهمية الحفاظ عليه" },
-  { id: "4", youtubeId: "zHXpnPQbhfc", title: " شرح موضوع الصرف الصحي" },
-  { id: "5", youtubeId: "E0emEQq-otk", title: "معلومات أساسية حول ضمان جودة مياه الشرب" },
-  { id: "6", youtubeId: "EvhWVhcsjuk", title: "مراحل تصفية المياه العادمة" },
-  { id: "7", youtubeId: "kz0Zo0_PB9o", title: "مزايا التطهير السائل" },
-  { id: "8", youtubeId: "bRmBRjLfc9k", title: "بعض مشاريع المكتب الوطني للكهرباء والماء الصالح للشرب" },
-  
-  
-
-
-];
 
 type RootStackParamList = {
   VideoPlayer: {
@@ -46,30 +44,65 @@ type RootStackParamList = {
 };
 
 export default function Videos(): React.JSX.Element {
-  const navigation = useNavigation<import('@react-navigation/native').NavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<
+    import("@react-navigation/native").NavigationProp<RootStackParamList>
+  >();
+
+  const [videos, setVideos] = useState<VideoItem[]>([]);
   const [favorites, setFavorites] = useState<Record<string, boolean>>({});
   const [watched, setWatched] = useState<Record<string, boolean>>({});
   const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState<'all' | 'saved' | 'watched'>('all');
-
-  const favoriteVideos = videoData.filter((video) => favorites[video.id]);
-  const watchedVideos = videoData.filter((video) => watched[video.id]);
+  const [activeTab, setActiveTab] = useState<"all" | "saved" | "watched">("all");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadStoredData();
+    fetchVideos();
   }, []);
+
+  // 🔎 extraire youtubeId à partir du lien
+  const extractYoutubeId = (url: string): string | undefined => {
+    if (!url) return undefined;
+    const regExp =
+      /^.*(?:youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return match && match[1].length === 11 ? match[1] : undefined;
+  };
+
+  // 📥 جلب الفيديوهات من supabase
+  const fetchVideos = async () => {
+    try {
+      const { data, error } = await supabase.from("videos").select("*");
+      if (error) throw error;
+
+      const processed = (data || []).map((v: any) => ({
+        ...v,
+        youtubeId: !v.is_local && v.url ? extractYoutubeId(v.url) : undefined,
+      }));
+
+      setVideos(processed);
+      await AsyncStorage.setItem("cachedVideos", JSON.stringify(processed));
+    } catch (err) {
+      console.log("❌ Supabase error:", err);
+      // fallback sur cache
+      const cached = await AsyncStorage.getItem("cachedVideos");
+      if (cached) setVideos(JSON.parse(cached));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadStoredData = async () => {
     try {
       const [watchedData, favoritesData] = await Promise.all([
         AsyncStorage.getItem("watchedVideos"),
-        AsyncStorage.getItem("favoriteVideos")
+        AsyncStorage.getItem("favoriteVideos"),
       ]);
-      
+
       if (watchedData) setWatched(JSON.parse(watchedData));
       if (favoritesData) setFavorites(JSON.parse(favoritesData));
     } catch (error) {
-      console.error('Error loading stored data:', error);
+      console.error("Error loading stored data:", error);
     }
   };
 
@@ -80,12 +113,19 @@ export default function Videos(): React.JSX.Element {
   };
 
   const goToPlayer = (video: VideoItem) => {
-  markAsWatched(video.id);
-  navigation.navigate("VideoPlayer", {
-    video,
-  });
-};
-
+    markAsWatched(video.id);
+     if (video.url && !video.youtubeId) {
+    navigation.navigate("VideoPlayer", {
+      video: {
+        ...video,
+        localUri: video.url, // <-- ici on met l'URL dans localUri
+      },
+    });
+  } else {
+    navigation.navigate("VideoPlayer", { video });
+  }
+    
+  };
 
   const toggleFavorite = async (id: string) => {
     const updated = { ...favorites, [id]: !favorites[id] };
@@ -93,22 +133,27 @@ export default function Videos(): React.JSX.Element {
     await AsyncStorage.setItem("favoriteVideos", JSON.stringify(updated));
   };
 
+  const favoriteVideos = videos.filter((video) => favorites[video.id]);
+  const watchedVideos = videos.filter((video) => watched[video.id]);
+
   const getFilteredVideos = () => {
-    let videosToShow = videoData;
-    
+    let videosToShow = videos;
+
     switch (activeTab) {
-      case 'saved':
+      case "saved":
         videosToShow = favoriteVideos;
         break;
-      case 'watched':
+      case "watched":
         videosToShow = watchedVideos;
         break;
       default:
-        videosToShow = videoData;
+        videosToShow = videos;
     }
 
     return videosToShow
-      .filter((video) => video.title.toLowerCase().includes(search.toLowerCase()))
+      .filter((video) =>
+        video.title.toLowerCase().includes(search.toLowerCase())
+      )
       .sort((a, b) => {
         if (activeTab === 'all') {
           const aWatched = watched[a.id] ?? false;
@@ -165,62 +210,65 @@ export default function Videos(): React.JSX.Element {
     </TouchableOpacity>
   );
 
-  
-
-// Correction: thumbnail pour vidéo locale
-const VideoCard = ({ video }: { video: VideoItem }) => (
-  <TouchableOpacity
-    style={styles.card}
-    onPress={() => goToPlayer(video)}
-    activeOpacity={0.8}
-  >
-    <View style={styles.thumbnailContainer}>
-      {video.youtubeId ? (
-        <Image
-          source={{
-            uri: `https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg`,
-          }}
-          style={styles.thumbnail}
-        />
-      ) : (
-        <Image
-          source={require("../../assets/images/video_placeholder.png")}
-          style={styles.thumbnail}
-        />
-      )}
-      <AntDesign
-        name="playcircleo"
-        size={48}
-        color="rgba(255, 255, 255, 0.9)"
-        style={styles.playIcon}
-      />
-      {watched[video.id] && (
-        <View style={styles.watchedBadge}>
-          <AntDesign name="check" size={16} color="white" />
-        </View>
-      )}
-    </View>
-    <View style={styles.info}>
-      <Text numberOfLines={2} style={styles.title}>
-        {video.title}
-      </Text>
-      <Text style={styles.subtitle}>ONEE - المكتب الوطني للكهرباء والماء الصالح للشرب</Text>
-      <View style={styles.videoStats}>
-        {/* Retirer l'affichage direct du booléen */}
-      </View>
-    </View>
+  // 🎴 بطاقة الفيديو
+  const VideoCard = ({ video }: { video: VideoItem }) => (
     <TouchableOpacity
-      onPress={() => toggleFavorite(video.id)}
-      style={styles.favorite}
+      style={styles.card}
+      onPress={() => goToPlayer(video)}
+      activeOpacity={0.8}
     >
-      <FontAwesome
-        name={favorites[video.id] ? "bookmark" : "bookmark-o"}
-        size={24}
-        color={favorites[video.id] ? "#007acc" : "#555"}
-      />
+      <View style={styles.thumbnailContainer}>
+        {video.youtubeId ? (
+          <Image
+            source={{ uri: `https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg` }}
+            style={styles.thumbnail}
+          />
+        ) : video.is_local && video.thumbnailUrl ? (
+          <Image
+            source={{ uri: video.thumbnailUrl }}
+            style={styles.thumbnail}
+          />
+        ) : (
+          <View style={[styles.thumbnail, styles.placeholderThumbnail]}>
+            <AntDesign name="videocamera" size={64} color="#ccc" />
+          </View>
+        )}
+        <AntDesign
+          name="playcircleo"
+          size={48}
+          color="rgba(255, 255, 255, 0.9)"
+          style={styles.playIcon}
+        />
+        {watched[video.id] && (
+          <View style={styles.watchedBadge}>
+            <AntDesign name="check" size={16} color="white" />
+          </View>
+        )}
+      </View>
+
+      <View style={styles.info}>
+        <Text numberOfLines={2} style={styles.title}>
+          {video.title}
+        </Text>
+        <Text style={styles.subtitle}>
+          ONEE - المكتب الوطني للكهرباء والماء الصالح للشرب
+        </Text>
+        <View style={styles.videoStats}>
+          {/* Additional stats can be added here */}
+        </View>
+      </View>
+      <TouchableOpacity
+        onPress={() => toggleFavorite(video.id)}
+        style={styles.favorite}
+      >
+        <FontAwesome
+          name={favorites[video.id] ? "bookmark" : "bookmark-o"}
+          size={24}
+          color={favorites[video.id] ? "#007acc" : "#555"}
+        />
+      </TouchableOpacity>
     </TouchableOpacity>
-  </TouchableOpacity>
-);
+  );
 
   const EmptyState = ({ type }: { type: string }) => (
     <View style={styles.emptyState}>
@@ -242,6 +290,15 @@ const VideoCard = ({ video }: { video: VideoItem }) => (
   );
 
   const filteredVideos = getFilteredVideos();
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007acc" />
+        <Text style={styles.loadingText}>جاري التحميل...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -272,7 +329,6 @@ const VideoCard = ({ video }: { video: VideoItem }) => (
       </View>
 
       <View style={styles.tabContainer}>
-        
         <TabButton 
           tab="saved" 
           title="المحفوظة" 
@@ -284,8 +340,9 @@ const VideoCard = ({ video }: { video: VideoItem }) => (
           tab="all" 
           title="الكل" 
           icon="video-library" 
-          count={videoData.length}
+          count={videos.length}
         />
+
       </View>
 
       <ScrollView 
@@ -294,8 +351,6 @@ const VideoCard = ({ video }: { video: VideoItem }) => (
       >
         {filteredVideos.length > 0 ? (
           <View style={styles.videosList}>
-            {activeTab !== 'all'}
-            
             {filteredVideos.map((video) => (
               <VideoCard key={video.id} video={video} />
             ))}
@@ -327,6 +382,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f7f9fc",
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f7f9fc",
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: "#666",
+    fontFamily: "Tajawal-Regular",
+  },
   header: {
     backgroundColor: "#007acc",
     paddingTop: 50,
@@ -348,31 +415,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontFamily: "Tajawal-Regular",
     marginBottom: 20,
-  },
-  statsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: 10,
-  },
-  statCard: {
-    alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 15,
-    minWidth: 80,
-  },
-  statNumber: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "white",
-    fontFamily: "Tajawal-Bold",
-  },
-  statLabel: {
-    fontSize: 12,
-    color: "rgba(255, 255, 255, 0.8)",
-    fontFamily: "Tajawal-Regular",
-    marginTop: 2,
   },
   searchContainer: {
     flexDirection: "row",
@@ -422,7 +464,6 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     backgroundColor: "#007acc",
-
   },
   tabContent: {
     alignItems: "center",
@@ -465,24 +506,6 @@ const styles = StyleSheet.create({
   videosList: {
     paddingHorizontal: 20,
   },
-  sectionHeader: {
-    marginBottom: 15,
-    paddingBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#222",
-    fontFamily: "Tajawal-Bold",
-  },
-  sectionSubtitle: {
-    fontSize: 14,
-    color: "#666",
-    fontFamily: "Tajawal-Regular",
-    marginTop: 2,
-  },
   card: {
     backgroundColor: "#fff",
     borderRadius: 15,
@@ -503,6 +526,11 @@ const styles = StyleSheet.create({
   thumbnail: {
     width: "100%",
     height: "100%",
+  },
+  placeholderThumbnail: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f0f0f0",
   },
   playIcon: {
     position: "absolute",
@@ -542,16 +570,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 15,
-  },
-  statItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  statText: {
-    fontSize: 12,
-    color: "#666",
-    fontFamily: "Tajawal-Regular",
   },
   favorite: {
     position: "absolute",

@@ -1,8 +1,8 @@
-import {useState} from 'react';
-import { View, StyleSheet, Dimensions,ActivityIndicator } from 'react-native';
-import { WebView } from 'react-native-webview';
-import { Video,ResizeMode } from "expo-av";
 import { RouteProp, useRoute } from '@react-navigation/native';
+import { ResizeMode, Video } from "expo-av";
+import { useState } from 'react';
+import { ActivityIndicator, Dimensions, StyleSheet, View } from 'react-native';
+import { WebView } from 'react-native-webview';
 
 type VideoItem = {
   id: string;
@@ -27,13 +27,14 @@ export default function VideoPlayer(): React.JSX.Element {
       {video.localUri ? (
         <>
           <Video
-            source={typeof video.localUri === "number" ? video.localUri : { uri: video.localUri }}
-            style={styles.video}
-            useNativeControls
-            resizeMode={ResizeMode.CONTAIN} // Use enum value
-            shouldPlay
-            onLoad={() => setIsReady(true)}
-          />
+  source={typeof video.localUri === "number" ? video.localUri : { uri: video.localUri }}
+  style={styles.video}
+  useNativeControls
+  resizeMode={ResizeMode.CONTAIN}
+  shouldPlay
+  onLoad={() => setIsReady(true)}
+/>
+
           {!isReady && <ActivityIndicator size="large" color="#fff" />}
         </>
       ) : video.youtubeId ? (
