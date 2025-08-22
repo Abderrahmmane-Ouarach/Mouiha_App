@@ -9,9 +9,10 @@
       "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true,
+      "releaseChannel": "production",
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "gradleCommand": ":app:assembleRelease"
       }
     },
     "preview": {

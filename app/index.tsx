@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { View, Text, StyleSheet, Image, Animated } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
+import * as SplashScreen from 'expo-splash-screen';
 
 export default function Intro() {
   const navigation = useNavigation<StackNavigationProp<any>>();
@@ -11,6 +12,9 @@ export default function Intro() {
   const dot4 = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    // Empêche Expo de cacher son splash automatiquement
+    SplashScreen.preventAutoHideAsync();
+
     // Animation des points flottants
     const animateDots = () => {
       Animated.sequence([
@@ -24,10 +28,11 @@ export default function Intro() {
         Animated.timing(dot4, { toValue: 0, duration: 250, useNativeDriver: true }),
       ]).start(() => animateDots());
     };
-    
+
     animateDots();
 
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
+      await SplashScreen.hideAsync(); // cache le splash Expo
       navigation.replace("Main", { screen: "Home" });
     }, 2500);
 
@@ -52,6 +57,7 @@ export default function Intro() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: { 
