@@ -52,6 +52,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({
             <View style={styles.levelBubble}>
               <Text style={styles.levelValue}>{currentLevel}</Text>
               <Text style={styles.levelLabel}>المستوى</Text>
+              
             </View>
           </View>
         </View>

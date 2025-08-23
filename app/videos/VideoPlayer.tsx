@@ -6,8 +6,8 @@ import { WebView } from 'react-native-webview';
 
 type VideoItem = {
   id: string;
-  youtubeId?: string;   // optionnel
-  localUri?: string;    // string pour les vidéos locales
+  youtubeId?: string;   
+  localUri?: string;   
   title: string;
 };
 

@@ -1,10 +1,10 @@
-// SaveTheDropGame.tsx
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Dimensions,
   StyleSheet,
 } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StartScreen } from './components/StartScreen';
 import { GameScreen } from './components/GameScreen';
 import { LevelCompleteModal } from './components/LevelCompleteModal';
@@ -15,7 +15,6 @@ import { gameConfig } from './config/GameConfig';
 const { width: screenWidth } = Dimensions.get('window');
 
 export const SaveTheDropGame: React.FC = () => {
-  // Game state
   const [gameState, setGameState] = useState<'start' | 'playing' | 'levelComplete'>('start');
   const [currentLevel, setCurrentLevel] = useState<number>(1);
   const [score, setScore] = useState<number>(0);
@@ -25,26 +24,31 @@ export const SaveTheDropGame: React.FC = () => {
   const [dropIdCounter, setDropIdCounter] = useState<number>(0);
   const [levelCompleteData, setLevelCompleteData] = useState<any>(null);
 
-  // Game intervals
-  const dropSpawnInterval = useRef<NodeJS.Timeout | null>(null);
-  const dropMoveInterval = useRef<NodeJS.Timeout | null>(null);
+  const dropSpawnInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+  const dropMoveInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastSpawnPositions = useRef<{x: number, time: number}[]>([]);
 
-  // Calculate current game settings based on level
+  useEffect(() => {
+    const loadProgress = async () => {
+      const savedLevel = await AsyncStorage.getItem('currentLevel');
+      if (savedLevel) setCurrentLevel(parseInt(savedLevel, 10));
+    };
+    loadProgress();
+  }, []);
+
   const getCurrentSettings = useCallback(() => {
     const levelMultiplier = currentLevel - 1;
     return {
       dropSpeed: gameConfig.initialDropSpeed + (levelMultiplier * 1.2),
       spawnRate: Math.max(
-        gameConfig.initialSpawnRate - (levelMultiplier * 500), // Reduced from 300 to 200 for more gradual difficulty
+        gameConfig.initialSpawnRate - (levelMultiplier * 500),
         gameConfig.minSpawnRate
       ),
-      pollutedDropChance: Math.min(0.15 + (levelMultiplier * 0.08), 0.45), // Slightly reduced pollution increase
+      pollutedDropChance: Math.min(0.15 + (levelMultiplier * 0.08), 0.45),
       waterTarget: gameConfig.baseWaterTarget + (levelMultiplier * 8),
     };
   }, [currentLevel]);
 
-  // Start the game
   const startGame = useCallback(() => {
     setGameState('playing');
     setScore(0);
@@ -55,19 +59,20 @@ export const SaveTheDropGame: React.FC = () => {
     lastSpawnPositions.current = [];
   }, []);
 
-  // Complete current level
-  const completeLevel = useCallback(() => {
-    // Clear intervals
+  const completeLevel = useCallback(async () => {
     if (dropSpawnInterval.current) clearInterval(dropSpawnInterval.current);
     if (dropMoveInterval.current) clearInterval(dropMoveInterval.current);
-    
-    // Calculate level completion data
+
     const settings = getCurrentSettings();
     const totalWater = waterCollected + pollutedWaterCollected;
     const cleanWaterPercentage = totalWater > 0 ? Math.round((waterCollected / totalWater) * 100) : 100;
-    const canAdvance = cleanWaterPercentage >= 70; // 70% clean water required to advance
+    const canAdvance = cleanWaterPercentage >= 70;
     const randomContent = educationalContent[Math.floor(Math.random() * educationalContent.length)];
-    
+
+    if (canAdvance) {
+      await AsyncStorage.setItem('currentLevel', (currentLevel + 1).toString());
+    }
+
     setLevelCompleteData({
       level: currentLevel,
       score,
@@ -79,60 +84,44 @@ export const SaveTheDropGame: React.FC = () => {
       canAdvance,
       content: randomContent,
     });
-    
     setGameState('levelComplete');
   }, [currentLevel, score, waterCollected, pollutedWaterCollected, getCurrentSettings]);
 
-  // Go to next level
   const nextLevel = useCallback(() => {
     setCurrentLevel(prev => prev + 1);
     startGame();
   }, [startGame]);
 
-  // Retry current level
   const retryLevel = useCallback(() => {
-    startGame(); // Restart the same level
+    startGame();
   }, [startGame]);
 
-  // Generate a safe spawn position that avoids overlapping with recent drops
   const generateSafeSpawnPosition = useCallback(() => {
     const currentTime = Date.now();
-    const minDistance = 80; // Minimum distance between drops
+    const minDistance = 80;
     const maxAttempts = 10;
-    
-    // Clean up old positions (older than 2 seconds)
     lastSpawnPositions.current = lastSpawnPositions.current.filter(
       pos => currentTime - pos.time < 2000
     );
-    
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      const x = Math.random() * (screenWidth - gameConfig.dropSize - 140); // Leave space for water container
-      
-      // Check if this position is too close to recent spawn positions
-      const tooClose = lastSpawnPositions.current.some(pos => 
+      const x = Math.random() * (screenWidth - gameConfig.dropSize - 140);
+      const tooClose = lastSpawnPositions.current.some(pos =>
         Math.abs(pos.x - x) < minDistance
       );
-      
       if (!tooClose) {
-        // Add this position to recent positions
         lastSpawnPositions.current.push({ x, time: currentTime });
         return x;
       }
     }
-    
-    // If we can't find a safe position after max attempts, use a random one
-    // but still record it
     const fallbackX = Math.random() * (screenWidth - gameConfig.dropSize - 140);
     lastSpawnPositions.current.push({ x: fallbackX, time: currentTime });
     return fallbackX;
   }, []);
 
-  // Spawn a single drop (changed from multiple drops)
   const spawnDrop = useCallback(() => {
     const settings = getCurrentSettings();
     const isPolluted = Math.random() < settings.pollutedDropChance;
     const x = generateSafeSpawnPosition();
-    
     const newDrop: Drop = {
       id: dropIdCounter,
       x,
@@ -140,53 +129,37 @@ export const SaveTheDropGame: React.FC = () => {
       size: gameConfig.dropSize,
       isPolluted,
     };
-    
     setDrops(prevDrops => [...prevDrops, newDrop]);
     setDropIdCounter(prev => prev + 1);
   }, [dropIdCounter, getCurrentSettings, generateSafeSpawnPosition]);
 
-  // Move all drops down
   const moveDrops = useCallback(() => {
     const settings = getCurrentSettings();
-    
     setDrops(prevDrops => {
       const updatedDrops: Drop[] = [];
-
       prevDrops.forEach(drop => {
         const newY = drop.y + settings.dropSpeed;
-        
-        if (newY >= gameConfig.drainY - gameConfig.dropSize) {
-          // Drop reached the drain - no penalty, just remove it
-        } else {
-          // Drop is still falling
+        if (newY < gameConfig.drainY - gameConfig.dropSize) {
           updatedDrops.push({ ...drop, y: newY });
         }
       });
-
       return updatedDrops;
     });
   }, [getCurrentSettings]);
 
-  // Handle drop tap
   const onDropTap = useCallback((dropId: number) => {
     const tappedDrop = drops.find(drop => drop.id === dropId);
     if (!tappedDrop) return;
-
-    // Remove only the tapped drop
     setDrops(prevDrops => prevDrops.filter(drop => drop.id !== dropId));
-    
     if (tappedDrop.isPolluted) {
-      // Tapped polluted drop - still counts as collected water but affects cleanliness
       setPollutedWaterCollected(prev => prev + 1);
       setScore(prev => Math.max(0, prev - 5));
     } else {
-      // Tapped clean drop - increases clean water and score
       setWaterCollected(prev => prev + 1);
       setScore(prev => prev + 10);
     }
   }, [drops]);
 
-  // Check if level is complete
   useEffect(() => {
     const settings = getCurrentSettings();
     const totalWater = waterCollected + pollutedWaterCollected;
@@ -195,20 +168,13 @@ export const SaveTheDropGame: React.FC = () => {
     }
   }, [waterCollected, pollutedWaterCollected, gameState, getCurrentSettings, completeLevel]);
 
-  // Game loop effect
   useEffect(() => {
     if (gameState !== 'playing') return;
-
     const settings = getCurrentSettings();
-
-    // Spawn drops interval - now spawns one drop at a time
-    const spawnInterval = setInterval(spawnDrop, settings.spawnRate) as unknown as NodeJS.Timeout;
+    const spawnInterval = setInterval(spawnDrop, settings.spawnRate) as unknown as ReturnType<typeof setInterval>;
     dropSpawnInterval.current = spawnInterval;
-
-    // Move drops interval
-    const moveInterval = setInterval(moveDrops, gameConfig.gameLoopSpeed) as unknown as NodeJS.Timeout;
+    const moveInterval = setInterval(moveDrops, gameConfig.gameLoopSpeed) as unknown as ReturnType<typeof setInterval>;
     dropMoveInterval.current = moveInterval;
-
     return () => {
       if (spawnInterval) clearInterval(spawnInterval);
       if (moveInterval) clearInterval(moveInterval);
@@ -217,11 +183,10 @@ export const SaveTheDropGame: React.FC = () => {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.container}>      
+      <SafeAreaView style={styles.container}>
         {gameState === 'start' && (
           <StartScreen onStartGame={startGame} />
         )}
-        
         {gameState === 'playing' && (
           <GameScreen
             currentLevel={currentLevel}
@@ -234,7 +199,6 @@ export const SaveTheDropGame: React.FC = () => {
             onLeaveGame={() => setGameState('start')}
           />
         )}
-        
         {gameState === 'levelComplete' && levelCompleteData && (
           <LevelCompleteModal
             visible={true}

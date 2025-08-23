@@ -10,8 +10,8 @@ import {
 } from "react-native";
 
 const games = [
-  { title: "ذاكرة الماء", path: "FlipMacher", image: require("../../assets/images/mouiha.png"), disabled: false },
-  { title: "احفظ القطرة", path: "SaveTheDrop", image: require("../../assets/images/mouiha.png"), disabled: false },
+  { title: "ذاكرة الماء", path: "FlipMacher", image: require("../../assets/images/1755905122696.png"), disabled: false },
+  { title: "احفظ القطرة", path: "SaveTheDrop", image: require("../../assets/images/1755905122702.png"), disabled: false },
   { title: "التلوين", path: "FlipMacher", image: require("../../assets/images/mouiha.png"), disabled: true },
 ];
 
@@ -34,7 +34,7 @@ export default function Games() {
                 resizeMode="contain"
               />
             </View>
-      <Text style={styles.header}> ألعاب التوعية بالماء</Text>
+      <Text style={styles.header}>العب واستفد مع مويهة</Text>
 
       <View style={styles.gamesGrid}>
         {games.map((game, index) => {
@@ -95,9 +95,19 @@ const styles = StyleSheet.create({
   },
   header: {
     fontSize: 22,
-    fontFamily: "Tajawal-ExtraBold",
-    color: "#0472bbff",
+    fontFamily: "Tajawal-Bold",
+    color: "#00385eff",
     marginBottom: 50,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 2,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: "#dfeefcff",
+    borderRadius: 30,
+    marginTop: 20,
     textAlign: "center",
   },
   gamesGrid: {
@@ -126,12 +136,12 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   gameImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 16,
+    width: 85,
+    height: 85,
+   borderRadius:2,
     marginBottom: 10,
     resizeMode: "contain",
-    backgroundColor: "#f0f8ff",
+    backgroundColor: "#f2faffff",
     padding: 10,
   },
   gameCardText: {

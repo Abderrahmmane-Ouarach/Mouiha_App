@@ -60,7 +60,6 @@ export default function Videos(): React.JSX.Element {
     fetchVideos();
   }, []);
 
-  // 🔎 extraire youtubeId à partir du lien
   const extractYoutubeId = (url: string): string | undefined => {
     if (!url) return undefined;
     const regExp =
@@ -69,7 +68,6 @@ export default function Videos(): React.JSX.Element {
     return match && match[1].length === 11 ? match[1] : undefined;
   };
 
-  // 📥 جلب الفيديوهات من supabase
   const fetchVideos = async () => {
     try {
       const { data, error } = await supabase.from("videos").select("*");
@@ -118,7 +116,7 @@ export default function Videos(): React.JSX.Element {
     navigation.navigate("VideoPlayer", {
       video: {
         ...video,
-        localUri: video.url, // <-- ici on met l'URL dans localUri
+        localUri: video.url, 
       },
     });
   } else {
@@ -210,7 +208,6 @@ export default function Videos(): React.JSX.Element {
     </TouchableOpacity>
   );
 
-  // 🎴 بطاقة الفيديو
   const VideoCard = ({ video }: { video: VideoItem }) => (
     <TouchableOpacity
       style={styles.card}
@@ -254,7 +251,6 @@ export default function Videos(): React.JSX.Element {
           ONEE - المكتب الوطني للكهرباء والماء الصالح للشرب
         </Text>
         <View style={styles.videoStats}>
-          {/* Additional stats can be added here */}
         </View>
       </View>
       <TouchableOpacity
