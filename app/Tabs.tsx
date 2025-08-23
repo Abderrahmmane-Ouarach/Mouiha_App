@@ -31,14 +31,12 @@ export default function AppTabs() {
           tabBarInactiveTintColor: "#888",
           tabBarStyle: {
             flexDirection: "row",
-            backgroundColor: '#000', // dark bar
+            backgroundColor: '#000', 
           },
         })}
         tabBar={(props) => {
-          // Personnaliser l'ordre des onglets
           const { state, descriptors, navigation } = props;
 
-          // Réorganiser l'ordre pour que Home soit à droite
           const reorderedRoutes = [
             state.routes.find((route) => route.name === "Stories"),
             state.routes.find((route) => route.name === "Games"),
@@ -133,7 +131,6 @@ export default function AppTabs() {
           );
         }}
       >
-        {/* Commencer par Home pour qu'il soit l'écran par défaut */}
         <Tab.Screen
           name="Home"
           component={HomeScreen}

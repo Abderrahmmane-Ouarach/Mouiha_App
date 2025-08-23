@@ -23,17 +23,17 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/1755872616675.jpg"
+      "favicon": "./assets/images/logoo.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": null,
+          "image": "./assets/images/1755962249110.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#f0f8ff"
         }
       ],
       "expo-font",

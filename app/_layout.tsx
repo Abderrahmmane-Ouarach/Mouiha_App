@@ -27,14 +27,13 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      {/* Gère automatiquement la status bar (Android/iOS) */}
       <StatusBar style="auto" />
 
       <Stack.Navigator
         initialRouteName="Landing"
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: "#fff" }, // évite le clignotement noir
+          contentStyle: { backgroundColor: "#fff" }, 
         }}
       >
         <Stack.Screen name="Landing" component={LandingScreen} />
