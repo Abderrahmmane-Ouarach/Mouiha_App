@@ -2,7 +2,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useRef, useState } from "react";
-import { Ionicons } from '@expo/vector-icons'; // déjà importé
+import { Ionicons } from '@expo/vector-icons'
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import {
   ActivityIndicator,
@@ -128,24 +129,26 @@ export default function Play() {
   
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#E8F4FD" }}>
     <ScrollView contentContainerStyle={styles.container}>
       <TouchableOpacity
-  style={styles.backIconButton}
-  onPress={() => navigation.navigate("SelectLevel")}
->
-  <Ionicons name="arrow-back" size={28} color="#007acc" />
-</TouchableOpacity>
-  <Text style={styles.levelText}>{getArabicLevelLabel(level)}</Text>
-<View style={styles.progressBarContainer}>
-  <View
-    style={[
-      styles.progressBarFill,
-      { width: `${((currentIndex + 1) / questions.length) * 100}%` },
-    ]}
-  >
-    
-  </View>
-</View>
+        style={styles.backIconButton}
+        onPress={() => navigation.navigate("SelectLevel")}
+      >
+        <Ionicons name="arrow-back" size={28} color="#007acc" />
+      </TouchableOpacity>
+
+      <Text style={styles.levelText}>{getArabicLevelLabel(level)}</Text>
+
+      <View style={styles.progressBarContainer}>
+        <View
+          style={[
+            styles.progressBarFill,
+            { width: `${((currentIndex + 1) / questions.length) * 100}%` },
+          ]}
+        />
+      </View>
+
 
 
       
@@ -274,6 +277,7 @@ export default function Play() {
         })
       )}
     </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -283,21 +287,23 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "#E8F4FD", 
     flexGrow: 1,
+    marginTop: -15,
   },
   backIconButton: {
-  position: 'absolute',
-  top: 20,
-  left: 20, // pour RTL, tu peux le mettre à gauche
+  position: "absolute",
+  top: 25,  
+  left: 15, 
   zIndex: 10,
-  backgroundColor: 'white',
+  backgroundColor: "white",
   borderRadius: 20,
   padding: 6,
-  shadowColor: '#000',
+  shadowColor: "#000",
   shadowOffset: { width: 0, height: 2 },
   shadowOpacity: 0.3,
   shadowRadius: 3,
   elevation: 4,
 },
+
 
   
   questionCount: {

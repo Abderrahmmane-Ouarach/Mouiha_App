@@ -88,7 +88,7 @@ const nextFact = getRandomFact(didYouKnowText) || "";
       <View style={styles.blueContainer}>
         <Text style={styles.blueContainerText}>
   مرحبًا بك في مويهة ! {"\n"}
-  اكتشف أهمية الحفاظ على المياه من خلال الألعاب والأنشطة التعليمية.
+  اكتشف أهمية الحفاظ على المياه من خلال الألعاب والأنشطة التعليمية
 </Text>
       </View>
 
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   placeholder: {
-    marginBottom: 15,
+    marginBottom: 10,
   },
   mouihaContainer: {
     backgroundColor: "#e6f2ff",
@@ -192,6 +192,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     position: "relative",
     overflow: "hidden",
+    marginTop: -25,
     
   },
   didYouKnowTitle: {

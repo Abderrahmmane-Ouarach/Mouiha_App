@@ -16,7 +16,6 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Story } from './types';
 
-// Remove forced RTL - let it work naturally
 
 const { width } = Dimensions.get('window');
 
@@ -29,7 +28,6 @@ const StoryViewer: React.FC = () => {
   const navigation = useNavigation();
   const { story } = route.params as StoryViewerRouteParams;
   
-  // Initialize currentPage to 0 for the first page
   const [currentPage, setCurrentPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [showDescription, setShowDescription] = useState(false);
@@ -159,13 +157,12 @@ const StoryViewer: React.FC = () => {
             showsHorizontalScrollIndicator={false}
             onViewableItemsChanged={handlePageChange}
             viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
-            initialScrollIndex={I18nManager.isRTL ? story.storyImages.length - 1 : 0} // Start from correct end for RTL
+            initialScrollIndex={I18nManager.isRTL ? story.storyImages.length - 1 : 0} 
             getItemLayout={(data, index) => ({
               length: width,
               offset: width * index,
               index,
             })}
-            // Fixed: Add inverted prop for RTL to handle scrolling direction correctly
             inverted={I18nManager.isRTL}
           />
           
@@ -247,13 +244,13 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     color: '#1e40af',
-    fontFamily: 'Tajawal-Bold', // Replace with Arabic font
+    fontFamily: 'Tajawal-Bold', 
   },
   pageInfo: {
     fontSize: 14,
     color: '#64748b',
     marginTop: 2,
-    fontFamily: 'Tajawal-Light', // Replace with Arabic font
+    fontFamily: 'Tajawal-Light', 
   },
   infoButton: {
     padding: 8,
@@ -350,7 +347,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
   },
   bubbleHeader: {
-    flexDirection: 'row-reverse', // Fixed: Always use row-reverse for Arabic
+    flexDirection: 'row-reverse', 
     alignItems: 'center',
     marginBottom: 16,
     paddingBottom: 12,
@@ -362,10 +359,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#1e40af',
-    textAlign: 'right', // Fixed: Always align Arabic text to right
+    textAlign: 'right',
     marginHorizontal: 12,
-    fontFamily: 'Tajawal-Medium', // Replace with Arabic font
-    writingDirection: 'rtl', // Ensure RTL text direction
+    fontFamily: 'Tajawal-Medium',
+    writingDirection: 'rtl',
   },
   descriptionContent: {
     maxHeight: 100,
@@ -374,7 +371,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#374151',
     lineHeight: 24,
-    textAlign: 'right', // Fixed: Always align Arabic text to right
+    textAlign: 'right', 
     fontFamily: 'Tajawal-Regular', // Replace with Arabic font
     writingDirection: 'rtl', // Ensure RTL text direction
   },

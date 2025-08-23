@@ -209,62 +209,62 @@ export default function Videos(): React.JSX.Element {
   );
 
   const VideoCard = ({ video }: { video: VideoItem }) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => goToPlayer(video)}
-      activeOpacity={0.8}
-    >
-      <View style={styles.thumbnailContainer}>
-        {video.youtubeId ? (
-          <Image
-            source={{ uri: `https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg` }}
-            style={styles.thumbnail}
-          />
-        ) : video.is_local && video.thumbnailUrl ? (
-          <Image
-            source={{ uri: video.thumbnailUrl }}
-            style={styles.thumbnail}
-          />
-        ) : (
-          <View style={[styles.thumbnail, styles.placeholderThumbnail]}>
-            <AntDesign name="videocamera" size={64} color="#ccc" />
-          </View>
-        )}
-        <AntDesign
-          name="playcircleo"
-          size={48}
-          color="rgba(255, 255, 255, 0.9)"
-          style={styles.playIcon}
+  <TouchableOpacity
+    style={styles.card}
+    onPress={() => goToPlayer(video)}
+    activeOpacity={0.8}
+  >
+    <View style={styles.thumbnailContainer}>
+      {video.thumbnailUrl ? (
+        <Image
+          source={{ uri: video.thumbnailUrl }}
+          style={styles.thumbnail}
         />
-        {watched[video.id] && (
-          <View style={styles.watchedBadge}>
-            <AntDesign name="check" size={16} color="white" />
-          </View>
-        )}
-      </View>
-
-      <View style={styles.info}>
-        <Text numberOfLines={2} style={styles.title}>
-          {video.title}
-        </Text>
-        <Text style={styles.subtitle}>
-          ONEE - المكتب الوطني للكهرباء والماء الصالح للشرب
-        </Text>
-        <View style={styles.videoStats}>
+      ) : video.youtubeId ? (
+        <Image
+          source={{ uri: `https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg` }}
+          style={styles.thumbnail}
+        />
+      ) : (
+        <View style={[styles.thumbnail, styles.placeholderThumbnail]}>
+          <AntDesign name="videocamera" size={64} color="#ccc" />
         </View>
-      </View>
-      <TouchableOpacity
-        onPress={() => toggleFavorite(video.id)}
-        style={styles.favorite}
-      >
-        <FontAwesome
-          name={favorites[video.id] ? "bookmark" : "bookmark-o"}
-          size={24}
-          color={favorites[video.id] ? "#007acc" : "#555"}
-        />
-      </TouchableOpacity>
+      )}
+      <AntDesign
+        name="playcircleo"
+        size={48}
+        color="rgba(255, 255, 255, 0.9)"
+        style={styles.playIcon}
+      />
+      {watched[video.id] && (
+        <View style={styles.watchedBadge}>
+          <AntDesign name="check" size={16} color="white" />
+        </View>
+      )}
+    </View>
+
+    <View style={styles.info}>
+      <Text numberOfLines={2} style={styles.title}>
+        {video.title}
+      </Text>
+      <Text style={styles.subtitle}>
+        ONEE - المكتب الوطني للكهرباء والماء الصالح للشرب
+      </Text>
+      <View style={styles.videoStats}></View>
+    </View>
+    <TouchableOpacity
+      onPress={() => toggleFavorite(video.id)}
+      style={styles.favorite}
+    >
+      <FontAwesome
+        name={favorites[video.id] ? "bookmark" : "bookmark-o"}
+        size={24}
+        color={favorites[video.id] ? "#007acc" : "#555"}
+      />
     </TouchableOpacity>
-  );
+  </TouchableOpacity>
+);
+
 
   const EmptyState = ({ type }: { type: string }) => (
     <View style={styles.emptyState}>
@@ -588,9 +588,8 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 18,
-    fontWeight: "bold",
     color: "#666",
-    fontFamily: "Tajawal-Bold",
+    fontFamily: "Tajawal-Medium",
     marginTop: 20,
     marginBottom: 10,
     textAlign: "center",

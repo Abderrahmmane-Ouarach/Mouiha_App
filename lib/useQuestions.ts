@@ -1,20 +1,16 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
+import NetInfo from "@react-native-community/netinfo";
 import { getQuestionsByLevel, Question } from "./questions";
 
 const STORAGE_KEY_PREFIX = "cachedQuestions_";
 
 export function useQuestions(level: string, retryQuestions?: Question[]) {
-  console.log("👀 Hook useQuestions mounted, level=", level);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("🔥 useQuestions triggered for level:", level);
-
-    // ✅ priorité aux retryQuestions
     if (retryQuestions && retryQuestions.length > 0) {
-      console.log("♻️ Using retryQuestions only:", retryQuestions.length);
       setQuestions(retryQuestions);
       setLoading(false);
       return;
@@ -26,25 +22,26 @@ export function useQuestions(level: string, retryQuestions?: Question[]) {
       setLoading(true);
 
       try {
-        // 1️⃣ Charger cache s'il existe (affichage immédiat)
+        // 1️⃣ Charger cache immédiatement
         const cached = await AsyncStorage.getItem(STORAGE_KEY);
         if (cached) {
-          const parsed: Question[] = JSON.parse(cached);
-          console.log("📦 Loaded from cache:", parsed);
-          setQuestions(parsed);
+          setQuestions(JSON.parse(cached));
           setLoading(false);
         }
 
-        // 2️⃣ Toujours fetch depuis Supabase → pour mise à jour
-        console.log("🌐 Fetching fresh questions from Supabase for:", level);
+        // 2️⃣ Vérifier connexion internet
+        const netInfo = await NetInfo.fetch();
+        const isConnected = netInfo.isConnected;
+
+        if (!isConnected) {
+          console.log("📴 Pas de connexion, utilisation du cache uniquement");
+          return; // arrêter ici si offline
+        }
+
+        // 3️⃣ Fetch depuis Supabase
         const fresh = await getQuestionsByLevel(level);
-
         if (fresh && fresh.length > 0) {
-          console.log("🆕 Fresh questions fetched:", fresh);
-
-          // comparer avec cache avant d'écraser
           if (JSON.stringify(fresh) !== cached) {
-            console.log("🔄 Updating cache with new questions...");
             await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(fresh));
             setQuestions(fresh);
           }
