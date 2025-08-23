@@ -4,7 +4,7 @@
     "slug": "native_app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/1755822834262.jpg",
+    "icon": "./assets/images/1755872616675.jpg",
     "scheme": "nativeapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -14,7 +14,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/1755822834262.jpg",
+        "foregroundImage": "./assets/images/1755872616675.jpg",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
@@ -23,14 +23,14 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/1755822834262.jpg"
+      "favicon": "./assets/images/1755872616675.jpg"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/1755822834262.jpg",
+          "image": "./assets/images/1755872616675.jpg",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
