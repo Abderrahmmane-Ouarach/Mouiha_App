@@ -27,52 +27,6 @@ export default function Games() {
   };
 
   return (
-<<<<<<< HEAD
-    <SafeAreaProvider>
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.header}> ألعاب التوعية بالماء</Text>
-
-        <View style={styles.gamesGrid}>
-          {games.map((game, index) => {
-            const onPressIn = () => {
-              if (game.disabled) return;
-              Animated.spring(scaleAnims[index], {
-                toValue: 0.95,
-                useNativeDriver: true,
-              }).start();
-            };
-
-            const onPressOut = () => {
-              if (game.disabled) return;
-              Animated.spring(scaleAnims[index], {
-                toValue: 1,
-                friction: 3,
-                useNativeDriver: true,
-              }).start(() => handlePress(game.path));
-            };
-
-            return (
-              <Animated.View
-                key={game.title}
-                style={[styles.gameCard, game.disabled && styles.disabledCard, { transform: [{ scale: scaleAnims[index] }] }]}
-              >
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  disabled={game.disabled}
-                  onPressIn={onPressIn}
-                  onPressOut={onPressOut}
-                  style={{ alignItems: "center", width: "100%" }}
-                >
-                  <Image source={game.image} style={styles.gameImage} />
-                  <Text style={styles.gameCardText}>{game.title}</Text>
-                </TouchableOpacity>
-              </Animated.View>
-            );
-          })}
-        </View>
-      </SafeAreaView>
-    </SafeAreaProvider>
-=======
     <View style={styles.container}>
        <View style={styles.head}>
               <Image
@@ -123,7 +77,6 @@ export default function Games() {
         })}
       </View>
     </View>
->>>>>>> 0f791ec769936c771d48a4ff2d6bd23392decae2
   );
 }
 
@@ -132,16 +85,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#e6f2ff",
     alignItems: "center",
-<<<<<<< HEAD
-    paddingTop: 20,
-    paddingBottom: 20,
-  },
-  header: {
-    fontSize: 32,
-    fontFamily: "Tajawal-Bold",
-    color: "#007acc",
-    marginBottom: 15,
-=======
     paddingTop: 40,
     paddingBottom: 20,
   },
@@ -156,7 +99,6 @@ const styles = StyleSheet.create({
     fontFamily: "Tajawal-ExtraBold",
     color: "#0472bbff",
     marginBottom: 50,
->>>>>>> 0f791ec769936c771d48a4ff2d6bd23392decae2
     textAlign: "center",
   },
   gamesGrid: {
