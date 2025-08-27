@@ -15,6 +15,7 @@ import { shuffleArray } from './utils/arrayUtils';
 import { loadFavorites, toggleFavorite as toggleFavoriteStorage } from './utils/storageUtils';
 import { Asset } from 'expo-asset';
 
+
 const StoriesIndex: React.FC = () => {
   const navigation = useNavigation();
   const [stories, setStories] = useState<Story[]>([]);
@@ -162,9 +163,9 @@ const StoriesIndex: React.FC = () => {
         <SafeAreaView style={styles.container}>
         
         <View style={styles.content}>
-            <Text style={styles.title}>قصص المياه</Text>
+            <Text style={styles.title}>قصص مويهة</Text>
             <Text style={styles.subtitle}>
-            اكتشف قصصاً مذهلة عن المياه !
+            اكتشف قصصاً عن المياه !
             </Text>
 
             <FilterButtons

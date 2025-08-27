@@ -1,109 +1,84 @@
-import type { NavigationProp } from "@react-navigation/native";
+import { useEffect, useRef } from "react";
+import { View, Text, StyleSheet, Image, Animated } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Image, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import type { StackNavigationProp } from "@react-navigation/stack";
 
-export default function App() {
-  const navigation = useNavigation<NavigationProp<any>>();
+export default function Intro() {
+  const navigation = useNavigation<StackNavigationProp<any>>();
+  const dot1 = useRef(new Animated.Value(0)).current;
+  const dot2 = useRef(new Animated.Value(0)).current;
+  const dot3 = useRef(new Animated.Value(0)).current;
+  const dot4 = useRef(new Animated.Value(0)).current;
 
-  const handleStart = () => {
-  navigation.navigate("Main", { screen: "Home" });
-};
+  useEffect(() => {
+    // Animation des points flottants
+    const animateDots = () => {
+      Animated.sequence([
+        Animated.timing(dot1, { toValue: 1, duration: 250, useNativeDriver: true }),
+        Animated.timing(dot2, { toValue: 1, duration: 250, useNativeDriver: true }),
+        Animated.timing(dot3, { toValue: 1, duration: 250, useNativeDriver: true }),
+        Animated.timing(dot4, { toValue: 1, duration: 250, useNativeDriver: true }),
+        Animated.timing(dot1, { toValue: 0, duration: 250, useNativeDriver: true }),
+        Animated.timing(dot2, { toValue: 0, duration: 250, useNativeDriver: true }),
+        Animated.timing(dot3, { toValue: 0, duration: 250, useNativeDriver: true }),
+        Animated.timing(dot4, { toValue: 0, duration: 250, useNativeDriver: true }),
+      ]).start(() => animateDots());
+    };
+    
+    animateDots();
+
+    const timer = setTimeout(() => {
+      navigation.replace("Main", { screen: "Home" });
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#000000" />
-      {/* Logo */}
-      <Image
-        source={require("../assets/images/logoONEE .png")}
-        style={styles.logo}
-        resizeMode="contain"
+      {/* Logo principal */}
+      <Image 
+        source={require("../assets/images/logoo.png")} 
+        style={styles.logo} 
       />
 
-      {/* Section centrale */}
-      <View style={styles.centerSection}>
-        <Text style={styles.welcomeText}>مرحبا بكم في مويهة !</Text>
-        <Text style={styles.sloganText}>بالوعي... نحمي نعمة الماء</Text>
-
-        <Image
-          source={require("../assets/images/uyu.gif")}
-          style={styles.gif}
-        />
-        <Image  
-          source={require("../assets/images/1753462668554.png")}
-          style={{ width: 200, height: 200, marginTop: 0, marginBottom: 0}}
-          resizeMode="contain"
-        />
-
-        <View style={{ height: 10 }} />
-
-        <TouchableOpacity style={styles.button} onPress={handleStart}>
-  <Text style={styles.buttonText}>الدخول</Text>
-</TouchableOpacity>
+      {/* Points flottants en dessous */}
+      <View style={styles.dotsContainer}>
+        <Animated.Text style={[styles.dot, { opacity: dot1 }]}>●</Animated.Text>
+        <Animated.Text style={[styles.dot, { opacity: dot2 }]}>●</Animated.Text>
+        <Animated.Text style={[styles.dot, { opacity: dot3 }]}>●</Animated.Text>
+        <Animated.Text style={[styles.dot, { opacity: dot4 }]}>●</Animated.Text>
       </View>
-
-      {/* Footer */}
-      <Text style={styles.footer}>© ONEE - 2025</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f0f8ff",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingTop: 50,
-    paddingBottom: 20,
+  container: { 
+    flex: 1, 
+    alignItems: "center", 
+    justifyContent: "center", 
+    backgroundColor: "#f0f8ff" 
   },
-  logo: {
-    width: 320,
-    height: 60,
-    marginTop: 10,
+  logo: { 
+    width: 300, 
+    height: 500, 
+    marginBottom: 20, 
+    resizeMode: "contain" 
   },
-  centerSection: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 20,
-    marginTop: -10,
-  },
-  welcomeText: {
-    fontSize: 23,
-    fontFamily: "Tajawal-ExtraBold",
-    color: "#004080",
-    textAlign: "center",
-    marginBottom: 11,
-  },
-  sloganText: {
-    fontSize: 12,
-    marginTop: 2,
-    color: "#888",
-    fontFamily: "Tajawal-Bold",
-  },
-  gif: {
-    width: 200,
-    height: 300,
+  dotsContainer: {
+    flexDirection: 'row',
     marginTop: 20,
-    marginBottom: -120,
+    alignItems: 'center',
   },
-  button: {
-    backgroundColor: "#007acc",
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 25,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontFamily: "Tajawal-Bold",
-  },
-  footer: {
+  dot: {
     fontSize: 14,
-    color: "#888",
-    marginBottom: 15,
+    color: "#4a90e2",
+    marginHorizontal: 4,
+  },
+  subtitle: { 
+    fontSize: 14, 
+    fontFamily: "Tajawal-Bold", 
+    color: "#666" 
   },
 });

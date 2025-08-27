@@ -7,8 +7,10 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
+  Pressable,
+  Animated,
+  Easing,
 } from "react-native";
 import type { QuizStackParamList } from "./types";
 
@@ -18,7 +20,7 @@ const LEVELS = ["niveau1", "niveau2", "niveau3", "niveau4", "niveau5"];
 
 export default function SelectLevel() {
   const navigation = useNavigation<NavigationProp>();
-  const [unlockedLevels, setUnlockedLevels] = useState<string[]>(["niveau1"]); // au moins niveau1 déverrouillé
+  const [unlockedLevels, setUnlockedLevels] = useState<string[]>(["niveau1"]);
 
   useEffect(() => {
     (async () => {
@@ -44,57 +46,117 @@ export default function SelectLevel() {
       {LEVELS.map((level) => {
         const isUnlocked = unlockedLevels.includes(level);
         const arabicLabel = `المستوى ${level.replace("niveau", "")}`;
+
         return (
-          <TouchableOpacity
+          <LevelButton
             key={level}
-            style={[styles.levelButton, !isUnlocked && styles.lockedButton]}
+            label={arabicLabel}
+            locked={!isUnlocked}
             onPress={() => onSelectLevel(level)}
-            disabled={!isUnlocked}
-          >
-            <View style={styles.row}>
-              <Text
-                style={[styles.levelText, !isUnlocked && styles.lockedText]}
-              >
-                {arabicLabel}
-              </Text>
-              {!isUnlocked && (
-                <Ionicons
-                  name="lock-closed"
-                  size={20}
-                  color="gray"
-                  style={styles.lockIcon}
-                />
-              )}
-            </View>
-          </TouchableOpacity>
+          />
         );
       })}
     </ScrollView>
   );
 }
 
+function LevelButton({
+  label,
+  locked,
+  onPress,
+}: {
+  label: string;
+  locked: boolean;
+  onPress: () => void;
+}) {
+  const scale = new Animated.Value(1);
+
+  const handlePressIn = () => {
+    Animated.timing(scale, {
+      toValue: 0.95,
+      duration: 100,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: true,
+    }).start();
+  };
+  const handlePressOut = () => {
+    Animated.timing(scale, {
+      toValue: 1,
+      duration: 100,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: true,
+    }).start();
+  };
+
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={locked}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      style={({ pressed }) => [
+        styles.levelButton,
+        locked ? styles.lockedButton : styles.unlockedButton,
+        pressed && !locked && styles.pressedButton,
+      ]}
+    >
+      <Animated.View style={{ transform: [{ scale }] }}>
+        <View style={styles.row}>
+          <Text style={[styles.levelText, locked && styles.lockedText]}>
+            {label}
+          </Text>
+          {locked && (
+            <Ionicons
+              name="lock-closed"
+              size={24}
+              color="#666"
+              style={styles.lockIcon}
+            />
+          )}
+        </View>
+      </Animated.View>
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    padding: 28,
     backgroundColor: "#E8F6FF",
     flexGrow: 1,
     justifyContent: "center",
   },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontFamily: "Tajawal-Bold",
-    marginBottom: 30,
+    marginBottom: 40,
     textAlign: "center",
+    color: "#004a8f",
   },
   levelButton: {
+    paddingVertical: 18,
+    marginBottom: 18,
+    borderRadius: 16,
+    paddingHorizontal: 22,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 7,
+  },
+  unlockedButton: {
     backgroundColor: "#007acc",
-    paddingVertical: 15,
-    marginBottom: 15,
-    borderRadius: 10,
-    paddingHorizontal: 15,
+    shadowColor: "#004a8f",
   },
   lockedButton: {
-    backgroundColor: "#ccc",
+    backgroundColor: "#d1d5db",
+    shadowColor: "#999",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  pressedButton: {
+    opacity: 0.75,
   },
   row: {
     flexDirection: "row-reverse",
@@ -102,16 +164,16 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   levelText: {
-    fontSize: 22,
+    fontSize: 24,
     fontFamily: "Tajawal-Bold",
     color: "white",
     textAlign: "right",
     flex: 1,
   },
   lockedText: {
-    color: "#666",
+    color: "#777",
   },
   lockIcon: {
-    marginRight: 10,
+    marginRight: 14,
   },
 });
