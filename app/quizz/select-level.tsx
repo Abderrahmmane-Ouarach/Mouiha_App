@@ -11,6 +11,7 @@ import {
   Pressable,
   Animated,
   Easing,
+  Image,
 } from "react-native";
 import type { QuizStackParamList } from "./types";
 import { useLevels } from "../../lib/useLevels"; // adapte le chemin
@@ -50,7 +51,15 @@ export default function SelectLevel() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>اختر المستوى</Text>
+     <View style={styles.imageContainer}>
+                         <Image
+                           source={require("../../assets/images/logoo.png")}
+                           style={styles.headerImage}
+                           resizeMode="contain"
+                         />
+                       </View>
+             
+      <Text style={styles.title}>اختبر معلوماتك </Text>
       {levels.map((level) => {
         const isUnlocked = unlockedLevels.includes(level);
         const arabicLabel = `المستوى ${level.replace("niveau", "")}`;
@@ -182,5 +191,16 @@ const styles = StyleSheet.create({
   },
   lockIcon: {
     marginRight: 14,
+  },
+  imageContainer: {
+    marginBottom: -12,
+    marginTop: -30,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  
+  headerImage: {
+    width: 150,
+    height: 200,
   },
 });

@@ -23,28 +23,6 @@ const FilterButtons: React.FC<FilterButtonsProps> = ({
       <TouchableOpacity
         style={[
           styles.filterButton,
-          currentFilter === 'all' && styles.activeButton,
-        ]}
-        onPress={() => onFilterChange('all')}
-      >
-        <Text
-          style={[
-              styles.filterText,
-              currentFilter === 'all' && styles.activeText,
-            ]}
-        >
-          جميع القصص
-        </Text>
-        <Icon
-            name="library-books"
-            size={20}
-            color={currentFilter === 'all' ? '#ffffff' : '#3b82f6'}
-        />
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[
-          styles.filterButton,
           currentFilter === 'favorites' && styles.activeButton,
         ]}
         onPress={() => onFilterChange('favorites')}
@@ -63,6 +41,27 @@ const FilterButtons: React.FC<FilterButtonsProps> = ({
             color={currentFilter === 'favorites' ? '#ffffff' : '#3b82f6'}
         />
         
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[
+          styles.filterButton,
+          currentFilter === 'all' && styles.activeButton,
+        ]}
+        onPress={() => onFilterChange('all')}
+      >
+        <Text
+          style={[
+              styles.filterText,
+              currentFilter === 'all' && styles.activeText,
+            ]}
+        >
+          جميع القصص
+        </Text>
+        <Icon
+            name="library-books"
+            size={20}
+            color={currentFilter === 'all' ? '#ffffff' : '#3b82f6'}
+        />
       </TouchableOpacity>
     </View>
   );

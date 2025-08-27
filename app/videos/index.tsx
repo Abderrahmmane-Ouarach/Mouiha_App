@@ -14,7 +14,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { createClient } from "@supabase/supabase-js";
-import { Video } from "expo-av";
+import { supabase } from "../../lib/supabase"
 
 
 type VideoItem = {
@@ -28,12 +28,7 @@ type VideoItem = {
 };
 
 
-// ⚡️ config supabase
-const SUPABASE_URL = "https://pkajxvtwgqgzjfqnmlef.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBrYWp4dnR3Z3FnempmcW5tbGVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0NzU5MzAsImV4cCI6MjA3MDA1MTkzMH0.QSAqEKqNsTi15F7859iPG8Uf4P4saChrX5yFjuWEtmg";
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -299,7 +294,14 @@ export default function Videos(): React.JSX.Element {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>مكتبة الفيديوهات التعليمية</Text>
+        <View style={styles.imageContainer}>
+                    <Image
+                      source={require("../../assets/images/mouihablanc.png")}
+                      style={styles.headerImage}
+                      resizeMode="contain"
+                    />
+                  </View>
+        
         <Text style={styles.headerSubtitle}>اكتشف أهمية كل قطرة ماء</Text>
       </View>
 
@@ -398,6 +400,9 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 25,
     borderBottomRightRadius: 25,
   },
+  activeTab: {
+    backgroundColor: "#007acc",
+  },
   headerTitle: {
     fontSize: 20,
     color: "white",
@@ -458,9 +463,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
   },
-  activeTab: {
-    backgroundColor: "#007acc",
-  },
+  
   tabContent: {
     alignItems: "center",
     flexDirection: "row",
@@ -603,5 +606,17 @@ const styles = StyleSheet.create({
   },
   bottomPadding: {
     height: 40,
+  },
+  imageContainer: {
+    marginBottom: -60,
+    marginTop: -80,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  
+  headerImage: {
+    width: 150,
+    height: 200,
+    opacity: 0.95,
   },
 });

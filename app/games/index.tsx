@@ -80,7 +80,7 @@ export default function Games() {
       <View style={styles.headerSection}>
         <View style={styles.imageContainer}>
           <Image
-            source={require("../../assets/images/1753462668554.png")}
+            source={require("../../assets/images/logoo.png")}
             style={styles.headerImage}
             resizeMode="contain"
           />
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
   },
   
   headerImage: {
-    width: 180,
+    width: 150,
     height: 200,
   },
   
@@ -188,6 +188,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
+    marginTop: -20,
   },
   
   mainTitle: {

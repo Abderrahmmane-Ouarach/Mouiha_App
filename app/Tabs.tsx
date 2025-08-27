@@ -165,7 +165,7 @@ export default function AppTabs() {
           name="Quiz"
           component={QuizNavigator}
           options={{
-            tabBarLabel: "أسئلة",
+            tabBarLabel: "اختبار",
             tabBarLabelStyle: {
               fontFamily: "Tajawal-Bold",
             },
