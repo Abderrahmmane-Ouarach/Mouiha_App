@@ -16,11 +16,12 @@ const { width: screenWidth } = Dimensions.get('window');
 
 export const SaveTheDropGame: React.FC = () => {
   // Game state
-  const [gameState, setGameState] = useState<'start' | 'playing' | 'levelComplete'>('start');
+  const [gameState, setGameState] = useState<'start' | 'playing' | 'levelComplete' | 'gameOver'>('start');
   const [currentLevel, setCurrentLevel] = useState<number>(1);
   const [score, setScore] = useState<number>(0);
   const [waterCollected, setWaterCollected] = useState<number>(0);
   const [pollutedWaterCollected, setPollutedWaterCollected] = useState<number>(0);
+  const [droppedCleanWater, setDroppedCleanWater] = useState<number>(0); // New counter for missed clean drops
   const [drops, setDrops] = useState<Drop[]>([]);
   const [dropIdCounter, setDropIdCounter] = useState<number>(0);
   const [levelCompleteData, setLevelCompleteData] = useState<any>(null);
@@ -41,6 +42,7 @@ export const SaveTheDropGame: React.FC = () => {
       ),
       pollutedDropChance: Math.min(0.15 + (levelMultiplier * 0.08), 0.45), // Slightly reduced pollution increase
       waterTarget: gameConfig.baseWaterTarget + (levelMultiplier * 8),
+      maxDroppedCleanWater: 3 + Math.floor(levelMultiplier / 2), // Allow more missed drops in higher levels
     };
   }, [currentLevel]);
 
@@ -50,10 +52,40 @@ export const SaveTheDropGame: React.FC = () => {
     setScore(0);
     setWaterCollected(0);
     setPollutedWaterCollected(0);
+    setDroppedCleanWater(0); // Reset dropped counter
     setDrops([]);
     setDropIdCounter(0);
     lastSpawnPositions.current = [];
   }, []);
+
+  // Game over
+  const gameOver = useCallback(() => {
+    // Clear intervals
+    if (dropSpawnInterval.current) clearInterval(dropSpawnInterval.current);
+    if (dropMoveInterval.current) clearInterval(dropMoveInterval.current);
+    
+    // Set game over data
+    const settings = getCurrentSettings();
+    const totalWater = waterCollected + pollutedWaterCollected;
+    const cleanWaterPercentage = totalWater > 0 ? Math.round((waterCollected / totalWater) * 100) : 100;
+    const randomContent = educationalContent[Math.floor(Math.random() * educationalContent.length)];
+    
+    setLevelCompleteData({
+      level: currentLevel,
+      score,
+      waterCollected,
+      pollutedWaterCollected,
+      totalWater,
+      waterTarget: settings.waterTarget,
+      cleanWaterPercentage,
+      canAdvance: false, // Game over means can't advance
+      droppedCleanWater,
+      isGameOver: true,
+      content: randomContent,
+    });
+    
+    setGameState('levelComplete');
+  }, [currentLevel, score, waterCollected, pollutedWaterCollected, droppedCleanWater, getCurrentSettings]);
 
   // Complete current level
   const completeLevel = useCallback(() => {
@@ -65,7 +97,7 @@ export const SaveTheDropGame: React.FC = () => {
     const settings = getCurrentSettings();
     const totalWater = waterCollected + pollutedWaterCollected;
     const cleanWaterPercentage = totalWater > 0 ? Math.round((waterCollected / totalWater) * 100) : 100;
-    const canAdvance = cleanWaterPercentage >= 70; // 70% clean water required to advance
+    const canAdvance = cleanWaterPercentage >= 85; // 70% clean water required to advance
     const randomContent = educationalContent[Math.floor(Math.random() * educationalContent.length)];
     
     setLevelCompleteData({
@@ -77,11 +109,13 @@ export const SaveTheDropGame: React.FC = () => {
       waterTarget: settings.waterTarget,
       cleanWaterPercentage,
       canAdvance,
+      droppedCleanWater,
+      isGameOver: false,
       content: randomContent,
     });
     
     setGameState('levelComplete');
-  }, [currentLevel, score, waterCollected, pollutedWaterCollected, getCurrentSettings]);
+  }, [currentLevel, score, waterCollected, pollutedWaterCollected, droppedCleanWater, getCurrentSettings]);
 
   // Go to next level
   const nextLevel = useCallback(() => {
@@ -151,12 +185,19 @@ export const SaveTheDropGame: React.FC = () => {
     
     setDrops(prevDrops => {
       const updatedDrops: Drop[] = [];
+      const totalWater = waterCollected + pollutedWaterCollected;
+      const shouldStopCounting = totalWater >= settings.waterTarget || droppedCleanWater >= settings.maxDroppedCleanWater;
 
       prevDrops.forEach(drop => {
         const newY = drop.y + settings.dropSpeed;
         
         if (newY >= gameConfig.drainY - gameConfig.dropSize) {
-          // Drop reached the drain - no penalty, just remove it
+          // Drop reached the drain
+          if (!drop.isPolluted && !shouldStopCounting) {
+            // Only count clean water drops that were missed, and only if we haven't reached limits
+            setDroppedCleanWater(prev => prev + 1);
+          }
+          // Remove the drop (both clean and polluted)
         } else {
           // Drop is still falling
           updatedDrops.push({ ...drop, y: newY });
@@ -165,12 +206,19 @@ export const SaveTheDropGame: React.FC = () => {
 
       return updatedDrops;
     });
-  }, [getCurrentSettings]);
+  }, [getCurrentSettings, waterCollected, pollutedWaterCollected, droppedCleanWater]);
 
   // Handle drop tap
   const onDropTap = useCallback((dropId: number) => {
+    const settings = getCurrentSettings();
     const tappedDrop = drops.find(drop => drop.id === dropId);
     if (!tappedDrop) return;
+
+    // Check if we should stop collecting (level complete or game over conditions)
+    const totalWater = waterCollected + pollutedWaterCollected;
+    const shouldStopCollecting = totalWater >= settings.waterTarget || droppedCleanWater >= settings.maxDroppedCleanWater;
+    
+    if (shouldStopCollecting) return; // Don't process taps if level is complete or game over
 
     // Remove only the tapped drop
     setDrops(prevDrops => prevDrops.filter(drop => drop.id !== dropId));
@@ -184,16 +232,26 @@ export const SaveTheDropGame: React.FC = () => {
       setWaterCollected(prev => prev + 1);
       setScore(prev => prev + 10);
     }
-  }, [drops]);
+  }, [drops, waterCollected, pollutedWaterCollected, droppedCleanWater, getCurrentSettings]);
 
-  // Check if level is complete
+  // Check if level is complete or game over
   useEffect(() => {
     const settings = getCurrentSettings();
     const totalWater = waterCollected + pollutedWaterCollected;
-    if (totalWater >= settings.waterTarget && gameState === 'playing') {
-      setTimeout(completeLevel, 500);
+    
+    if (gameState === 'playing') {
+      // Check for game over condition first
+      if (droppedCleanWater >= settings.maxDroppedCleanWater) {
+        setTimeout(gameOver, 500);
+        return;
+      }
+      
+      // Check for level completion
+      if (totalWater >= settings.waterTarget) {
+        setTimeout(completeLevel, 500);
+      }
     }
-  }, [waterCollected, pollutedWaterCollected, gameState, getCurrentSettings, completeLevel]);
+  }, [waterCollected, pollutedWaterCollected, droppedCleanWater, gameState, getCurrentSettings, completeLevel, gameOver]);
 
   // Game loop effect
   useEffect(() => {
@@ -229,6 +287,8 @@ export const SaveTheDropGame: React.FC = () => {
             waterCollected={waterCollected}
             pollutedWaterCollected={pollutedWaterCollected}
             waterTarget={getCurrentSettings().waterTarget}
+            droppedCleanWater={droppedCleanWater}
+            maxDroppedCleanWater={getCurrentSettings().maxDroppedCleanWater}
             drops={drops}
             onDropTap={onDropTap}
             onLeaveGame={() => setGameState('start')}

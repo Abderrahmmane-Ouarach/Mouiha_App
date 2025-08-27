@@ -18,6 +18,8 @@ export const GameScreen: React.FC<GameScreenProps> = ({
   waterCollected,
   pollutedWaterCollected,
   waterTarget,
+  droppedCleanWater,
+  maxDroppedCleanWater,
   drops,
   onDropTap,
   onLeaveGame,
@@ -56,6 +58,22 @@ export const GameScreen: React.FC<GameScreenProps> = ({
           </View>
         </View>
 
+        {/* Drop Counter Warning */}
+        <View style={styles.warningContainer}>
+          <View style={[
+            styles.dropCounterBubble,
+            droppedCleanWater >= maxDroppedCleanWater - 1 ? styles.dangerBubble : {}
+          ]}>
+            <View style={styles.dropIcon} />
+            <Text style={[
+              styles.dropCounterText,
+              droppedCleanWater >= maxDroppedCleanWater - 1 ? styles.dangerText : {}
+            ]}>
+              قطرات مفقودة: {droppedCleanWater}/{maxDroppedCleanWater}
+            </Text>
+          </View>
+        </View>
+
         {/* Game Area */}
         <View style={styles.gameArea}>
           {/* Faucet */}
@@ -91,17 +109,17 @@ export const GameScreen: React.FC<GameScreenProps> = ({
                   
                   {/* Drain grate with realistic bars */}
                   <View style={styles.drainGrate}>
-                    <View style={[styles.grateBar, { top: 10 }]} />
-                    <View style={[styles.grateBar, { top: 18 }]} />
-                    <View style={[styles.grateBar, { top: 26 }]} />
-                    <View style={[styles.grateBar, { top: 34 }]} />
-                    <View style={[styles.grateBar, { top: 42 }]} />
-                    <View style={[styles.grateBar, { top: 50 }]} />
+                    {Array.from({ length: 8 }, (_, i) => (
+                      <View
+                        key={i}
+                        style={[styles.grateBar, { top: 6 + (i * 5) }]}
+                      />
+                    ))}
                   </View>
                   
                   {/* Vertical grate bars - more bars for wider drain */}
                   <View style={styles.verticalGrate}>
-                    {Array.from({ length: 24 }, (_, i) => (
+                    {Array.from({ length: 130 }, (_, i) => (
                       <View
                         key={i}
                         style={[styles.verticalGrateBar, { left: 10 + (i * 10) }]}
@@ -274,6 +292,54 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: gameConfig.colors.text,
     fontFamily: 'Tajawal-Medium',
+  },
+  warningContainer: {
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    backgroundColor: gameConfig.colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.1)',
+  },
+  dropCounterBubble: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#E6F3FF',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: gameConfig.colors.primary,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  dangerBubble: {
+    backgroundColor: '#FFE6E6',
+    borderColor: gameConfig.colors.danger,
+  },
+  dropIcon: {
+    width: 12,
+    height: 15,
+    backgroundColor: gameConfig.colors.cleanWater,
+    borderRadius: 6,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    borderBottomLeftRadius: 3,
+    borderBottomRightRadius: 3,
+    marginLeft: 8,
+  },
+  dropCounterText: {
+    fontSize: 14,
+    fontFamily: 'Tajawal-Bold',
+    color: gameConfig.colors.primary,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  dangerText: {
+    color: gameConfig.colors.danger,
   },
   gameArea: {
     flex: 1,
