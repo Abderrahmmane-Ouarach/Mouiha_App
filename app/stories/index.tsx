@@ -10,10 +10,12 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import StoryCard from './components/StoryCard';
 import FilterButtons from './components/FilterButtons';
 import { Story } from './types';
-import { storiesData } from './data/storiesData';
 import { shuffleArray } from './utils/arrayUtils';
 import { loadFavorites, toggleFavorite as toggleFavoriteStorage } from './utils/storageUtils';
 import { Asset } from 'expo-asset';
+import { fetchStories } from './api/fetchStories';
+import { fetchStoriesWithCache } from './api/fetchStoriesWithCache';
+import NetInfo from '@react-native-community/netinfo';
 
 
 const StoriesIndex: React.FC = () => {
@@ -22,43 +24,7 @@ const StoriesIndex: React.FC = () => {
   const [filteredStories, setFilteredStories] = useState<Story[]>([]);
   const [currentFilter, setCurrentFilter] = useState<'all' | 'favorites'>('all');
 
-  useEffect(() => {
-    const loadAssets = async () => {
-      await Asset.loadAsync([
-        require('../../assets/stories/BrossageDesDents/1.jpg'),
-        require('../../assets/stories/BrossageDesDents/2.jpg'),
-        require('../../assets/stories/BrossageDesDents/3.jpg'),
-        require('../../assets/stories/BrossageDesDents/4.jpg'),
-        require('../../assets/stories/BrossageDesDents/5.jpg'),
-        require('../../assets/stories/BrossageDesDents/6.jpg'),
-        require('../../assets/stories/FuiteEau/1.jpg'),
-        require('../../assets/stories/FuiteEau/2.jpg'),
-        require('../../assets/stories/FuiteEau/3.jpg'),
-        require('../../assets/stories/FuiteEau/4.jpg'),
-        require('../../assets/stories/FuiteEau/5.jpg'),
-        require('../../assets/stories/FuiteEau/6.jpg'),
-        require('../../assets/stories/LavageVoiture/1.jpg'),
-        require('../../assets/stories/LavageVoiture/2.jpg'),
-        require('../../assets/stories/LavageVoiture/3.jpg'),
-        require('../../assets/stories/LavageVoiture/4.jpg'),
-        require('../../assets/stories/LavageVoiture/5.jpg'),
-        require('../../assets/stories/LavageVoiture/6.jpg'),
-        require('../../assets/stories/Pollution/1.jpg'),
-        require('../../assets/stories/Pollution/2.jpg'),
-        require('../../assets/stories/Pollution/3.jpg'),
-        require('../../assets/stories/Pollution/4.jpg'),
-        require('../../assets/stories/Pollution/5.jpg'),
-        require('../../assets/stories/Pollution/6.jpg'),
-        require('../../assets/stories/PollutionSourceEau/1.jpg'),
-        require('../../assets/stories/PollutionSourceEau/2.jpg'),
-        require('../../assets/stories/PollutionSourceEau/3.jpg'),
-        require('../../assets/stories/PollutionSourceEau/4.jpg'),
-        require('../../assets/stories/PollutionSourceEau/5.jpg'),
-        require('../../assets/stories/PollutionSourceEau/6.jpg'),
-      ]);
-    };
-    loadAssets();
-  }, []);
+  
 
   useEffect(() => {
     loadStoriesWithFavorites();
@@ -71,25 +37,16 @@ const StoriesIndex: React.FC = () => {
   );
 
   const loadStoriesWithFavorites = async () => {
-    try {
-      const favoriteIds = await loadFavorites();
-      const shuffledStories = shuffleArray([...storiesData]);
-      
-      const storiesWithFavorites = shuffledStories.map(story => ({
-        ...story,
-        isFavorite: favoriteIds.includes(story.id),
-      }));
-      
-      setStories(storiesWithFavorites);
-      setFilteredStories(storiesWithFavorites);
-    } catch (error) {
-      console.error('Error loading stories with favorites:', error);
+  try {
+    const storiesFromCacheOrSupabase = await fetchStoriesWithCache();
+    setStories(storiesFromCacheOrSupabase);
+    setFilteredStories(storiesFromCacheOrSupabase);
+  } catch (error) {
+    console.error('Error loading stories', error);
+  }
+};
 
-      const shuffledStories = shuffleArray([...storiesData]);
-      setStories(shuffledStories);
-      setFilteredStories(shuffledStories);
-    }
-  };
+
 
 
   const updateFavoritesOnly = async () => {
@@ -157,6 +114,26 @@ const StoriesIndex: React.FC = () => {
       onToggleFavorite={() => toggleFavorite(item.id)}
     />
   );
+
+  useEffect(() => {
+  const unsubscribe = NetInfo.addEventListener(state => {
+    if (state.isConnected) {
+      refreshStoriesOnline();
+    }
+  });
+
+  return () => unsubscribe();
+}, []);
+
+const refreshStoriesOnline = async () => {
+  try {
+    const freshStories = await fetchStoriesWithCache(); // fetch from Supabase if online
+    setStories(freshStories);
+    setFilteredStories(freshStories);
+  } catch (error) {
+    console.error('Failed to refresh stories online', error);
+  }
+};
 
   return (
     <SafeAreaProvider>

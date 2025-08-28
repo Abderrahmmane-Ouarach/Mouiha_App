@@ -2,6 +2,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useRef, useState } from "react";
+import { Ionicons } from '@expo/vector-icons'
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import {
   ActivityIndicator,
@@ -26,6 +28,21 @@ const levelLabels: Record<string, string> = {
   niveau3: "الثالث",
   niveau4: "الرابع",
   niveau5: "الخامس",
+  niveau6: "السادس",
+  niveau7: "السابع",
+  niveau8: "الثامن",
+  niveau9: "التاسع",
+  niveau10: "العاشر",
+  niveau11: "الحادي عشر",
+  niveau12: "الثاني عشر", 
+  niveau13: "الثالث عشر",
+  niveau14: "الرابع عشر",
+  niveau15: "الخامس عشر",
+  niveau16: "السادس عشر",
+  niveau17: "السابع عشر",
+  niveau18: "الثامن عشر",
+  niveau19: "التاسع عشر",
+  niveau20: "العشرون",
 };
 
 function getArabicLevelLabel(level: string): string {
@@ -127,19 +144,26 @@ export default function Play() {
   
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#E8F4FD" }}>
     <ScrollView contentContainerStyle={styles.container}>
-      
-  <Text style={styles.levelText}>{getArabicLevelLabel(level)}</Text>
-<View style={styles.progressBarContainer}>
-  <View
-    style={[
-      styles.progressBarFill,
-      { width: `${((currentIndex + 1) / questions.length) * 100}%` },
-    ]}
-  >
-    
-  </View>
-</View>
+      <TouchableOpacity
+        style={styles.backIconButton}
+        onPress={() => navigation.navigate("SelectLevel")}
+      >
+        <Ionicons name="arrow-back" size={28} color="#007acc" />
+      </TouchableOpacity>
+
+      <Text style={styles.levelText}>{getArabicLevelLabel(level)}</Text>
+
+      <View style={styles.progressBarContainer}>
+        <View
+          style={[
+            styles.progressBarFill,
+            { width: `${((currentIndex + 1) / questions.length) * 100}%` },
+          ]}
+        />
+      </View>
+
 
 
       
@@ -268,6 +292,7 @@ export default function Play() {
         })
       )}
     </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -277,7 +302,24 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "#E8F4FD", 
     flexGrow: 1,
+    marginTop: -15,
   },
+  backIconButton: {
+  position: "absolute",
+  top: 25,  
+  left: 15, 
+  zIndex: 10,
+  backgroundColor: "white",
+  borderRadius: 20,
+  padding: 6,
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.3,
+  shadowRadius: 3,
+  elevation: 4,
+},
+
+
   
   questionCount: {
     fontSize: 18,
@@ -379,7 +421,7 @@ const styles = StyleSheet.create({
   textAlign: "right",
   writingDirection: "rtl",
   color: "#004a8f",
-  marginTop: 5,
+  marginTop: 8,
   flexDirection: "column",
   alignItems: "flex-end",
   paddingHorizontal: 20,

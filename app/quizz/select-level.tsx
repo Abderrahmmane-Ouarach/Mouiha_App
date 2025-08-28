@@ -11,15 +11,16 @@ import {
   Pressable,
   Animated,
   Easing,
+  Image,
 } from "react-native";
 import type { QuizStackParamList } from "./types";
+import { useLevels } from "../../lib/useLevels"; // adapte le chemin
 
 type NavigationProp = NativeStackNavigationProp<QuizStackParamList, "SelectLevel">;
 
-const LEVELS = ["niveau1", "niveau2", "niveau3", "niveau4", "niveau5"];
-
 export default function SelectLevel() {
   const navigation = useNavigation<NavigationProp>();
+  const { levels, loading } = useLevels();
   const [unlockedLevels, setUnlockedLevels] = useState<string[]>(["niveau1"]);
 
   useEffect(() => {
@@ -40,13 +41,28 @@ export default function SelectLevel() {
     navigation.navigate("Play", { level });
   };
 
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text style={{fontFamily:"Tajawal-Medium"}}>جاري تحميل المستويات...</Text>
+      </View>
+    );
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>اختر المستوى</Text>
-      {LEVELS.map((level) => {
+     <View style={styles.imageContainer}>
+                         <Image
+                           source={require("../../assets/images/logoo.png")}
+                           style={styles.headerImage}
+                           resizeMode="contain"
+                         />
+                       </View>
+             
+      <Text style={styles.title}>اختبر معلوماتك </Text>
+      {levels.map((level) => {
         const isUnlocked = unlockedLevels.includes(level);
         const arabicLabel = `المستوى ${level.replace("niveau", "")}`;
-
         return (
           <LevelButton
             key={level}
@@ -175,5 +191,16 @@ const styles = StyleSheet.create({
   },
   lockIcon: {
     marginRight: 14,
+  },
+  imageContainer: {
+    marginBottom: -12,
+    marginTop: -30,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  
+  headerImage: {
+    width: 150,
+    height: 200,
   },
 });

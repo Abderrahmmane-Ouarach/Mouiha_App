@@ -49,12 +49,11 @@ const StoryViewer: React.FC = () => {
   const renderStoryPage = ({ item, index }: { item: any; index: number }) => (
     <View style={styles.pageContainer}>
       <Image
-        source={typeof item === 'string' ? { uri: item } : item}
-        style={styles.storyImage}
-        resizeMode="contain"
-        onLoadStart={() => setLoading(true)}
-        onLoadEnd={() => setLoading(false)}
-      />
+  source={{ uri: item }}   // item = string (URL publique)
+  style={styles.storyImage}
+  resizeMode="contain"
+/>
+
       {loading && (
         <View style={styles.loadingOverlay}>
           <Icon name="hourglass-empty" size={32} color="#3b82f6" />
