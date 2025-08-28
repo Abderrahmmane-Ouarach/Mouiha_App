@@ -496,10 +496,10 @@ const WaterMemoryGame: React.FC<Props> = ({ navigation }) => {
   };
 
   const showQuickInfoToast = (icon: string) => {
-    const text = ICON_INFO[icon] ?? 'معلومة مفيدة عن ترشيد المياه.';
-    setQuickInfo({ icon, text });
-    setTimeout(() => setQuickInfo(null), 1800);
-  };
+  const text = ICON_INFO[icon] ?? 'معلومة مفيدة عن ترشيد المياه.';
+  setQuickInfo({ icon, text });
+  // Removed auto-hide timeout
+};
 
   const handleCardPress = (pressedCard: Card) => {
     if (gameWon || showPreview || selectedCards.length === 2 || pressedCard.isFlipped || pressedCard.isMatched) return;
@@ -518,29 +518,31 @@ const WaterMemoryGame: React.FC<Props> = ({ navigation }) => {
         
         setTimeout(() => {
           if (firstCard.symbol === secondCard.symbol) {
-            const matchedCards = newCards.map((card) => 
-              card.id === firstCard.id || card.id === secondCard.id 
-                ? { ...card, isMatched: true } 
-                : card
-            );
-            setCards(matchedCards);
-            const newMatches = matches + 1;
-            setMatches(newMatches);
-            showQuickInfoToast(firstCard.symbol);
-            
-            // Check win condition
-            if (newMatches === matchedCards.length / 2) {
-              handleWin();
-            }
-          } else {
-            const resetCards = newCards.map((card) => 
-              card.id === firstCard.id || card.id === secondCard.id 
-                ? { ...card, isFlipped: false } 
-                : card
-            );
-            setCards(resetCards);
-            setMistakes((m) => m + 1);
-          }
+  const matchedCards = newCards.map((card) => 
+    card.id === firstCard.id || card.id === secondCard.id 
+      ? { ...card, isMatched: true } 
+      : card
+  );
+  setCards(matchedCards);
+  const newMatches = matches + 1;
+  setMatches(newMatches);
+
+  // Show tip and keep it until next match
+  showQuickInfoToast(firstCard.symbol);
+
+  // Check win condition
+  if (newMatches === matchedCards.length / 2) {
+    handleWin();
+  }
+} else {
+  const resetCards = newCards.map((card) => 
+    card.id === firstCard.id || card.id === secondCard.id 
+      ? { ...card, isFlipped: false } 
+      : card
+  );
+  setCards(resetCards);
+  setMistakes((m) => m + 1);
+}
           setSelectedCards([]);
         }, 700);
       }
@@ -881,13 +883,13 @@ const WaterMemoryGame: React.FC<Props> = ({ navigation }) => {
 
       {/* Quick info toast */}
       {quickInfo && (
-        <View style={styles.toastContainer} pointerEvents="none">
-          <View style={styles.toastCard}>
-            <Text style={styles.toastIcon}>{quickInfo.icon}</Text>
-            <Text style={styles.toastText}>{quickInfo.text}</Text>
-          </View>
-        </View>
-      )}
+  <View style={styles.tipPanel}>
+    <Text style={styles.tipIcon}>{quickInfo.icon}</Text>
+    <ScrollView horizontal={false} style={styles.tipTextContainer}>
+      <Text style={styles.tipText}>{quickInfo.text}</Text>
+    </ScrollView>
+  </View>
+)}
     </View>
   );
 };
@@ -1254,13 +1256,7 @@ const styles = StyleSheet.create({
     fontSize: 12, 
     fontFamily: 'Tajawal-Medium' 
   },
-  tipText: { 
-    flex: 1, 
-    fontSize: 14, 
-    color: '#2C3E50', 
-    lineHeight: 20, 
-    fontFamily: 'Tajawal-Regular' 
-  },
+ 
   factModal: { 
     backgroundColor: 'white', 
     margin: 30, 
@@ -1366,6 +1362,39 @@ const styles = StyleSheet.create({
     color: '#111827', 
     fontFamily: 'Tajawal-Regular' 
   },
+  tipPanel: {
+  position: 'absolute',
+  bottom: 10,
+  left: 10,
+  right: 10,
+  backgroundColor: '#ffffffee',
+  borderRadius: 12,
+  padding: 12,
+  flexDirection: 'row',
+  alignItems: 'flex-start',
+  shadowColor: '#000',
+  shadowOpacity: 0.2,
+  shadowOffset: { width: 0, height: 2 },
+  shadowRadius: 4,
+  maxHeight: 120, // allows scrolling if text is long
+},
+tipIcon: {
+  fontSize: 24,
+  marginRight: 8,
+},
+tipTextContainer: {
+  flex: 1,
+},
+tipText: {
+  fontSize: 16,
+  color: '#333',
+  
+    
+    lineHeight: 20, 
+    fontFamily: 'Tajawal-Regular',
+    alignContent: 'center',
+},
+
 });
 
 export default WaterMemoryGame;
