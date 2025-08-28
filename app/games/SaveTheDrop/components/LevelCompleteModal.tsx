@@ -21,6 +21,7 @@ export const LevelCompleteModal: React.FC<LevelCompleteModalProps> = ({
   onBackToMenu,
 }) => {
   const canAdvance = data.canAdvance;
+  const isGameOver = data.isGameOver || false;
   
   return (
     <Modal
@@ -36,16 +37,53 @@ export const LevelCompleteModal: React.FC<LevelCompleteModalProps> = ({
             contentContainerStyle={styles.scrollContent}
           >
             {/* Header with custom icon */}
+            {canAdvance && (
             <View style={styles.headerContainer}>
-              <View style={styles.resultIcon}>
-                <View style={[styles.iconShape, canAdvance ? styles.successIcon : styles.retryIcon]} />
-              </View>
               <Text style={styles.title}>
-                {canAdvance ? 'أحسنت!' : 'حاول مرة أخرى'}
+                أحسنت!
               </Text>
             </View>
+            )}
 
-            {/* Compact Stats with Water Data */}
+            {/* Game Over Message */}
+            {isGameOver && (
+              <View style={styles.gameOverMessage}>
+                <Text style={styles.gameOverText}>
+                  فقدت الكثير من قطرات الماء النظيف!
+                </Text>
+                <Text style={styles.gameOverSubtext}>
+                  تذكر: كل قطرة ماء مهمة للبيئة
+                </Text>
+              </View>
+            )}
+
+            {/* EDUCATIONAL CONTENT - Most Prominent Section */}
+            <View style={styles.educationalSection}>
+              <View style={styles.educationalHeader}>
+                <View style={styles.lightBulbIcon} />
+                <Text style={styles.educationalTitle}>معلومة مهمة</Text>
+              </View>
+              
+              {/* Water Conservation Tip - Large and prominent */}
+              <View style={styles.tipContainer}>
+                <View style={styles.tipHeaderContainer}>
+                  <View style={styles.tipIcon} />
+                  <Text style={styles.tipHeaderText}>نصيحة للحفاظ على الماء</Text>
+                </View>
+                <Text style={styles.tipText}>{data.content.tip}</Text>
+              </View>
+              
+              {/* Water Fact - Highlighted */}
+              <View style={styles.factContainer}>
+                <View style={styles.factHeaderContainer}>
+                  <View style={styles.factIcon} />
+                  <Text style={styles.factHeaderText}>هل تعلم؟</Text>
+                </View>
+                <Text style={styles.factText}>{data.content.fact}</Text>
+              </View>
+            </View>
+
+            {/* Compact Stats */}
             <View style={styles.statsContainer}>
               <View style={styles.statRow}>
                 <View style={styles.statBubble}>
@@ -73,70 +111,66 @@ export const LevelCompleteModal: React.FC<LevelCompleteModalProps> = ({
                 </View>
               </View>
               
-              <View style={styles.percentageContainer}>
-                <Text style={styles.percentageLabel}>نسبة النظافة</Text>
-                <Text style={[
-                  styles.percentageValue,
-                  { color: canAdvance ? gameConfig.colors.secondary : gameConfig.colors.danger }
-                ]}>
-                  {data.cleanWaterPercentage}%
-                </Text>
+              <View style={styles.bottomStatsRow}>
+                {data.droppedCleanWater !== undefined && (
+                  <View style={styles.droppedWaterContainer}>
+                    <Text style={styles.droppedWaterLabel}>قطرات مفقودة</Text>
+                    <Text style={[
+                      styles.droppedWaterValue,
+                      { color: isGameOver ? gameConfig.colors.danger : gameConfig.colors.primary }
+                    ]}>
+                      {data.droppedCleanWater}
+                    </Text>
+                  </View>
+                )}
+                
+                <View style={styles.percentageContainer}>
+                  <Text style={styles.percentageLabel}>نسبة النظافة</Text>
+                  <Text style={[
+                    styles.percentageValue,
+                    { color: canAdvance && !isGameOver ? gameConfig.colors.secondary : gameConfig.colors.danger }
+                  ]}>
+                    {data.cleanWaterPercentage}%
+                  </Text>
+                </View>
               </View>
             </View>
 
-            {!canAdvance && (
+            {!canAdvance && !isGameOver && (
               <Text style={styles.requirementText}>
                 تحتاج 70% نظافة أو أكثر للانتقال!
               </Text>
             )}
 
-            {/* Water Conservation Tips Section */}
-            <View style={styles.tipsContainer}>
-              <View style={styles.tipsHeader}>
-                <View style={styles.tipIcon} />
-                <Text style={styles.tipsTitle}>نصائح توفير المياه</Text>
-              </View>
-              
-              <View style={styles.tipsList}>
-                <View style={styles.tipItem}>
-                  <Text style={styles.tipText}>{data.content.tip}</Text>
-                </View>
-              </View>
-              
-              <View style={styles.factContainer}>
-                <View style={styles.factIcon} />
-                <Text style={styles.factTitle}>هل تعلم؟</Text>
-                <Text style={styles.factText}>{data.content.fact}</Text>
-              </View>
-            </View>
-
             {/* Action Buttons */}
             <View style={styles.buttonsContainer}>
-              {canAdvance ? (
-                <TouchableOpacity
-                  style={[styles.button, styles.nextLevelButton]}
-                  onPress={onNextLevel}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.nextLevelButtonText}>المستوى التالي</Text>
-                </TouchableOpacity>
-              ) : (
-                <TouchableOpacity
-                  style={[styles.button, styles.retryButton]}
-                  onPress={onRetryLevel}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.retryButtonText}>حاول مرة أخرى</Text>
-                </TouchableOpacity>
-              )}
+              <View style={styles.buttonRow}>
+                {canAdvance && !isGameOver ? (
+                  <TouchableOpacity
+                    style={[styles.button, styles.nextLevelButton]}
+                    onPress={onNextLevel}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.nextLevelButtonText}>المستوى التالي</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={[styles.button, styles.retryButton]}
+                    onPress={onRetryLevel}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.retryButtonText}>حاول مرة أخرى</Text>
+                  </TouchableOpacity>
+                )}
 
-              <TouchableOpacity
-                style={[styles.button, styles.menuButton]}
-                onPress={onBackToMenu}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.menuButtonText}>القائمة الرئيسية</Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.button, styles.menuButton]}
+                  onPress={onBackToMenu}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.menuButtonText}>القائمة الرئيسية</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </ScrollView>
         </View>
@@ -153,9 +187,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContainer: {
-    width: screenWidth * 0.88,
-    maxWidth: 360,
-    maxHeight: '85%',
+    width: screenWidth * 0.92,
+    maxWidth: 380,
+    maxHeight: '90%',
     backgroundColor: gameConfig.colors.white,
     borderRadius: 20,
     elevation: 15,
@@ -167,35 +201,151 @@ const styles = StyleSheet.create({
     borderColor: gameConfig.colors.primary,
   },
   scrollContent: {
-    padding: 18,
+    padding: 20,
   },
   headerContainer: {
     alignItems: 'center',
-    marginBottom: 16,
-  },
-  resultIcon: {
-    marginBottom: 8,
-  },
-  iconShape: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-  successIcon: {
-    backgroundColor: gameConfig.colors.secondary,
-  },
-  retryIcon: {
-    backgroundColor: gameConfig.colors.primary,
+    marginBottom: 12,
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontFamily: 'Tajawal-Bold',
     color: gameConfig.colors.primary,
     textAlign: 'right',
     writingDirection: 'rtl',
   },
-  statsContainer: {
+  gameOverMessage: {
+    backgroundColor: '#FFE6E6',
+    padding: 12,
+    borderRadius: 12,
     marginBottom: 12,
+    borderWidth: 2,
+    borderColor: gameConfig.colors.danger,
+  },
+  gameOverText: {
+    fontSize: 16,
+    fontFamily: 'Tajawal-Bold',
+    color: gameConfig.colors.danger,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+    marginBottom: 4,
+  },
+  gameOverSubtext: {
+    fontSize: 14,
+    fontFamily: 'Tajawal-Regular',
+    color: gameConfig.colors.text,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  educationalSection: {
+    backgroundColor: '#E6F7FF',
+    padding: 18,
+    borderRadius: 16,
+    marginBottom: 16,
+    borderWidth: 3,
+    borderColor: '#40A9FF',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  educationalHeader: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  lightBulbIcon: {
+    width: 24,
+    height: 24,
+    backgroundColor: '#FFD700',
+    borderRadius: 12,
+    marginLeft: 8,
+    elevation: 2,
+  },
+  educationalTitle: {
+    fontSize: 18,
+    fontFamily: 'Tajawal-Bold',
+    color: '#1890FF',
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  tipContainer: {
+    backgroundColor: '#F0F9FF',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 2,
+    borderColor: gameConfig.colors.cleanWater,
+  },
+  tipHeaderContainer: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  tipIcon: {
+    width: 18,
+    height: 22,
+    backgroundColor: gameConfig.colors.cleanWater,
+    borderRadius: 9,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    borderBottomLeftRadius: 4,
+    borderBottomRightRadius: 4,
+    marginLeft: 8,
+  },
+  tipHeaderText: {
+    fontSize: 16,
+    fontFamily: 'Tajawal-Bold',
+    color: gameConfig.colors.primary,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  tipText: {
+    fontSize: 15,
+    color: gameConfig.colors.text,
+    lineHeight: 22,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+    fontFamily: 'Tajawal-Medium',
+  },
+  factContainer: {
+    backgroundColor: '#FFF7E6',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#FFD666',
+  },
+  factHeaderContainer: {
+    flexDirection: 'row-reverse',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  factIcon: {
+    width: 18,
+    height: 18,
+    backgroundColor: '#FFD700',
+    borderRadius: 9,
+    marginLeft: 8,
+  },
+  factHeaderText: {
+    fontSize: 16,
+    fontFamily: 'Tajawal-Bold',
+    color: '#D48806',
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  factText: {
+    fontSize: 15,
+    color: gameConfig.colors.text,
+    textAlign: 'right',
+    lineHeight: 22,
+    writingDirection: 'rtl',
+    fontFamily: 'Tajawal-Medium',
+  },
+  statsContainer: {
+    marginBottom: 8,
   },
   statRow: {
     flexDirection: 'row-reverse',
@@ -260,12 +410,44 @@ const styles = StyleSheet.create({
     writingDirection: 'rtl',
     textAlign: 'right',
   },
+  droppedWaterContainer: {
+    alignItems: 'center',
+    backgroundColor: '#FFF0F0',
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(208, 2, 27, 0.3)',
+    flex: 1,
+    marginRight: 8,
+  },
+  droppedWaterLabel: {
+    fontSize: 12,
+    fontFamily: 'Tajawal-Medium',
+    color: gameConfig.colors.text,
+    marginBottom: 2,
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  droppedWaterValue: {
+    fontSize: 16,
+    fontFamily: 'Tajawal-Bold',
+    textAlign: 'right',
+    writingDirection: 'rtl',
+  },
+  bottomStatsRow: {
+    flexDirection: 'row-reverse',
+    justifyContent: 'space-between',
+    alignItems: 'stretch',
+  },
   percentageContainer: {
     alignItems: 'center',
     backgroundColor: '#F8F9FF',
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 12,
+    flex: 1,
+    marginLeft: 8,
   },
   percentageLabel: {
     fontSize: 12,
@@ -285,7 +467,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: gameConfig.colors.danger,
     textAlign: 'right',
-    marginBottom: 12,
+    marginBottom: 8,
     fontFamily: 'Tajawal-Medium',
     backgroundColor: '#FFE6E6',
     paddingVertical: 6,
@@ -294,96 +476,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: gameConfig.colors.danger,
   },
-  tipsContainer: {
-    backgroundColor: '#F0F8FF',
-    padding: 14,
-    borderRadius: 12,
-    marginBottom: 16,
-    borderRightWidth: 3,
-    borderRightColor: gameConfig.colors.primary,
-  },
-  tipsHeader: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  tipIcon: {
-    width: 16,
-    height: 20,
-    backgroundColor: gameConfig.colors.cleanWater,
-    borderRadius: 8,
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    borderBottomLeftRadius: 3,
-    borderBottomRightRadius: 3,
-    marginLeft: 8,
-  },
-  tipsTitle: {
-    fontSize: 14,
-    fontFamily: 'Tajawal-Bold',
-    color: gameConfig.colors.primary,
-    textAlign: 'right',
-    writingDirection: 'rtl',
-  },
-  tipsList: {
-    marginBottom: 10,
-  },
-  tipItem: {
-    flexDirection: 'row-reverse',
-    alignItems: 'flex-start',
-    marginBottom: 6,
-  },
-  tipBullet: {
-    width: 6,
-    height: 6,
-    backgroundColor: gameConfig.colors.secondary,
-    borderRadius: 3,
-    marginTop: 6,
-    marginRight: 8,
-  },
-  tipText: {
-    fontSize: 12,
-    color: gameConfig.colors.text,
-    flex: 1,
-    lineHeight: 18,
-    textAlign: 'right',
-    writingDirection: 'rtl',
-    fontFamily: 'Tajawal-Regular',
-  },
-  factContainer: {
-    flexDirection: 'row-reverse',
-    alignItems: 'flex-start',
-    padding: 8,
-    borderRadius: 8,
-  },
-  factIcon: {
-    width: 14,
-    height: 14,
-    backgroundColor: gameConfig.colors.primary,
-    borderRadius: 7,
-    marginTop: 2,
-    marginLeft: 6,
-  },
-  factTitle: {
-    fontSize: 12,
-    fontFamily: 'Tajawal-Bold',
-    color: gameConfig.colors.primary,
-    marginLeft: 6,
-    textAlign: 'right',
-    writingDirection: 'rtl',
-  },
-  factText: {
-    fontSize: 12,
-    color: gameConfig.colors.text,
-    flex: 1,
-    textAlign: 'right',
-    lineHeight: 16,
-    writingDirection: 'rtl',
-    fontFamily: 'Tajawal-Regular',
-  },
   buttonsContainer: {
-    gap: 8,
     alignItems: 'stretch',
+  },
+  buttonRow: {
+    flexDirection: 'row-reverse',
+    justifyContent: 'space-between',
+    gap: 12,
   },
   button: {
     paddingVertical: 12,
@@ -397,6 +496,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.3)',
+    flex: 1,
   },
   nextLevelButton: {
     backgroundColor: gameConfig.colors.secondary,

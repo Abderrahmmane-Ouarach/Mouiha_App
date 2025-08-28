@@ -9,48 +9,60 @@ export function useQuestions(level: string, retryQuestions?: Question[]) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const STORAGE_KEY = STORAGE_KEY_PREFIX + level;
+
+  // Fonction pour charger le cache
+  const loadCache = async () => {
+    try {
+      const cached = await AsyncStorage.getItem(STORAGE_KEY);
+      if (cached) {
+        setQuestions(JSON.parse(cached));
+        setLoading(false);
+      }
+    } catch (e) {
+      console.warn("Erreur lecture cache:", e);
+    }
+  };
+
+  // Fonction pour fetch Supabase si online
+  const fetchFreshQuestions = async () => {
+    try {
+      const fresh = await getQuestionsByLevel(level);
+      const cached = await AsyncStorage.getItem(STORAGE_KEY);
+      if (fresh && fresh.length > 0 && JSON.stringify(fresh) !== cached) {
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(fresh));
+        setQuestions(fresh);
+      }
+    } catch (e) {
+      console.warn("Erreur fetch questions:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const STORAGE_KEY = STORAGE_KEY_PREFIX + level;
+    // Priorité aux retryQuestions
+    if (retryQuestions && retryQuestions.length > 0) {
+      setQuestions(retryQuestions);
+      setLoading(false);
+      return;
+    }
 
-    const loadQuestions = async () => {
-      setLoading(true);
+    loadCache(); // Affiche immédiatement le cache
 
-      // 1️⃣ priorité aux retryQuestions
-      if (retryQuestions && retryQuestions.length > 0) {
-        setQuestions(retryQuestions);
-        setLoading(false);
-        return;
+    // Listener NetInfo pour rafraîchir quand l’internet revient
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      if (state.isConnected) {
+        fetchFreshQuestions();
       }
+    });
 
-      try {
-        // 2️⃣ Charger cache si disponible
-        const cached = await AsyncStorage.getItem(STORAGE_KEY);
-        if (cached) {
-          setQuestions(JSON.parse(cached));
-          setLoading(false);
-        }
+    // Premier fetch si déjà connecté
+    NetInfo.fetch().then((state) => {
+      if (state.isConnected) fetchFreshQuestions();
+    });
 
-        // 3️⃣ Vérifier connexion
-        const netInfo = await NetInfo.fetch();
-        if (!netInfo.isConnected) {
-          console.log("📴 Pas de connexion → utilisation du cache uniquement");
-          return;
-        }
-
-        // 4️⃣ Fetch depuis Supabase
-        const fresh = await getQuestionsByLevel(level);
-        if (fresh && fresh.length > 0 && JSON.stringify(fresh) !== cached) {
-          await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(fresh));
-          setQuestions(fresh);
-        }
-      } catch (e) {
-        console.warn("Erreur load questions:", e);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadQuestions();
+    return () => unsubscribe();
   }, [level, retryQuestions]);
 
   return { questions, loading };

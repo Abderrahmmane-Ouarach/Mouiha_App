@@ -1,12 +1,12 @@
 export interface Story {
-    id: string;
-    title: string;
-    description: string;
-    coverImage: string | any; 
-    storyImages: (string | any)[]; 
-    isFavorite: boolean;
-    createdAt: Date;
-  }
+  id: string;
+  title: string;
+  description: string;
+  coverImage: string;       // URL publique
+  storyImages: string[];    // tableau d'URLs publiques
+  isFavorite: boolean;
+  createdAt?: Date;
+}
   
   export interface StoryScreenNavigationProp {
     navigate: (screen: string, params?: any) => void;

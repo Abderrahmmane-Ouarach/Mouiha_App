@@ -27,10 +27,10 @@ const StoryCard: React.FC<StoryCardProps> = ({
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
       <View style={styles.imageContainer}>
-        <Image 
-          source={typeof story.coverImage === 'string' ? { uri: story.coverImage } : story.coverImage} 
-          style={styles.coverImage} 
-        />
+        <Image
+  source={{ uri: story.coverImage }}   
+  style={styles.coverImage}
+/>
         <TouchableOpacity
           style={styles.favoriteButton}
           onPress={onToggleFavorite}

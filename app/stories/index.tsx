@@ -4,16 +4,18 @@ import {
   Text,
   StyleSheet,
   FlatList,
-  Image,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import StoryCard from './components/StoryCard';
 import FilterButtons from './components/FilterButtons';
 import { Story } from './types';
-import { storiesData } from './data/storiesData';
 import { shuffleArray } from './utils/arrayUtils';
 import { loadFavorites, toggleFavorite as toggleFavoriteStorage } from './utils/storageUtils';
+import { Asset } from 'expo-asset';
+import { fetchStories } from './api/fetchStories';
+import { fetchStoriesWithCache } from './api/fetchStoriesWithCache';
+import NetInfo from '@react-native-community/netinfo';
 
 
 const StoriesIndex: React.FC = () => {
@@ -21,6 +23,8 @@ const StoriesIndex: React.FC = () => {
   const [stories, setStories] = useState<Story[]>([]);
   const [filteredStories, setFilteredStories] = useState<Story[]>([]);
   const [currentFilter, setCurrentFilter] = useState<'all' | 'favorites'>('all');
+
+  
 
   useEffect(() => {
     loadStoriesWithFavorites();
@@ -33,25 +37,16 @@ const StoriesIndex: React.FC = () => {
   );
 
   const loadStoriesWithFavorites = async () => {
-    try {
-      const favoriteIds = await loadFavorites();
-      const shuffledStories = shuffleArray([...storiesData]);
-      
-      const storiesWithFavorites = shuffledStories.map(story => ({
-        ...story,
-        isFavorite: favoriteIds.includes(story.id),
-      }));
-      
-      setStories(storiesWithFavorites);
-      setFilteredStories(storiesWithFavorites);
-    } catch (error) {
-      console.error('Error loading stories with favorites:', error);
+  try {
+    const storiesFromCacheOrSupabase = await fetchStoriesWithCache();
+    setStories(storiesFromCacheOrSupabase);
+    setFilteredStories(storiesFromCacheOrSupabase);
+  } catch (error) {
+    console.error('Error loading stories', error);
+  }
+};
 
-      const shuffledStories = shuffleArray([...storiesData]);
-      setStories(shuffledStories);
-      setFilteredStories(shuffledStories);
-    }
-  };
+
 
 
   const updateFavoritesOnly = async () => {
@@ -120,19 +115,32 @@ const StoriesIndex: React.FC = () => {
     />
   );
 
+  useEffect(() => {
+  const unsubscribe = NetInfo.addEventListener(state => {
+    if (state.isConnected) {
+      refreshStoriesOnline();
+    }
+  });
+
+  return () => unsubscribe();
+}, []);
+
+const refreshStoriesOnline = async () => {
+  try {
+    const freshStories = await fetchStoriesWithCache(); // fetch from Supabase if online
+    setStories(freshStories);
+    setFilteredStories(freshStories);
+  } catch (error) {
+    console.error('Failed to refresh stories online', error);
+  }
+};
+
   return (
     <SafeAreaProvider>
         <SafeAreaView style={styles.container}>
         
         <View style={styles.content}>
-          <View style={styles.imageContainer}>
-                    <Image
-                      source={require("../../assets/images/logoo.png")}
-                      style={styles.headerImage}
-                      resizeMode="contain"
-                    />
-                  </View>
-        
+            <Text style={styles.title}>قصص مويهة</Text>
             <Text style={styles.subtitle}>
             اكتشف قصصاً عن المياه !
             </Text>
@@ -177,12 +185,11 @@ const styles = StyleSheet.create({
     fontFamily: 'Tajawal-Bold', 
   },
   subtitle: {
-    marginTop:30,
     fontSize: 16,
-    color: '#3691ceff',
+    color: '#3b82f6',
     textAlign: 'center',
     marginBottom: 20,
-    fontFamily: 'Tajawal-Bold', 
+    fontFamily: 'Tajawal-Medium', 
   },
   storiesGrid: {
     paddingBottom: 20,
@@ -191,19 +198,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     flexDirection: 'row', 
   },
-  
-  imageContainer: {
-    marginBottom: -50,
-    marginTop: -30,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  
-  headerImage: {
-    width: 150,
-    height: 200,
-  },
-
 });
 
 export default StoriesIndex;
