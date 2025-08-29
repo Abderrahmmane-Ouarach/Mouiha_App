@@ -14,6 +14,9 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import CustomAlert from './CustomAlert';
+import { Audio } from 'expo-av';
+
 
 const { width } = Dimensions.get('window');
 
@@ -187,8 +190,38 @@ const WATER_THEMES: ThemesMap = {
     reward: '👑 أسطورة الماء الكبرى' 
   },
 };
+const MISTAKE_ALERTS: { [level: number]: number } = {
+  1: 2,  
+  2: 3,  
+  3: 4,
+  4: 5, 
+  5: 6,   
+  6: 7,  
+  7: 8,  
+  8: 9, 
+  9: 10, 
+  10: 11, 
+  11: 12, 
+  12: 16, 
+};
+
+
 
 const MAX_LEVEL = Object.keys(WATER_THEMES).length;
+const playSound = async (soundFile: any) => {
+  try {
+    const { sound } = await Audio.Sound.createAsync(soundFile);
+    await sound.playAsync();
+
+    sound.setOnPlaybackStatusUpdate((status) => {
+      if (status.isLoaded && status.didJustFinish) {
+        sound.unloadAsync();
+      }
+    });
+  } catch (error) {
+    console.warn('Erreur lecture son:', error);
+  }
+};
 
 const ACHIEVEMENTS = {
   FIRST_WIN: { id: 'first_win', title: 'أول فوز 🎉', desc: 'مبروك! بدأت رحلتك', color: '#F39C12' },
@@ -240,6 +273,7 @@ const createGameCards = (level: number): Card[] => {
   }));
 };
 
+
 const getCardSize = (cardsCount: number) => {
   if (cardsCount <= 0) cardsCount = 4; // Fallback for invalid count
   
@@ -289,11 +323,18 @@ const WaterMemoryGame: React.FC<Props> = ({ navigation }) => {
   const [achievements, setAchievements] = useState<Set<string>>(new Set());
   const [quickInfo, setQuickInfo] = useState<{ icon: string; text: string } | null>(null);
   const [isDataLoaded, setIsDataLoaded] = useState<boolean>(false);
+  const [alertVisible, setAlertVisible] = useState<boolean>(false);
+
 
   // Use useRef for animated values
   const cardAnimation = useRef(new Animated.Value(0)).current;
   const previewAnimation = useRef(new Animated.Value(1)).current;
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+useEffect(() => {
+  if (alertVisible) {
+    playSound(require("../../assets/sounds/677855__el_boss__game-fail-fanfare.wav")); // Remplace par ton fichier
+  }
+}, [alertVisible]);
 
   // Load saved data on component mount
   useEffect(() => {
@@ -499,58 +540,69 @@ const WaterMemoryGame: React.FC<Props> = ({ navigation }) => {
   const text = ICON_INFO[icon] ?? 'معلومة مفيدة عن ترشيد المياه.';
   setQuickInfo({ icon, text });
   // Removed auto-hide timeout
+  setTimeout(() => setQuickInfo(null), 5000);
 };
 
   const handleCardPress = (pressedCard: Card) => {
-    if (gameWon || showPreview || selectedCards.length === 2 || pressedCard.isFlipped || pressedCard.isMatched) return;
-    
-    try {
-      const newSelectedCards = [...selectedCards, pressedCard];
-      const newCards = cards.map((card) => 
-        card.id === pressedCard.id ? { ...card, isFlipped: true } : card
-      );
-      
-      setCards(newCards);
-      setSelectedCards(newSelectedCards);
-      
-      if (newSelectedCards.length === 2) {
-        const [firstCard, secondCard] = newSelectedCards;
-        
-        setTimeout(() => {
-          if (firstCard.symbol === secondCard.symbol) {
-  const matchedCards = newCards.map((card) => 
-    card.id === firstCard.id || card.id === secondCard.id 
-      ? { ...card, isMatched: true } 
-      : card
+  if (gameWon || showPreview || selectedCards.length === 2 || pressedCard.isFlipped || pressedCard.isMatched) return;
+
+  const newSelectedCards = [...selectedCards, pressedCard];
+  const newCards = cards.map(card =>
+    card.id === pressedCard.id ? { ...card, isFlipped: true } : card
   );
-  setCards(matchedCards);
-  const newMatches = matches + 1;
-  setMatches(newMatches);
+  setCards(newCards);
+  setSelectedCards(newSelectedCards);
 
-  // Show tip and keep it until next match
-  showQuickInfoToast(firstCard.symbol);
+  if (newSelectedCards.length === 2) {
+    const [firstCard, secondCard] = newSelectedCards;
 
-  // Check win condition
-  if (newMatches === matchedCards.length / 2) {
-    handleWin();
+    setTimeout(() => {
+      if (firstCard.symbol === secondCard.symbol) {
+        playSound(require("../../assets/sounds/correct.mp3"));
+          
+        const matchedCards = newCards.map(card =>
+          card.id === firstCard.id || card.id === secondCard.id
+            ? { ...card, isMatched: true }
+            : card
+        );
+        setCards(matchedCards);
+        setMatches(matches + 1);
+        showQuickInfoToast(firstCard.symbol);
+
+        if (matches + 1 === matchedCards.length / 2) {
+          handleWin();
+        }
+      } else {
+        playSound(require("../../assets/sounds/wrong.wav"));
+        const resetCards = newCards.map(card =>
+          card.id === firstCard.id || card.id === secondCard.id
+            ? { ...card, isFlipped: false }
+            : card
+        );
+        setCards(resetCards);
+
+        const newMistakes = mistakes + 1;
+        setMistakes(prev => {
+  const updated = prev + 1;
+  const maxMistakes = MISTAKE_ALERTS[currentLevel] || 3;
+
+  if (updated >= maxMistakes) {
+    setAlertVisible(true); // show custom alert
   }
-} else {
-  const resetCards = newCards.map((card) => 
-    card.id === firstCard.id || card.id === secondCard.id 
-      ? { ...card, isFlipped: false } 
-      : card
-  );
-  setCards(resetCards);
-  setMistakes((m) => m + 1);
-}
-          setSelectedCards([]);
-        }, 700);
+
+  return updated;
+});
+
+
+
+
+        
       }
-    } catch (error) {
-      console.error('Error handling card press:', error);
       setSelectedCards([]);
-    }
-  };
+    }, 700);
+  }
+};
+
 
   const handleWin = () => {
     try {
@@ -568,6 +620,7 @@ const WaterMemoryGame: React.FC<Props> = ({ navigation }) => {
       checkAchievements({ time: finalTime, mistakes });
       
       setTimeout(() => setShowFact(true), 900);
+      playSound(require("../../assets/sounds/122255__jivatma07__level_complete.wav"));
     } catch (error) {
       console.error('Error handling win:', error);
       setGameWon(true);
@@ -883,12 +936,26 @@ const WaterMemoryGame: React.FC<Props> = ({ navigation }) => {
 
       {/* Quick info toast */}
       {quickInfo && (
-  <View style={styles.tipPanel}>
-    <Text style={styles.tipIcon}>{quickInfo.icon}</Text>
-    <ScrollView horizontal={false} style={styles.tipTextContainer}>
-      <Text style={styles.tipText}>{quickInfo.text}</Text>
-    </ScrollView>
-  </View>
+  <View style={{
+  flexDirection: 'row', padding: 10, backgroundColor: '#FFF8DC',
+  borderRadius: 12, alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.2
+}}>
+  <Text style={{ fontSize: 24 }}>{quickInfo.icon}</Text>
+  <Text style={{ flex: 1, marginLeft: 10, fontFamily: 'Tajawal-Medium' }}>{quickInfo.text}</Text>
+
+</View>
+
+
+)}
+{alertVisible && (
+  <CustomAlert
+    visible={alertVisible}
+    onRetry={() => {
+      resetGame();
+      setAlertVisible(false);
+    }}
+    onCancel={() => setAlertVisible(false)}
+  />
 )}
     </View>
   );

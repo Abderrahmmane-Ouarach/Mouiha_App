@@ -4,6 +4,7 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useRef, useState } from "react";
 import { Ionicons } from '@expo/vector-icons'
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Audio } from "expo-av";
 
 import {
   ActivityIndicator,
@@ -66,19 +67,24 @@ export default function Play() {
   const scrollViewRef = useRef<ScrollView>(null);
 
   const onSelectOption = (index: number) => {
-    if (selectedOption !== null) return;
-    setSelectedOption(index);
-    setShowFeedback(true);
+  if (selectedOption !== null) return;
+  setSelectedOption(index);
+  setShowFeedback(true);
 
-    const correctIndex = questions[currentIndex].correctIndex;
-    if (index !== correctIndex) {
-      setWrongQuestions((prev) => [...prev, questions[currentIndex]]);
-    }
+  const correctIndex = questions[currentIndex].correctIndex;
 
-    setTimeout(() => {
-      scrollViewRef.current?.scrollToEnd({ animated: true });
-    }, 100);
-  };
+  if (index !== correctIndex) {
+    setWrongQuestions((prev) => [...prev, questions[currentIndex]]);
+    playSound(require("../../assets/sounds/wrong.wav")); // ❌ Mauvaise réponse
+  } else {
+    playSound(require("../../assets/sounds/correct.mp3")); // ✅ Bonne réponse
+  }
+
+  setTimeout(() => {
+    scrollViewRef.current?.scrollToEnd({ animated: true });
+  }, 100);
+};
+;
 
   const onNext = async () => {
     if (!showFeedback) return;
@@ -141,6 +147,11 @@ export default function Play() {
   }
 
   const question = questions[currentIndex];
+  async function playSound(soundFile: any) {
+  const { sound } = await Audio.Sound.createAsync(soundFile);
+  await sound.playAsync();
+}
+
   
 
   return (

@@ -4,15 +4,29 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-nati
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { QuizStackParamList } from './types';
+import { Audio } from "expo-av";
+
 
 type ResultNavigationProp = NativeStackNavigationProp<QuizStackParamList, 'Result'>;
 type ResultRouteProp = RouteProp<QuizStackParamList, 'Result'>;
+
+
+async function playSound(soundFile: any) {
+  const { sound } = await Audio.Sound.createAsync(soundFile);
+  await sound.playAsync();
+}
 
 export default function Result() {
   const navigation = useNavigation<ResultNavigationProp>();
   const route = useRoute<ResultRouteProp>();
 
   const { score, total, wrongQuestions, level } = route.params;
+  React.useEffect(() => {
+  if (wrongQuestions.length === 0) {
+    playSound(require('../../assets/sounds/levelup.wav'));
+  }
+}, []);
+
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
