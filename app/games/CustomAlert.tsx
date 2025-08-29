@@ -15,7 +15,7 @@ export default function CustomAlert({ visible, onRetry, onCancel }: CustomAlertP
           <Text style={styles.title}>⚠️ لقد تجاوزت الحد المسموح من الأخطاء</Text>
         <Text style={styles.message}>
   حافظ على الماء 💧{"\n"}
-اختر البطاقات الصحيحة! ركز اكثر</Text>
+ركز اكثر لتختار البطاقات الصحيحة </Text>
           <View style={styles.buttons}>
             <TouchableOpacity style={styles.retryBtn} onPress={onRetry}>
               <Text style={styles.retryText}>⟲ إعادة المحاولة</Text>

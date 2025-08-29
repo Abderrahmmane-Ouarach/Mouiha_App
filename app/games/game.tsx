@@ -12,6 +12,7 @@ import {
   Alert,
   StatusBar,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomAlert from './CustomAlert';
@@ -208,20 +209,9 @@ const MISTAKE_ALERTS: { [level: number]: number } = {
 
 
 const MAX_LEVEL = Object.keys(WATER_THEMES).length;
-const playSound = async (soundFile: any) => {
-  try {
-    const { sound } = await Audio.Sound.createAsync(soundFile);
-    await sound.playAsync();
 
-    sound.setOnPlaybackStatusUpdate((status) => {
-      if (status.isLoaded && status.didJustFinish) {
-        sound.unloadAsync();
-      }
-    });
-  } catch (error) {
-    console.warn('Erreur lecture son:', error);
-  }
-};
+
+
 
 const ACHIEVEMENTS = {
   FIRST_WIN: { id: 'first_win', title: 'أول فوز 🎉', desc: 'مبروك! بدأت رحلتك', color: '#F39C12' },
@@ -324,6 +314,28 @@ const WaterMemoryGame: React.FC<Props> = ({ navigation }) => {
   const [quickInfo, setQuickInfo] = useState<{ icon: string; text: string } | null>(null);
   const [isDataLoaded, setIsDataLoaded] = useState<boolean>(false);
   const [alertVisible, setAlertVisible] = useState<boolean>(false);
+  const [isMuted, setIsMuted] = useState(false);
+
+  const playSound = async (soundFile: any) => {
+    if (isMuted) return;
+    try {
+      const { sound } = await Audio.Sound.createAsync(soundFile);
+      await sound.playAsync();
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded && status.didJustFinish) {
+          sound.unloadAsync();
+        }
+      });
+    } catch (error) {
+      console.warn('Erreur lecture son:', error);
+    }
+  };
+
+
+const toggleMute = () => {
+  setIsMuted(prev => !prev);
+};
+
 
 
   // Use useRef for animated values
@@ -683,9 +695,15 @@ useEffect(() => {
             <Text style={styles.headerTitle}>لعبة ذاكرة المياه 💧</Text>
             <Text style={styles.headerSubtitle}>تعلم واحفظ المياه</Text>
           </View>
-          <TouchableOpacity style={styles.achievementButton} onPress={() => setShowAchievements(true)}>
-            <Icon name="emoji-events" size={16} color="#F39C12" />
-            <Text style={styles.achievementCount}>{achievements.size}</Text>
+          <TouchableOpacity
+            style={styles.muteButton}
+            onPress={() => setIsMuted(prev => !prev)}
+          >
+            <Ionicons
+              name={isMuted ? "volume-mute-outline" : "volume-high-outline"}
+              size={28}
+              color="#666"
+            />
           </TouchableOpacity>
         </View>
 
@@ -748,6 +766,8 @@ useEffect(() => {
             <Icon name="refresh" size={16} color="white" />
             <Text style={styles.actionButtonText}>إعادة</Text>
           </TouchableOpacity>
+
+
         </View>
 
         <View style={styles.gameBoard}>
@@ -998,13 +1018,14 @@ const styles = StyleSheet.create({
   },
   headerContent: { 
     flex: 1, 
-    alignItems: 'center' 
+    alignItems: 'center', 
+    marginRight: 50,
   },
   headerTitle: { 
     fontSize: 22, 
     color: '#2C3E50', 
     textAlign: 'center', 
-    fontFamily: 'Tajawal-Medium' 
+    fontFamily: 'Tajawal-Bold' 
   },
   headerSubtitle: { 
     fontSize: 14, 
@@ -1460,6 +1481,20 @@ tipText: {
     lineHeight: 20, 
     fontFamily: 'Tajawal-Regular',
     alignContent: 'center',
+},
+muteButton: {
+  position: "absolute",
+  top: 8,
+  right: 0, // جهة اليمين
+  zIndex: 10,
+  backgroundColor: "white",
+  borderRadius: 20,
+  padding: 6,
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.3,
+  shadowRadius: 3,
+  elevation: 4,
 },
 
 });

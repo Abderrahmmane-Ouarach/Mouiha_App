@@ -4,6 +4,14 @@
  * Educational water conservation content for level completion
  * Includes facts, tips, and good practices for water awareness
  */
+export const pollutedWaterFacts = [
+  "L’eau polluée peut contenir des bactéries dangereuses pour la santé.",
+  "Touchez une goutte polluée et vous perdez des points : c’est pour apprendre à trier l’eau.",
+  "Les gouttes polluées représentent l’importance de purifier l’eau avant consommation.",
+  "Les polluants dans l’eau peuvent provoquer des maladies si elle n’est pas traitée.",
+  "Chaque goutte polluée évitée nous rapproche d’un environnement plus sain."
+];
+
 
 export interface EducationalContent {
     title: string;

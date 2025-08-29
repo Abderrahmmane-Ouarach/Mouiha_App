@@ -63,6 +63,8 @@ export default function Play() {
   const [showFeedback, setShowFeedback] = useState(false);
   const [wrongQuestions, setWrongQuestions] = useState<Question[]>([]);
   const [pressedOption, setPressedOption] = useState<number | null>(null);
+  const [isMuted, setIsMuted] = useState(false);
+
 
   const scrollViewRef = useRef<ScrollView>(null);
 
@@ -147,16 +149,29 @@ export default function Play() {
   }
 
   const question = questions[currentIndex];
-  async function playSound(soundFile: any) {
+ async function playSound(soundFile: any) {
+  if (isMuted) return;     
   const { sound } = await Audio.Sound.createAsync(soundFile);
   await sound.playAsync();
 }
+
 
   
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#E8F4FD" }}>
     <ScrollView contentContainerStyle={styles.container}>
+     <TouchableOpacity
+  style={styles.muteButton}
+  onPress={() => setIsMuted(prev => !prev)}
+>
+  <Ionicons
+    name={isMuted ? "volume-mute-outline" : "volume-high-outline"}
+    size={28}
+    color="#007acc"
+  />
+</TouchableOpacity>
+
       <TouchableOpacity
         style={styles.backIconButton}
         onPress={() => navigation.navigate("SelectLevel")}
@@ -429,7 +444,7 @@ const styles = StyleSheet.create({
   fontSize: 24,
   fontFamily: "Tajawal-Bold",
   marginBottom: 10,
-  textAlign: "right",
+  textAlign: "center",
   writingDirection: "rtl",
   color: "#004a8f",
   marginTop: 8,
@@ -463,6 +478,21 @@ progressBarFill: {
   paddingHorizontal: 5,  
   flexDirection: "row",
 },
+muteButton: {
+  position: "absolute",
+  top: 25,
+  right: 15, // جهة اليمين
+  zIndex: 10,
+  backgroundColor: "white",
+  borderRadius: 20,
+  padding: 6,
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.3,
+  shadowRadius: 3,
+  elevation: 4,
+},
+
 
 
 });

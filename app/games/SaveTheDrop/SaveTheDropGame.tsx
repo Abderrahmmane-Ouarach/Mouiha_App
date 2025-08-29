@@ -1,8 +1,12 @@
-// SaveTheDropGame.tsx
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef} from 'react';
 import {
   Dimensions,
   StyleSheet,
+  AppState,
+  BackHandler,
+  TouchableOpacity,
+  View,
+  Text,
 } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { StartScreen } from './components/StartScreen';
@@ -11,65 +15,215 @@ import { LevelCompleteModal } from './components/LevelCompleteModal';
 import { Drop } from './types/GameTypes';
 import { educationalContent } from './data/WaterFacts';
 import { gameConfig } from './config/GameConfig';
+import { Audio } from 'expo-av';
+import { Pause, Play, Volume2, VolumeX } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width: screenWidth } = Dimensions.get('window');
+const LEVEL_KEY = '@current_level';
+const soundFiles = {
+  collect: require('../../../assets/sounds/correct.mp3'),
+  wrong: require('../../../assets/sounds/wrong.wav'),
+  drop: require('../../../assets/sounds/drop.wav'),
+  success: require('../../../assets/sounds/122255__jivatma07__level_complete.wav'),
+  levelUp: require('../../../assets/sounds/levelup.wav'),
+  fail: require('../../../assets/sounds/677855__el_boss__game-fail-fanfare.wav'),
+  warning: require('../../../assets/sounds/warning.wav'),
+};
+
+const playGameSound = async (type: keyof typeof soundFiles, muted: boolean) => {
+  if (muted) return;
+  try {
+    const { sound } = await Audio.Sound.createAsync(soundFiles[type]);
+    await sound.playAsync();
+    sound.setOnPlaybackStatusUpdate((status) => {
+      if ('didJustFinish' in status && status.didJustFinish) {
+        sound.unloadAsync();
+      }
+    });
+  } catch {}
+};
 
 export const SaveTheDropGame: React.FC = () => {
-  // Game state
   const [gameState, setGameState] = useState<'start' | 'playing' | 'levelComplete' | 'gameOver'>('start');
-  const [currentLevel, setCurrentLevel] = useState<number>(1);
-  const [score, setScore] = useState<number>(0);
-  const [waterCollected, setWaterCollected] = useState<number>(0);
-  const [pollutedWaterCollected, setPollutedWaterCollected] = useState<number>(0);
-  const [droppedCleanWater, setDroppedCleanWater] = useState<number>(0); // New counter for missed clean drops
+  const [currentLevel, setCurrentLevel] = useState(1);
+  const [score, setScore] = useState(0);
+  const [waterCollected, setWaterCollected] = useState(0);
+  const [pollutedWaterCollected, setPollutedWaterCollected] = useState(0);
+  const [droppedCleanWater, setDroppedCleanWater] = useState(0);
   const [drops, setDrops] = useState<Drop[]>([]);
-  const [dropIdCounter, setDropIdCounter] = useState<number>(0);
+  const [dropIdCounter, setDropIdCounter] = useState(0);
   const [levelCompleteData, setLevelCompleteData] = useState<any>(null);
+  const [combo, setCombo] = useState(0);
+  const [maxCombo, setMaxCombo] = useState(0);
+  const [perfectStreak, setPerfectStreak] = useState(0);
+  const [totalDropsTapped, setTotalDropsTapped] = useState(0);
+  const [gameStartTime, setGameStartTime] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [muted, setMuted] = useState(false);
 
-  // Game intervals
-  const dropSpawnInterval = useRef<NodeJS.Timeout | null>(null);
-  const dropMoveInterval = useRef<NodeJS.Timeout | null>(null);
-  const lastSpawnPositions = useRef<{x: number, time: number}[]>([]);
+  const dropSpawnInterval = useRef<number | null>(null);
+  const dropMoveInterval = useRef<number | null>(null);
+  const comboResetTimeout = useRef<number | null>(null);
+  const lastSpawnPositions = useRef<{ x: number; time: number }[]>([]);
+  const appStateRef = useRef(AppState.currentState);
+  
 
-  // Calculate current game settings based on level
+  // 🔄 Pause/Resume toggle
+  const togglePause = useCallback((forcePause = false) => {
+    if (gameState !== 'playing') return;
+
+    if (!isPaused && !forcePause) {
+      // Pause
+      setIsPaused(true);
+      if (dropSpawnInterval.current) {
+        clearInterval(dropSpawnInterval.current);
+        dropSpawnInterval.current = null;
+      }
+      if (dropMoveInterval.current) {
+        clearInterval(dropMoveInterval.current);
+        dropMoveInterval.current = null;
+      }
+    } else if (isPaused && !forcePause) {
+      // Resume
+      setIsPaused(false);
+      const settings = getCurrentSettings();
+      dropSpawnInterval.current = setInterval(spawnDrop, settings.spawnRate) as unknown as number;
+      dropMoveInterval.current = setInterval(moveDrops, gameConfig.gameLoopSpeed) as unknown as number;
+    } else if (forcePause) {
+      // Force pause
+      setIsPaused(true);
+      if (dropSpawnInterval.current) {
+        clearInterval(dropSpawnInterval.current);
+        dropSpawnInterval.current = null;
+      }
+      if (dropMoveInterval.current) {
+        clearInterval(dropMoveInterval.current);
+        dropMoveInterval.current = null;
+      }
+    }
+  }, [gameState, isPaused]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextAppState) => {
+      if (appStateRef.current.match(/inactive|background/) && nextAppState === 'active') {
+      } else if (nextAppState.match(/inactive|background/)) {
+        if (gameState === 'playing' && !isPaused) {
+          togglePause(true);
+        }
+      }
+      appStateRef.current = nextAppState;
+    });
+    return () => subscription?.remove();
+  }, [gameState, isPaused, togglePause]);
+
+  useEffect(() => {
+    const backAction = () => {
+      if (gameState === 'playing') {
+        setGameState('start');
+        return true;
+      }
+      return false;
+    };
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
+  }, [gameState]);
+  useEffect(() => {
+    const loadLevel = async () => {
+      try {
+        const savedLevel = await AsyncStorage.getItem(LEVEL_KEY);
+        if (savedLevel) setCurrentLevel(Number(savedLevel));
+      } catch (e) {
+        console.log('Erreur chargement niveau', e);
+      }
+    };
+    loadLevel();
+  }, []);
+
+  // Sauvegarder le niveau à chaque changement
+  useEffect(() => {
+    const saveLevel = async () => {
+      try {
+        await AsyncStorage.setItem(LEVEL_KEY, String(currentLevel));
+      } catch (e) {
+        console.log('Erreur sauvegarde niveau', e);
+      }
+    };
+    saveLevel();
+  }, [currentLevel]);
+
   const getCurrentSettings = useCallback(() => {
     const levelMultiplier = currentLevel - 1;
     return {
-      dropSpeed: gameConfig.initialDropSpeed + (levelMultiplier * 1.2),
-      spawnRate: Math.max(
-        gameConfig.initialSpawnRate - (levelMultiplier * 500), // Reduced from 300 to 200 for more gradual difficulty
-        gameConfig.minSpawnRate
-      ),
-      pollutedDropChance: Math.min(0.15 + (levelMultiplier * 0.08), 0.45), // Slightly reduced pollution increase
-      waterTarget: gameConfig.baseWaterTarget + (levelMultiplier * 8),
-      maxDroppedCleanWater: 3 + Math.floor(levelMultiplier / 2), // Allow more missed drops in higher levels
+      dropSpeed: gameConfig.initialDropSpeed + levelMultiplier * 0.8,
+      spawnRate: Math.max(gameConfig.initialSpawnRate - levelMultiplier * 300, gameConfig.minSpawnRate),
+      pollutedDropChance: Math.min(0.1 + levelMultiplier * 0.05, 0.35),
+      waterTarget: gameConfig.baseWaterTarget + levelMultiplier * 5,
+      maxDroppedCleanWater: Math.max(3 + Math.floor(levelMultiplier / 2), 6),
+      comboBonus: Math.floor(levelMultiplier / 2) + 1,
     };
   }, [currentLevel]);
 
-  // Start the game
+  const updateCombo = useCallback(
+    (isCleanTap: boolean) => {
+      if (isCleanTap) {
+        setCombo((prev) => {
+          const newCombo = prev + 1;
+          setMaxCombo((current) => Math.max(current, newCombo));
+          if (newCombo >= 5) {
+            const bonusPoints = newCombo * 2;
+            setScore((prevScore) => prevScore + bonusPoints);
+            if (newCombo % 10 === 0) playGameSound('success', muted);
+          }
+          return newCombo;
+        });
+        if (comboResetTimeout.current) clearTimeout(comboResetTimeout.current);
+        comboResetTimeout.current = setTimeout(() => setCombo(0), 3000) as unknown as number;
+      } else {
+        setCombo(0);
+        if (comboResetTimeout.current) {
+          clearTimeout(comboResetTimeout.current);
+          comboResetTimeout.current = null;
+        }
+      }
+    },
+    [muted]
+  );
+
   const startGame = useCallback(() => {
     setGameState('playing');
     setScore(0);
     setWaterCollected(0);
     setPollutedWaterCollected(0);
-    setDroppedCleanWater(0); // Reset dropped counter
+    setDroppedCleanWater(0);
     setDrops([]);
     setDropIdCounter(0);
+    setCombo(0);
+    setMaxCombo(0);
+    setPerfectStreak(0);
+    setTotalDropsTapped(0);
+    setGameStartTime(Date.now());
+    setIsPaused(false);
     lastSpawnPositions.current = [];
+    if (comboResetTimeout.current) {
+      clearTimeout(comboResetTimeout.current);
+      comboResetTimeout.current = null;
+    }
   }, []);
 
-  // Game over
   const gameOver = useCallback(() => {
-    // Clear intervals
     if (dropSpawnInterval.current) clearInterval(dropSpawnInterval.current);
     if (dropMoveInterval.current) clearInterval(dropMoveInterval.current);
-    
-    // Set game over data
+    if (comboResetTimeout.current) clearTimeout(comboResetTimeout.current);
+
+    playGameSound('fail', muted);
     const settings = getCurrentSettings();
     const totalWater = waterCollected + pollutedWaterCollected;
     const cleanWaterPercentage = totalWater > 0 ? Math.round((waterCollected / totalWater) * 100) : 100;
+    const playTime = Math.floor((Date.now() - gameStartTime) / 1000);
+    const accuracy = totalDropsTapped > 0 ? Math.round((waterCollected / totalDropsTapped) * 100) : 100;
     const randomContent = educationalContent[Math.floor(Math.random() * educationalContent.length)];
-    
+
     setLevelCompleteData({
       level: currentLevel,
       score,
@@ -78,31 +232,49 @@ export const SaveTheDropGame: React.FC = () => {
       totalWater,
       waterTarget: settings.waterTarget,
       cleanWaterPercentage,
-      canAdvance: false, // Game over means can't advance
+      canAdvance: false,
       droppedCleanWater,
       isGameOver: true,
       content: randomContent,
+      maxCombo,
+      perfectStreak,
+      playTime,
+      accuracy,
+      totalDropsTapped,
     });
-    
-    setGameState('levelComplete');
-  }, [currentLevel, score, waterCollected, pollutedWaterCollected, droppedCleanWater, getCurrentSettings]);
 
-  // Complete current level
+    setGameState('levelComplete');
+  }, [currentLevel, score, waterCollected, pollutedWaterCollected, droppedCleanWater, getCurrentSettings, maxCombo, perfectStreak, gameStartTime, totalDropsTapped, muted]);
+
   const completeLevel = useCallback(() => {
-    // Clear intervals
     if (dropSpawnInterval.current) clearInterval(dropSpawnInterval.current);
     if (dropMoveInterval.current) clearInterval(dropMoveInterval.current);
-    
-    // Calculate level completion data
+    if (comboResetTimeout.current) clearTimeout(comboResetTimeout.current);
+
+    playGameSound('levelUp', muted);
+
     const settings = getCurrentSettings();
     const totalWater = waterCollected + pollutedWaterCollected;
     const cleanWaterPercentage = totalWater > 0 ? Math.round((waterCollected / totalWater) * 100) : 100;
-    const canAdvance = cleanWaterPercentage >= 85; // 70% clean water required to advance
+    const canAdvance = cleanWaterPercentage >= 75;
+    const playTime = Math.floor((Date.now() - gameStartTime) / 1000);
+    const accuracy = totalDropsTapped > 0 ? Math.round((waterCollected / totalDropsTapped) * 100) : 100;
+
+    let levelBonus = 0;
+    if (cleanWaterPercentage >= 95 && droppedCleanWater === 0) {
+      levelBonus = 100 * currentLevel;
+      setScore(prev => prev + levelBonus);
+      setPerfectStreak(prev => prev + 1);
+    } else {
+      setPerfectStreak(0);
+    }
+
     const randomContent = educationalContent[Math.floor(Math.random() * educationalContent.length)];
     
+
     setLevelCompleteData({
       level: currentLevel,
-      score,
+      score: score + levelBonus,
       waterCollected,
       pollutedWaterCollected,
       totalWater,
@@ -112,61 +284,62 @@ export const SaveTheDropGame: React.FC = () => {
       droppedCleanWater,
       isGameOver: false,
       content: randomContent,
+      maxCombo,
+      perfectStreak,
+      playTime,
+      accuracy,
+      totalDropsTapped,
+      levelBonus,
     });
-    
-    setGameState('levelComplete');
-  }, [currentLevel, score, waterCollected, pollutedWaterCollected, droppedCleanWater, getCurrentSettings]);
 
-  // Go to next level
+    setGameState('levelComplete');
+  }, [currentLevel, score, waterCollected, pollutedWaterCollected, droppedCleanWater, getCurrentSettings, maxCombo, perfectStreak, gameStartTime, totalDropsTapped, muted]);
+
   const nextLevel = useCallback(() => {
     setCurrentLevel(prev => prev + 1);
     startGame();
   }, [startGame]);
 
-  // Retry current level
+  const resetProgression = async () => {
+    setCurrentLevel(1);
+    await AsyncStorage.removeItem(LEVEL_KEY);
+  };
+
   const retryLevel = useCallback(() => {
-    startGame(); // Restart the same level
+    startGame();
   }, [startGame]);
 
-  // Generate a safe spawn position that avoids overlapping with recent drops
   const generateSafeSpawnPosition = useCallback(() => {
     const currentTime = Date.now();
-    const minDistance = 80; // Minimum distance between drops
-    const maxAttempts = 10;
-    
-    // Clean up old positions (older than 2 seconds)
-    lastSpawnPositions.current = lastSpawnPositions.current.filter(
-      pos => currentTime - pos.time < 2000
-    );
-    
+    const minDistance = 70;
+    const maxAttempts = 15;
+    const containerSpace = 140;
+    const availableWidth = screenWidth - gameConfig.dropSize - containerSpace;
+
+    lastSpawnPositions.current = lastSpawnPositions.current.filter(pos => currentTime - pos.time < 1500);
+
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      const x = Math.random() * (screenWidth - gameConfig.dropSize - 140); // Leave space for water container
-      
-      // Check if this position is too close to recent spawn positions
-      const tooClose = lastSpawnPositions.current.some(pos => 
-        Math.abs(pos.x - x) < minDistance
-      );
-      
+      const x = Math.random() * availableWidth;
+      const tooClose = lastSpawnPositions.current.some(pos => Math.abs(pos.x - x) < minDistance);
       if (!tooClose) {
-        // Add this position to recent positions
         lastSpawnPositions.current.push({ x, time: currentTime });
         return x;
       }
     }
-    
-    // If we can't find a safe position after max attempts, use a random one
-    // but still record it
-    const fallbackX = Math.random() * (screenWidth - gameConfig.dropSize - 140);
+
+    const fallbackX = Math.random() * availableWidth;
     lastSpawnPositions.current.push({ x: fallbackX, time: currentTime });
     return fallbackX;
   }, []);
 
-  // Spawn a single drop (changed from multiple drops)
   const spawnDrop = useCallback(() => {
+    if (isPaused) return;
+
     const settings = getCurrentSettings();
-    const isPolluted = Math.random() < settings.pollutedDropChance;
+    const shouldSpawnPolluted = Math.random() < settings.pollutedDropChance;
+    const isPolluted = shouldSpawnPolluted && Math.random() > 0.1;
     const x = generateSafeSpawnPosition();
-    
+
     const newDrop: Drop = {
       id: dropIdCounter,
       x,
@@ -174,15 +347,16 @@ export const SaveTheDropGame: React.FC = () => {
       size: gameConfig.dropSize,
       isPolluted,
     };
-    
+
     setDrops(prevDrops => [...prevDrops, newDrop]);
     setDropIdCounter(prev => prev + 1);
-  }, [dropIdCounter, getCurrentSettings, generateSafeSpawnPosition]);
+  }, [dropIdCounter, getCurrentSettings, generateSafeSpawnPosition, isPaused]);
 
-  // Move all drops down
   const moveDrops = useCallback(() => {
+    if (isPaused) return;
+
     const settings = getCurrentSettings();
-    
+
     setDrops(prevDrops => {
       const updatedDrops: Drop[] = [];
       const totalWater = waterCollected + pollutedWaterCollected;
@@ -190,111 +364,130 @@ export const SaveTheDropGame: React.FC = () => {
 
       prevDrops.forEach(drop => {
         const newY = drop.y + settings.dropSpeed;
-        
         if (newY >= gameConfig.drainY - gameConfig.dropSize) {
-          // Drop reached the drain
           if (!drop.isPolluted && !shouldStopCounting) {
-            // Only count clean water drops that were missed, and only if we haven't reached limits
             setDroppedCleanWater(prev => prev + 1);
+            playGameSound('drop', muted);
+
+            const newDroppedCount = droppedCleanWater + 1;
+            if (newDroppedCount >= settings.maxDroppedCleanWater - 1) {
+              playGameSound('warning', muted);
+            }
           }
-          // Remove the drop (both clean and polluted)
         } else {
-          // Drop is still falling
           updatedDrops.push({ ...drop, y: newY });
         }
       });
 
       return updatedDrops;
     });
-  }, [getCurrentSettings, waterCollected, pollutedWaterCollected, droppedCleanWater]);
+  }, [getCurrentSettings, waterCollected, pollutedWaterCollected, droppedCleanWater, isPaused, muted]);
 
-  // Handle drop tap
   const onDropTap = useCallback((dropId: number) => {
+    if (isPaused) return;
+
     const settings = getCurrentSettings();
     const tappedDrop = drops.find(drop => drop.id === dropId);
     if (!tappedDrop) return;
 
-    // Check if we should stop collecting (level complete or game over conditions)
     const totalWater = waterCollected + pollutedWaterCollected;
     const shouldStopCollecting = totalWater >= settings.waterTarget || droppedCleanWater >= settings.maxDroppedCleanWater;
-    
-    if (shouldStopCollecting) return; // Don't process taps if level is complete or game over
+    if (shouldStopCollecting) return;
 
-    // Remove only the tapped drop
-    setDrops(prevDrops => prevDrops.filter(drop => drop.id !== dropId));
-    
+    setDrops(prev => prev.filter(d => d.id !== dropId));
+    setTotalDropsTapped(prev => prev + 1);
+
     if (tappedDrop.isPolluted) {
-      // Tapped polluted drop - still counts as collected water but affects cleanliness
       setPollutedWaterCollected(prev => prev + 1);
-      setScore(prev => Math.max(0, prev - 5));
+      setScore(prev => Math.max(0, prev - 8));
+      updateCombo(false);
+      playGameSound('wrong', muted);
     } else {
-      // Tapped clean drop - increases clean water and score
       setWaterCollected(prev => prev + 1);
-      setScore(prev => prev + 10);
+      const basePoints = 10;
+      const comboMultiplier = Math.floor(combo / 5) + 1;
+      setScore(prev => prev + basePoints * comboMultiplier);
+      updateCombo(true);
+      playGameSound('collect', muted);
     }
-  }, [drops, waterCollected, pollutedWaterCollected, droppedCleanWater, getCurrentSettings]);
+  }, [drops, waterCollected, pollutedWaterCollected, droppedCleanWater, getCurrentSettings, isPaused, combo, updateCombo, muted]);
 
-  // Check if level is complete or game over
   useEffect(() => {
     const settings = getCurrentSettings();
     const totalWater = waterCollected + pollutedWaterCollected;
-    
-    if (gameState === 'playing') {
-      // Check for game over condition first
-      if (droppedCleanWater >= settings.maxDroppedCleanWater) {
-        setTimeout(gameOver, 500);
-        return;
-      }
-      
-      // Check for level completion
-      if (totalWater >= settings.waterTarget) {
-        setTimeout(completeLevel, 500);
-      }
-    }
-  }, [waterCollected, pollutedWaterCollected, droppedCleanWater, gameState, getCurrentSettings, completeLevel, gameOver]);
 
-  // Game loop effect
+    if (gameState === 'playing' && !isPaused) {
+      if (droppedCleanWater >= settings.maxDroppedCleanWater) setTimeout(gameOver, 300);
+      else if (totalWater >= settings.waterTarget) setTimeout(completeLevel, 300);
+    }
+  }, [waterCollected, pollutedWaterCollected, droppedCleanWater, gameState, getCurrentSettings, completeLevel, gameOver, isPaused]);
+
   useEffect(() => {
-    if (gameState !== 'playing') return;
+    if (gameState !== 'playing' || isPaused) {
+      if (dropSpawnInterval.current) clearInterval(dropSpawnInterval.current);
+      if (dropMoveInterval.current) clearInterval(dropMoveInterval.current);
+      return;
+    }
 
     const settings = getCurrentSettings();
-
-    // Spawn drops interval - now spawns one drop at a time
-    const spawnInterval = setInterval(spawnDrop, settings.spawnRate) as unknown as NodeJS.Timeout;
-    dropSpawnInterval.current = spawnInterval;
-
-    // Move drops interval
-    const moveInterval = setInterval(moveDrops, gameConfig.gameLoopSpeed) as unknown as NodeJS.Timeout;
-    dropMoveInterval.current = moveInterval;
+    dropSpawnInterval.current = setInterval(spawnDrop, settings.spawnRate) as unknown as number;
+    dropMoveInterval.current = setInterval(moveDrops, gameConfig.gameLoopSpeed) as unknown as number;
 
     return () => {
-      if (spawnInterval) clearInterval(spawnInterval);
-      if (moveInterval) clearInterval(moveInterval);
+      if (dropSpawnInterval.current) clearInterval(dropSpawnInterval.current);
+      if (dropMoveInterval.current) clearInterval(dropMoveInterval.current);
     };
-  }, [gameState, spawnDrop, moveDrops, getCurrentSettings]);
+  }, [gameState, isPaused, spawnDrop, moveDrops, getCurrentSettings]);
+  const MAX_POLLUTED_BEFORE_RETRY = 3;
+  const [showPollutionModal, setShowPollutionModal] = useState(false);
+useEffect(() => {
+  if (gameState !== 'playing') return;
+
+  if (pollutedWaterCollected >= MAX_POLLUTED_BEFORE_RETRY) {
+    // Arrêter le jeu
+    if (dropSpawnInterval.current) clearInterval(dropSpawnInterval.current);
+    if (dropMoveInterval.current) clearInterval(dropMoveInterval.current);
+    if (comboResetTimeout.current) clearTimeout(comboResetTimeout.current);
+
+    // Afficher le modal éducatif
+    setShowPollutionModal(true);
+
+    playGameSound('warning', muted); // optionnel : son d’alerte
+  }
+}, [pollutedWaterCollected, gameState, muted]);
+
+
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.container}>      
-        {gameState === 'start' && (
-          <StartScreen onStartGame={startGame} />
-        )}
-        
+      <SafeAreaView style={styles.container}>
+        {gameState === 'start' && <StartScreen onStartGame={startGame} />}
         {gameState === 'playing' && (
-          <GameScreen
-            currentLevel={currentLevel}
-            score={score}
-            waterCollected={waterCollected}
-            pollutedWaterCollected={pollutedWaterCollected}
-            waterTarget={getCurrentSettings().waterTarget}
-            droppedCleanWater={droppedCleanWater}
-            maxDroppedCleanWater={getCurrentSettings().maxDroppedCleanWater}
-            drops={drops}
-            onDropTap={onDropTap}
-            onLeaveGame={() => setGameState('start')}
-          />
+          <>
+            <View style={styles.topBar}>
+              <TouchableOpacity onPress={() => togglePause()} style={styles.iconBtn}>
+                {isPaused ? <Play size={24} color="#fff" /> : <Pause size={24} color="#fff" />}
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setMuted(m => !m)} style={styles.iconBtn}>
+                {muted ? <VolumeX size={24} color="#fff" /> : <Volume2 size={24} color="#fff" />}
+              </TouchableOpacity>
+            </View>
+            <GameScreen
+              currentLevel={currentLevel}
+              score={score}
+              waterCollected={waterCollected}
+              pollutedWaterCollected={pollutedWaterCollected}
+              waterTarget={getCurrentSettings().waterTarget}
+              droppedCleanWater={droppedCleanWater}
+              maxDroppedCleanWater={getCurrentSettings().maxDroppedCleanWater}
+              drops={drops}
+              onDropTap={onDropTap}
+              onLeaveGame={() => setGameState('start')}
+              combo={combo}
+              isPaused={isPaused}
+            />
+          </>
         )}
-        
         {gameState === 'levelComplete' && levelCompleteData && (
           <LevelCompleteModal
             visible={true}
@@ -304,15 +497,66 @@ export const SaveTheDropGame: React.FC = () => {
             onBackToMenu={() => setGameState('start')}
           />
         )}
+        {showPollutionModal && (
+  <View style={{
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    zIndex: 999,
+  }}>
+    <View style={{
+      backgroundColor: '#fff',
+      borderRadius: 12,
+      padding: 20,
+      alignItems: 'center',
+    }}>
+      <Text style={{ fontSize: 18, fontFamily: 'Tajawal-Medium', textAlign: 'center', marginBottom: 20,lineHeight: 26 }}>
+       ⚠️ لقد تم جمع عدد كبير من القطرات الملوثة ! احرص على جمع الماء النظيف للحفاظ على صحتك وصحة البيئة.
+      </Text>
+      <TouchableOpacity
+        onPress={() => {
+          setShowPollutionModal(false);
+          retryLevel(); // relancer le niveau
+        }}
+        style={{
+          backgroundColor: '#3498db',
+          paddingVertical: 12,
+          paddingHorizontal: 30,
+          borderRadius: 8,
+        }}
+      >
+        <Text style={{ color: '#fff', fontFamily: 'Tajawal-Bold', fontSize: 16 }}>إعادة اللعب</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+)}
+
+        
       </SafeAreaView>
     </SafeAreaProvider>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#87CEEB',
+  container: { flex: 1, backgroundColor: '#87CEEB' },
+  topBar: {
+    position: 'absolute',
+    top: 60,
+    right: 12,
+    flexDirection: 'row',
+    zIndex: 10,
+  },
+  iconBtn: {
+    marginLeft: 12,
+    padding: 6,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    borderRadius: 20,
   },
 });
 

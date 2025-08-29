@@ -210,6 +210,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
+    left:-50,
     borderWidth: 2,
     borderColor: gameConfig.colors.secondary,
     minWidth: 100,
@@ -268,6 +269,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
+    right:100,
   },
   levelIconContainer: {
     marginBottom: 4,
