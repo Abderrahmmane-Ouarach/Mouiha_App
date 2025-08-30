@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     position: "absolute",
-    bottom: 40,
+    bottom: 50,
     fontSize: 12,
     fontFamily: "Tajawal-Medium",
     color: "#888",

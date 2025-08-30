@@ -20,28 +20,7 @@ const FilterButtons: React.FC<FilterButtonsProps> = ({
 }) => {
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        style={[
-          styles.filterButton,
-          currentFilter === 'all' && styles.activeButton,
-        ]}
-        onPress={() => onFilterChange('all')}
-      >
-        <Text
-          style={[
-              styles.filterText,
-              currentFilter === 'all' && styles.activeText,
-            ]}
-        >
-          جميع القصص
-        </Text>
-        <Icon
-            name="library-books"
-            size={20}
-            color={currentFilter === 'all' ? '#ffffff' : '#3b82f6'}
-        />
-      </TouchableOpacity>
-
+    
       <TouchableOpacity
         style={[
           styles.filterButton,
@@ -60,9 +39,30 @@ const FilterButtons: React.FC<FilterButtonsProps> = ({
         <Icon
             name="favorite"
             size={20}
-            color={currentFilter === 'favorites' ? '#ffffff' : '#3b82f6'}
+            color={currentFilter === 'favorites' ? '#ffffff' : '#007acc'}
         />
         
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[
+          styles.filterButton,
+          currentFilter === 'all' && styles.activeButton,
+        ]}
+        onPress={() => onFilterChange('all')}
+      >
+        <Text
+          style={[
+              styles.filterText,
+              currentFilter === 'all' && styles.activeText,
+            ]}
+        >
+          جميع القصص
+        </Text>
+        <Icon
+            name="library-books"
+            size={20}
+            color={currentFilter === 'all' ? '#ffffff' : '#007acc'}
+        />
       </TouchableOpacity>
     </View>
   );
@@ -92,12 +92,12 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   activeButton: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#007acc',
   },
   filterText: {
     fontSize: 14,
     
-    color: '#3b82f6',
+    color: '#007acc',
     marginRight: 6,
     fontFamily: 'Tajawal-Medium', 
   },

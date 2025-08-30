@@ -4,6 +4,7 @@ import {
   Text,
   StyleSheet,
   FlatList,
+  Image,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -116,6 +117,17 @@ const StoriesIndex: React.FC = () => {
   );
 
   useEffect(() => {
+  const checkConnectionAndRefresh = async () => {
+    const state = await NetInfo.fetch();
+    if (state.isConnected) {
+      await refreshStoriesOnline();
+    } else {
+      await loadStoriesWithFavorites(); // load cache if offline
+    }
+  };
+
+  checkConnectionAndRefresh();
+
   const unsubscribe = NetInfo.addEventListener(state => {
     if (state.isConnected) {
       refreshStoriesOnline();
@@ -124,6 +136,7 @@ const StoriesIndex: React.FC = () => {
 
   return () => unsubscribe();
 }, []);
+
 
 const refreshStoriesOnline = async () => {
   try {
@@ -140,7 +153,13 @@ const refreshStoriesOnline = async () => {
         <SafeAreaView style={styles.container}>
         
         <View style={styles.content}>
-            <Text style={styles.title}>قصص مويهة</Text>
+            <View style={styles.imageContainer}>
+          <Image
+            source={require("../../assets/images/logoo.png")}
+            style={styles.headerImage}
+            resizeMode="contain"
+          />
+        </View>
             <Text style={styles.subtitle}>
             اكتشف قصصاً عن المياه !
             </Text>
@@ -186,7 +205,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    color: '#3b82f6',
+    color: '#007acc',
     textAlign: 'center',
     marginBottom: 20,
     fontFamily: 'Tajawal-Medium', 
@@ -197,6 +216,16 @@ const styles = StyleSheet.create({
   row: {
     justifyContent: 'space-between',
     flexDirection: 'row', 
+  },
+   imageContainer: {
+    marginBottom: -20,
+    marginTop: -20,
+    alignContent: 'center',
+    alignItems: 'center',
+  },
+  headerImage: {
+    width: 150,
+    height: 200,
   },
 });
 

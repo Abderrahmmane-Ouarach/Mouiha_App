@@ -2,25 +2,18 @@ import NetInfo from '@react-native-community/netinfo';
 import { fetchStories } from './fetchStories';
 import { loadStoriesFromCache, saveStoriesToCache } from '../utils/storageUtils';
 import { Story } from '../types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const fetchStoriesWithCache = async (): Promise<Story[]> => {
-  // Load cached stories first
-  let cachedStories: Story[] = await loadStoriesFromCache();
+  const isConnected = (await NetInfo.fetch()).isConnected;
 
-  // Check internet connectivity
-  const netState = await NetInfo.fetch();
-  if (netState.isConnected) {
-    try {
-      const storiesFromSupabase = await fetchStories();
-      // Save fresh stories to cache
-      await saveStoriesToCache(storiesFromSupabase);
-      return storiesFromSupabase;
-    } catch (e) {
-      console.warn('Failed to fetch from Supabase, using cache', e);
-      return cachedStories;
-    }
-  } else {
-    // No internet, use cache
-    return cachedStories;
+  if (isConnected) {
+    const freshStories = await fetchStories(); // fetch from Supabase
+    await AsyncStorage.setItem('stories_cache', JSON.stringify(freshStories));
+    return freshStories;
   }
+
+  // fallback to cache
+  const cached = await AsyncStorage.getItem('stories_cache');
+  return cached ? JSON.parse(cached) : [];
 };

@@ -8,6 +8,7 @@ import {
   View,
   Text,
 } from 'react-native';
+import { Platform, StatusBar } from 'react-native';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { StartScreen } from './components/StartScreen';
 import { GameScreen } from './components/GameScreen';
@@ -18,6 +19,7 @@ import { gameConfig } from './config/GameConfig';
 import { Audio } from 'expo-av';
 import { Pause, Play, Volume2, VolumeX } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const { width: screenWidth } = Dimensions.get('window');
 const LEVEL_KEY = '@current_level';
@@ -465,13 +467,14 @@ useEffect(() => {
         {gameState === 'playing' && (
           <>
             <View style={styles.topBar}>
-              <TouchableOpacity onPress={() => togglePause()} style={styles.iconBtn}>
-                {isPaused ? <Play size={24} color="#fff" /> : <Pause size={24} color="#fff" />}
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setMuted(m => !m)} style={styles.iconBtn}>
-                {muted ? <VolumeX size={24} color="#fff" /> : <Volume2 size={24} color="#fff" />}
-              </TouchableOpacity>
-            </View>
+  <TouchableOpacity onPress={() => togglePause()} style={styles.iconBtn}>
+    {isPaused ? <Play size={23} color="#fff" /> : <Pause size={23} color="#fff" />}
+  </TouchableOpacity>
+  <TouchableOpacity onPress={() => setMuted(m => !m)} style={styles.iconBtn}>
+    {muted ? <VolumeX size={23} color="#fff" /> : <Volume2 size={23} color="#fff" />}
+  </TouchableOpacity>
+</View>
+
             <GameScreen
               currentLevel={currentLevel}
               score={score}
@@ -547,16 +550,18 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#87CEEB' },
   topBar: {
     position: 'absolute',
-    top: 60,
-    right: 12,
+    top: Platform.OS === 'ios' ? 60 : StatusBar.currentHeight! + 22, // prend en compte la barre iOS / Android
+    right: 10,
     flexDirection: 'row',
     zIndex: 10,
   },
   iconBtn: {
-    marginLeft: 12,
-    padding: 6,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    borderRadius: 20,
+    marginLeft: 9,
+    padding: 10,
+    backgroundColor: 'rgba(0,0,0,0.4)', // légèrement plus visible
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

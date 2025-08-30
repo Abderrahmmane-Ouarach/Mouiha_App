@@ -25,7 +25,7 @@ const games = [
     path: "SaveTheDrop", 
     image: require("../../assets/images/1755905122702.png"), 
     disabled: false,
-    description: "ساعد في حفظ كل قطرة ماء"
+    description:"ساعد في حفظ كل قطرة ماء نقية"
   },
 ];
 
@@ -164,12 +164,11 @@ const styles = StyleSheet.create({
   
   headerSection: {
     alignItems: 'center',
-    marginBottom: 40,
   },
   
   imageContainer: {
     marginBottom: 10,
-    marginTop: -50,
+    marginTop: -70,
   },
   
   headerImage: {
@@ -210,6 +209,7 @@ const styles = StyleSheet.create({
   gamesContainer: {
     flex: 1,
     justifyContent: 'center',
+    marginTop: 30,
   },
   
   gamesGrid: {
